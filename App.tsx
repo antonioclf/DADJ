@@ -37,6 +37,12 @@ const AppContent: React.FC = () => {
         const teamData = await dataService.getTeam();
         setTeam(teamData);
         setTeamError(null);
+
+        // Auto-populate if empty and no error
+        if (teamData.length === 0) {
+          console.log('Team is empty, triggering auto-seed...');
+          await handleSeedTeam(); // Await the seeding process
+        }
       } catch (err: any) {
         console.error('Error loading team data:', err);
         if (err.message?.includes('relation "public.team" does not exist')) {
