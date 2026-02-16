@@ -18,8 +18,8 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
       {/* Header Branding */}
       <div className="flex items-center justify-between pt-4">
         <div className="flex items-center gap-3">
-          <div className="bg-primary p-2 rounded-xl text-white shadow-lg shadow-primary/20">
-            <span className="material-symbols-outlined text-2xl">school</span>
+          <div className="bg-white dark:bg-slate-900 p-1 rounded-xl shadow-lg shadow-primary/20 size-10 overflow-hidden">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <h1 className="text-lg font-black tracking-tight text-primary dark:text-white uppercase leading-none">DA DOIS DE JULHO</h1>

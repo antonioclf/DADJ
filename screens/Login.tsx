@@ -30,8 +30,8 @@ const Login: React.FC = () => {
         <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background-light dark:bg-background-dark">
             <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in duration-500">
                 <div className="text-center space-y-2">
-                    <div className="inline-flex items-center justify-center size-16 bg-primary rounded-[2rem] text-white shadow-2xl shadow-primary/40 mb-4">
-                        <span className="material-symbols-outlined text-3xl">school</span>
+                    <div className="inline-flex items-center justify-center size-24 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl shadow-primary/20 mb-4 overflow-hidden p-2">
+                        <img src="/logo.png" alt="Logo DADJ" className="w-full h-full object-contain" />
                     </div>
                     <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">DA DOIS DE JULHO</h1>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em]">Gestão de Fardamento</p>

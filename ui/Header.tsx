@@ -19,8 +19,12 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, icon, onBack, classNam
             )}
             <div className="flex-1 text-center flex flex-col items-center justify-center">
                 {icon && !onBack && (
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary mb-1">
-                        <span className="material-symbols-outlined">{icon}</span>
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-white dark:bg-slate-800 shadow-sm mb-1 overflow-hidden p-1">
+                        {icon.startsWith('/') || icon.startsWith('http') ? (
+                            <img src={icon} alt="Logo" className="w-full h-full object-contain" />
+                        ) : (
+                            <span className="material-symbols-outlined text-primary">{icon}</span>
+                        )}
                     </div>
                 )}
                 <h1 className="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-tight uppercase truncate max-w-[200px]">
