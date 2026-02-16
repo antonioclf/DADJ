@@ -129,6 +129,28 @@ const AppContent: React.FC = () => {
     return <Login />;
   }
 
+  const handleSeedTeam = async () => {
+    const officialMembers = [
+      { name: 'Cad Barreto', role: 'CFO III', active: true },
+      { name: 'Cad Carneiro', role: 'CFO III', active: true },
+      { name: 'Cad Natália Machado', role: 'CFO III', active: true },
+      { name: 'Cad Araújo', role: 'CFO II', active: true },
+      { name: 'Cad Bahia', role: 'CFO II', active: true },
+      { name: 'Cad Lima', role: 'CFO II', active: true },
+      { name: 'Cad Azalim', role: 'CFO II', active: true },
+      { name: 'Cad Samir', role: 'CFO II', active: true }
+    ];
+
+    try {
+      for (const member of officialMembers) {
+        await dataService.addTeamMember(member as any);
+      }
+      await loadData();
+    } catch (error) {
+      console.error('Error seeding team:', error);
+    }
+  };
+
   const renderContent = () => {
     switch (currentView) {
       case View.HOME:
@@ -146,6 +168,7 @@ const AppContent: React.FC = () => {
           error={teamError}
           onAdd={handleAddTeamMember}
           onDelete={handleDeleteTeamMember}
+          onSeed={handleSeedTeam}
         />;
       default:
         return <Home navigate={navigate} inventory={inventory} sales={sales} />;

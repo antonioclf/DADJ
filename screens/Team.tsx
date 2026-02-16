@@ -12,9 +12,10 @@ interface TeamProps {
     error?: string | null;
     onAdd: (member: Partial<TeamMember>) => void;
     onDelete: (id: string) => void;
+    onSeed?: () => void;
 }
 
-const Team: React.FC<TeamProps> = ({ onBack, team, error, onAdd, onDelete }) => {
+const Team: React.FC<TeamProps> = ({ onBack, team, error, onAdd, onDelete, onSeed }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newName, setNewName] = useState('');
     const [newRole, setNewRole] = useState('Vendedor');
@@ -64,9 +65,17 @@ const Team: React.FC<TeamProps> = ({ onBack, team, error, onAdd, onDelete }) => 
                     ))}
 
                     {team.length === 0 && (
-                        <div className="py-20 text-center opacity-50 text-gray-500">
-                            <span className="material-symbols-outlined text-4xl mb-2">groups</span>
+                        <div className="py-20 text-center opacity-70 text-gray-500 space-y-4">
+                            <span className="material-symbols-outlined text-5xl mb-2 text-primary/30">groups</span>
                             <p className="text-sm font-medium">Nenhum membro cadastrado</p>
+                            {onSeed && (
+                                <button
+                                    onClick={onSeed}
+                                    className="bg-primary/10 text-primary px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-primary/20 transition-all"
+                                >
+                                    Carregar Vendedores Oficiais
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
