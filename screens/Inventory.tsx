@@ -1,10 +1,10 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 import { InventoryItem } from '../types';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import Header from '../components/ui/Header';
-import Modal from '../components/ui/Modal';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import Header from '../ui/Header';
+import Modal from '../ui/Modal';
 
 interface InventoryProps {
   inventory: InventoryItem[];
@@ -81,8 +81,8 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
               key={filter}
               onClick={() => setActiveFilter(filter)}
               className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-xl px-5 text-sm font-bold transition-all whitespace-nowrap ${activeFilter === filter
-                  ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                  : 'bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-400 border border-slate-100 dark:border-slate-700'
+                ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                : 'bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-400 border border-slate-100 dark:border-slate-700'
                 }`}
             >
               {filter}
@@ -114,7 +114,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
               </div>
               <div className="text-right flex flex-col items-end gap-1">
                 <span className={`text-xl font-bold ${item.quantity === 0 ? 'text-rose-500' :
-                    item.quantity < 5 ? 'text-amber-500' : 'text-primary'
+                  item.quantity < 5 ? 'text-amber-500' : 'text-primary'
                   }`}>
                   {item.quantity.toString().padStart(2, '0')}
                 </span>

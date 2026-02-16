@@ -6,7 +6,7 @@ import Sales from './screens/Sales';
 import Inventory from './screens/Inventory';
 import Reports from './screens/Reports';
 import Login from './screens/Login';
-import Layout from './components/Layout';
+import Layout from './Layout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { dataService } from './lib/dataService';
 

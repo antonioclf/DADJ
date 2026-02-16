@@ -2,8 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { SaleRecord } from '../types';
-import Button from '../components/ui/Button';
-import Header from '../components/ui/Header';
+import Button from '../ui/Button';
+import Header from '../ui/Header';
 
 interface ReportsProps {
   sales: SaleRecord[];

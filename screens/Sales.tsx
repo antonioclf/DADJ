@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
 import { InventoryItem, SaleRecord, OrderItem } from '../types';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import Header from '../components/ui/Header';
-import Modal from '../components/ui/Modal';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import Header from '../ui/Header';
+import Modal from '../ui/Modal';
 
 interface SalesProps {
   onBack: () => void;
