@@ -8,8 +8,8 @@ CREATE TABLE team (
 
 ALTER TABLE team ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Enable all for authenticated users" ON team
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Enable read for everyone" ON team FOR SELECT USING (true);
+CREATE POLICY "Enable write for everyone" ON team FOR ALL USING (true) WITH CHECK (true);
 
 -- Limpar equipe existente para garantir que apenas os citados apareçam
 TRUNCATE TABLE team;

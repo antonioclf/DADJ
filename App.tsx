@@ -146,8 +146,10 @@ const AppContent: React.FC = () => {
         await dataService.addTeamMember(member as any);
       }
       await loadData();
-    } catch (error) {
+      alert('Vendedores cadastrados com sucesso! ✅');
+    } catch (error: any) {
       console.error('Error seeding team:', error);
+      alert('Erro ao cadastrar: ' + (error.message || 'Erro desconhecido'));
     }
   };
 
