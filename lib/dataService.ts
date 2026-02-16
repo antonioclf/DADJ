@@ -1,6 +1,6 @@
 
 import { supabase } from './supabase';
-import { InventoryItem, SaleRecord, OrderItem } from '../types';
+import { InventoryItem, SaleRecord, OrderItem, TeamMember } from '../types';
 
 export const dataService = {
     // Inventory
@@ -124,5 +124,36 @@ export const dataService = {
                     .eq('id', item.inventoryId);
             }
         }
+    },
+
+    // Team
+    async getTeam(): Promise<TeamMember[]> {
+        const { data, error } = await supabase
+            .from('team')
+            .select('*')
+            .order('name');
+
+        if (error) throw error;
+        return data as TeamMember[];
+    },
+
+    async addTeamMember(member: Partial<TeamMember>): Promise<TeamMember> {
+        const { data, error } = await supabase
+            .from('team')
+            .insert(member)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data as TeamMember;
+    },
+
+    async deleteTeamMember(id: string): Promise<void> {
+        const { error } = await supabase
+            .from('team')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
     }
 };

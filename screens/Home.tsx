@@ -55,7 +55,7 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
 
       {/* Main Modules */}
       <div className="grid grid-cols-1 gap-4">
-        <ModuleCard 
+        <ModuleCard
           title="Vendas de Fardamento"
           description="Registre pedidos e receba pagamentos."
           image="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=800"
@@ -64,7 +64,7 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
           onClick={() => navigate(View.SALES)}
         />
 
-        <ModuleCard 
+        <ModuleCard
           title="Controle de Estoque"
           description={`${lowStock} itens precisam de reposição.`}
           image="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=800"
@@ -78,9 +78,9 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
       {/* Quick Actions Grid */}
       <div className="grid grid-cols-4 gap-3">
         <QuickAction icon="bar_chart" label="Stats" onClick={() => navigate(View.REPORTS)} />
-        <QuickAction icon="groups" label="Equipe" onClick={() => {}} />
-        <QuickAction icon="receipt" label="Recibos" onClick={() => {}} />
-        <QuickAction icon="settings" label="Ajustes" onClick={() => {}} />
+        <QuickAction icon="groups" label="Equipe" onClick={() => navigate(View.TEAM)} />
+        <QuickAction icon="receipt" label="Recibos" onClick={() => { }} />
+        <QuickAction icon="settings" label="Ajustes" onClick={() => { }} />
       </div>
 
       <footer className="pt-6 text-center">
@@ -102,8 +102,8 @@ const ModuleCard: React.FC<{
   alert?: boolean;
 }> = ({ title, description, image, icon, buttonLabel, onClick, alert }) => (
   <div className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-xl hover:shadow-primary/5 active:scale-[0.98]">
-    <div 
-      className="h-32 w-full bg-cover bg-center grayscale-[0.3] group-hover:grayscale-0 transition-all duration-500" 
+    <div
+      className="h-32 w-full bg-cover bg-center grayscale-[0.3] group-hover:grayscale-0 transition-all duration-500"
       style={{ backgroundImage: `url('${image}')` }}
     />
     <div className="p-6">
@@ -117,7 +117,7 @@ const ModuleCard: React.FC<{
         {alert && <div className="size-3 rounded-full bg-rose-500 animate-pulse" />}
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400 mb-6 font-medium leading-relaxed">{description}</p>
-      <button 
+      <button
         onClick={onClick}
         className="w-full bg-slate-900 dark:bg-primary text-white font-bold py-4 px-4 rounded-2xl flex items-center justify-center gap-2 transition-all hover:gap-4"
       >
@@ -129,7 +129,7 @@ const ModuleCard: React.FC<{
 );
 
 const QuickAction: React.FC<{ icon: string; label: string; onClick: () => void }> = ({ icon, label, onClick }) => (
-  <button 
+  <button
     onClick={onClick}
     className="flex flex-col items-center justify-center aspect-square bg-white dark:bg-slate-900 rounded-3xl border border-slate-50 dark:border-slate-800 hover:border-primary/30 transition-all active:scale-90"
   >

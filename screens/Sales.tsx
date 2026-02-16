@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { InventoryItem, SaleRecord, OrderItem } from '../types';
+import { InventoryItem, SaleRecord, OrderItem, TeamMember } from '../types';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Header from '../ui/Header';
@@ -9,11 +9,12 @@ import Modal from '../ui/Modal';
 interface SalesProps {
   onBack: () => void;
   inventory: InventoryItem[];
+  team: TeamMember[];
   onAddSale: (sale: SaleRecord) => void;
 }
 
-const Sales: React.FC<SalesProps> = ({ onBack, inventory, onAddSale }) => {
-  const [seller, setSeller] = useState('Carlos Oliveira');
+const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => {
+  const [seller, setSeller] = useState(team[0]?.name || '');
   const [buyer, setBuyer] = useState('');
   const [phone, setPhone] = useState('');
   const [isPaid, setIsPaid] = useState(true);
@@ -75,9 +76,13 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, onAddSale }) => {
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-primary/5 space-y-4">
             <Input
               label="Nome do Vendedor"
+              as="select"
               value={seller}
-              onChange={(e) => setSeller((e.target as HTMLInputElement).value)}
-            />
+              onChange={(e) => setSeller((e.target as HTMLSelectElement).value)}
+            >
+              {team.map(m => <option key={m.id} value={m.name}>{m.name}</option>)}
+              {team.length === 0 && <option value="">Nenhum vendedor cadastrado</option>}
+            </Input>
             <Input
               label="Nome do Aluno (Comprador)"
               placeholder="Ex: João da Silva"

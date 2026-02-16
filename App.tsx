@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, InventoryItem, SaleRecord } from './types';
+import { View, InventoryItem, SaleRecord, TeamMember } from './types';
 import Home from './screens/Home';
 import Sales from './screens/Sales';
 import Inventory from './screens/Inventory';
 import Reports from './screens/Reports';
+import Team from './screens/Team';
 import Login from './screens/Login';
 import Layout from './Layout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -15,7 +16,9 @@ const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.HOME);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [sales, setSales] = useState<SaleRecord[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
+  const [teamError, setTeamError] = useState<string | null>(null);
 
   // Load data from Supabase
   const loadData = useCallback(async () => {
@@ -28,6 +31,20 @@ const AppContent: React.FC = () => {
       ]);
       setInventory(invData);
       setSales(salesData);
+
+      // Fetch team separately
+      try {
+        const teamData = await dataService.getTeam();
+        setTeam(teamData);
+        setTeamError(null);
+      } catch (err: any) {
+        console.error('Error loading team data:', err);
+        if (err.message?.includes('relation "public.team" does not exist')) {
+          setTeamError('A tabela "team" não foi encontrada. Por favor, execute o SQL no Supabase.');
+        } else {
+          setTeamError('Erro ao carregar equipe.');
+        }
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -79,6 +96,27 @@ const AppContent: React.FC = () => {
     }
   };
 
+  const handleAddTeamMember = async (member: Partial<TeamMember>) => {
+    try {
+      const newMember = await dataService.addTeamMember(member);
+      setTeam(prev => [...prev, newMember]);
+    } catch (error) {
+      console.error('Error adding team member:', error);
+      alert('Erro ao adicionar membro.');
+    }
+  };
+
+  const handleDeleteTeamMember = async (id: string) => {
+    if (!confirm('Deseja remover este membro da equipe?')) return;
+    try {
+      await dataService.deleteTeamMember(id);
+      setTeam(prev => prev.filter(m => m.id !== id));
+    } catch (error) {
+      console.error('Error deleting team member:', error);
+      alert('Erro ao remover membro.');
+    }
+  };
+
   if (authLoading || (user && dataLoading && inventory.length === 0)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
@@ -96,11 +134,19 @@ const AppContent: React.FC = () => {
       case View.HOME:
         return <Home navigate={navigate} inventory={inventory} sales={sales} />;
       case View.SALES:
-        return <Sales onBack={() => navigate(View.HOME)} inventory={inventory} onAddSale={handleAddSale} />;
+        return <Sales onBack={() => navigate(View.HOME)} inventory={inventory} team={team} onAddSale={handleAddSale} />;
       case View.INVENTORY:
         return <Inventory inventory={inventory} onUpdate={handleUpdateInventory} onDelete={handleDeleteItem} />;
       case View.REPORTS:
         return <Reports sales={sales} />;
+      case View.TEAM:
+        return <Team
+          onBack={() => navigate(View.HOME)}
+          team={team}
+          error={teamError}
+          onAdd={handleAddTeamMember}
+          onDelete={handleDeleteTeamMember}
+        />;
       default:
         return <Home navigate={navigate} inventory={inventory} sales={sales} />;
     }

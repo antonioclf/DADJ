@@ -4,7 +4,15 @@ export enum View {
   SALES = 'sales',
   INVENTORY = 'inventory',
   REPORTS = 'reports',
-  PROFILE = 'profile'
+  PROFILE = 'profile',
+  TEAM = 'team'
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  active: boolean;
 }
 
 export interface InventoryItem {
