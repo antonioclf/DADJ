@@ -22,8 +22,8 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-lg font-black tracking-tight text-primary dark:text-white uppercase leading-none">DA DOIS DE JULHO</h1>
-            <p className="text-[9px] font-bold text-slate-400 tracking-[0.3em] uppercase mt-1">Gestão de Fardamento</p>
+            <h1 className="text-lg font-black tracking-tight text-primary dark:text-white uppercase leading-none">DIRETÓRIO ACADÊMICO DOIS DE JULHO</h1>
+            <p className="text-[9px] font-bold text-slate-400 tracking-[0.3em] uppercase mt-1">Sistema de Gestão - CBMMG/ABM</p>
           </div>
         </div>
         <button className="size-10 flex items-center justify-center bg-white dark:bg-slate-800 text-gray-500 rounded-full shadow-sm">
@@ -85,7 +85,7 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
 
       <footer className="pt-6 text-center">
         <p className="text-[9px] text-gray-400 dark:text-gray-600 uppercase tracking-[0.4em] font-bold">
-          DA DOIS DE JULHO • PORTAL ADMIN
+          DIRETÓRIO ACADÊMICO DOIS DE JULHO • Sistema de Gestão
         </p>
       </footer>
     </div>
