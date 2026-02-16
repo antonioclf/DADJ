@@ -1,0 +1,8 @@
+
+{
+  "name": "DA DOIS DE JULHO - Sistema de Gestão",
+  "description": "Sistema completo para gestão de fardamento, controle de estoque e relatórios de vendas para o DA Dois de Julho.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
