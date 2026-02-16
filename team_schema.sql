@@ -11,6 +11,9 @@ ALTER TABLE team ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Enable all for authenticated users" ON team
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+-- Limpar equipe existente para garantir que apenas os citados apareçam
+TRUNCATE TABLE team;
+
 INSERT INTO team (name, role) VALUES 
 ('Cad Barreto', 'CFO III'),
 ('Cad Carneiro', 'CFO III'),
