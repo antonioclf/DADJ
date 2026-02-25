@@ -104,7 +104,7 @@ const ModuleCard: React.FC<{
 }> = ({ title, description, image, icon, buttonLabel, onClick, alert }) => (
   <div className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-xl hover:shadow-primary/5 active:scale-[0.98]">
     <div
-      className="h-32 w-full bg-cover bg-center grayscale-[0.3] group-hover:grayscale-0 transition-all duration-500"
+      className="h-32 w-full bg-cover bg-bottom grayscale-[0.3] group-hover:grayscale-0 transition-all duration-500"
       style={{ backgroundImage: `url('${image}')` }}
     />
     <div className="p-6">
