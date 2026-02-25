@@ -27,6 +27,7 @@ export const dataService = {
                 quantity: item.quantity,
                 type: item.type,
                 price: item.price,
+                discount: item.discount,
                 image: item.image
             })
             .select()

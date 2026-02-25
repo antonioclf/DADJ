@@ -21,8 +21,9 @@ export interface InventoryItem {
   size: string;
   color: string;
   quantity: number;
-  type: 'Camiseta' | 'Baby Look' | 'Moletom' | 'Acessório';
+  type: 'Camiseta' | 'Baby Look' | 'Moletom' | 'Acessório' | 'Fardamento';
   price: number;
+  discount?: number;
   image?: string; // Base64 or URL
 }
 

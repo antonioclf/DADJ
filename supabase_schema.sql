@@ -6,8 +6,9 @@ CREATE TABLE inventory (
   size TEXT NOT NULL,
   color TEXT NOT NULL,
   quantity INTEGER NOT NULL DEFAULT 0,
-  type TEXT NOT NULL CHECK (type IN ('Camiseta', 'Baby Look', 'Moletom', 'Acessório')),
+  type TEXT NOT NULL CHECK (type IN ('Camiseta', 'Baby Look', 'Moletom', 'Acessório', 'Fardamento')),
   price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  discount DECIMAL(5,2) DEFAULT 0.00,
   image TEXT, -- Base64 or URL
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );

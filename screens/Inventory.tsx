@@ -19,7 +19,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
   const [editingItem, setEditingItem] = useState<Partial<InventoryItem> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filters = ['Todos', 'Camiseta', 'Baby Look', 'Moletom', 'Acessório'];
+  const filters = ['Todos', 'Camiseta', 'Baby Look', 'Moletom', 'Acessório', 'Fardamento'];
 
   const filteredItems = useMemo(() => {
     return inventory.filter(item => {
@@ -110,7 +110,15 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
               <div className="flex-1">
                 <h3 className="font-bold text-[#111318] dark:text-white text-sm">{item.name}</h3>
                 <p className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider opacity-70">Tamanho: {item.size} • {item.color}</p>
-                <p className="text-primary font-bold text-xs mt-1">R$ {item.price.toFixed(2)}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-primary font-bold text-xs">R$ {item.price.toFixed(2)}</p>
+                  {item.discount && item.discount > 0 ? (
+                    <div className="flex items-center gap-1 bg-rose-50 dark:bg-rose-900/30 text-rose-500 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter animate-pulse">
+                      <span className="material-symbols-outlined text-[10px]">sell</span>
+                      {item.discount}% OFF
+                    </div>
+                  ) : null}
+                </div>
               </div>
               <div className="text-right flex flex-col items-end gap-1">
                 <span className={`text-xl font-bold ${item.quantity === 0 ? 'text-rose-500' :
@@ -200,6 +208,12 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
               type="number"
               value={editingItem?.price || 0}
               onChange={e => setEditingItem(prev => prev ? { ...prev, price: parseFloat((e.target as HTMLInputElement).value) || 0 } : null)}
+            />
+            <Input
+              label="Desconto (%)"
+              type="number"
+              value={editingItem?.discount || 0}
+              onChange={e => setEditingItem(prev => prev ? { ...prev, discount: parseFloat((e.target as HTMLInputElement).value) || 0 } : null)}
             />
             <Input
               label="Categoria"
