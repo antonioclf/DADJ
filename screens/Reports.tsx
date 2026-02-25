@@ -236,8 +236,21 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
       });
 
       if (invokeError) {
-        // Safe access to error message from function response
-        const errorMsg = invokeError instanceof Error ? invokeError.message : JSON.stringify(invokeError);
+        console.error('Invoke Error Details:', invokeError);
+        // Supabase invoke error often has context in the message or data
+        let errorMsg = 'Erro na comunicação com o servidor';
+
+        if (invokeError.context) {
+          try {
+            const body = await invokeError.context.json();
+            errorMsg = body.error || body.message || JSON.stringify(body);
+          } catch {
+            errorMsg = invokeError.message;
+          }
+        } else {
+          errorMsg = invokeError.message;
+        }
+
         throw new Error(errorMsg);
       }
 
