@@ -37,7 +37,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
   discount?: number;
-  status: 'Pedido' | 'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago';
+  status: 'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago';
   totalInstallments: number;
   paidInstallments: number;
 }
@@ -50,6 +50,6 @@ export interface SaleRecord {
   date: string;
   items: OrderItem[];
   total: number;
-  status: 'Pedido' | 'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago';
+  status: 'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago';
   seller: string;
 }

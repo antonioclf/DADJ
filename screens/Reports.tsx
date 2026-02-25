@@ -257,7 +257,6 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Status Item:</span>
                                 <div className="flex gap-1 p-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
                                   {[
-                                    { id: 'Pedido', icon: 'pending_actions', color: 'text-amber-500' },
                                     { id: 'Pedido no DA', icon: 'assignment', color: 'text-purple-500' },
                                     { id: 'Pedido na loja', icon: 'storefront', color: 'text-indigo-500' },
                                     { id: 'Entregue', icon: 'package_2', color: 'text-blue-500' }

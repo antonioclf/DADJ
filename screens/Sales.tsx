@@ -18,7 +18,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [buyer, setBuyer] = useState('');
   const [buyerBM, setBuyerBM] = useState('');
   const [phone, setPhone] = useState('');
-  const [orderStatus, setOrderStatus] = useState<'Pedido' | 'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago'>('Pedido');
+  const [orderStatus, setOrderStatus] = useState<'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago'>('Pedido no DA');
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [showItemPicker, setShowItemPicker] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
@@ -122,7 +122,6 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider pb-1 ml-1">Status do Pedido</p>
               <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl">
                 {[
-                  { id: 'Pedido', label: 'Pedido', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20', icon: 'pending_actions' },
                   { id: 'Pedido no DA', label: 'Pedido no DA', color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20', icon: 'assignment' },
                   { id: 'Pedido na loja', label: 'Pedido na loja', color: 'text-indigo-500', bg: 'bg-indigo-50 dark:bg-indigo-900/20', icon: 'storefront' },
                   { id: 'Entregue', label: 'Entregue', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20', icon: 'package_2' },
