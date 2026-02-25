@@ -305,7 +305,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800 space-y-4">
+                <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800 flex flex-col gap-4">
                   {/* Gender Selector for appropriate items (Complex, Calça, Tops UNLESS they are Red Shirts or Gorros or one-size items) */}
                   {(isComplex || isCalca || isTop) && !isGorro && !isOneSize && !item.name.includes('par') && !item.name.includes('unidades') && (
                     <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-xl w-fit">
@@ -324,38 +324,37 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                     </div>
                   )}
 
-                  <div className="flex items-end gap-3">
-                    <div className="flex-1 space-y-3">
-                      {is3A && (
-                        <>
-                          {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
-                          {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Blusa')}
-                        </>
-                      )}
-                      {is4A && (
-                        <>
-                          {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Gandola')}
-                          {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
-                        </>
-                      )}
-                      {!isComplex && !isOneSize && renderSizeButtons(
-                        size1,
-                        isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : standardSizes)),
-                        (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })),
-                        'Tamanho'
-                      )}
-                      {isOneSize && (
-                        <p className="text-[10px] text-slate-400 font-black uppercase italic ml-1">Modelo de Tamanho Único</p>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={handleAdd}
-                      className="size-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/25 hover:scale-110 active:scale-90 transition-all shrink-0 mb-1"
-                    >
-                      <span className="material-symbols-outlined font-black">add_shopping_cart</span>
-                    </button>
+                  <div className="space-y-3">
+                    {is3A && (
+                      <div className="space-y-3">
+                        {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
+                        {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Blusa')}
+                      </div>
+                    )}
+                    {is4A && (
+                      <div className="space-y-3">
+                        {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Gandola')}
+                        {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
+                      </div>
+                    )}
+                    {!isComplex && !isOneSize && renderSizeButtons(
+                      size1,
+                      isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : standardSizes)),
+                      (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })),
+                      'Tamanho'
+                    )}
+                    {isOneSize && (
+                      <p className="text-[10px] text-slate-400 font-black uppercase italic ml-1 pt-1">Modelo de Tamanho Único</p>
+                    )}
                   </div>
+
+                  <Button
+                    onClick={handleAdd}
+                    className="w-full !rounded-2xl flex items-center justify-center gap-2 h-12 shadow-lg shadow-primary/20"
+                  >
+                    <span className="material-symbols-outlined font-black text-lg">add_shopping_cart</span>
+                    <span className="text-[10px] uppercase font-black tracking-widest">Adicionar ao Carrinho</span>
+                  </Button>
                 </div>
               </div>
             );
