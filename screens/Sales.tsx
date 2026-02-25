@@ -205,13 +205,26 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         title="Selecionar Fardamento"
       >
         <div className="space-y-4 pb-10">
-          {inventory.map(item => {
+          {[...inventory].sort((a, b) => {
+            const getPriority = (name: string) => {
+              const n = name.toLowerCase();
+              if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 1;
+              if (n.includes('3º a')) return 2;
+              if (n.includes('5º b')) return 3;
+              return 4;
+            };
+            const pA = getPriority(a.name);
+            const pB = getPriority(b.name);
+            if (pA !== pB) return pA - pB;
+            return a.name.localeCompare(b.name);
+          }).map(item => {
             const nameLower = item.name.toLowerCase();
             const is3A = nameLower.includes('3º a') && !nameLower.includes('calça') && !nameLower.includes('camisa');
             const is4A = nameLower.includes('4º a completo');
             const isCalca = nameLower.includes('calça');
             const isGorro = nameLower.includes('gorro');
             const isRedShirt = nameLower.includes('camisa vermelha');
+            const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira');
             const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom')) && !isRedShirt;
             const isComplex = is3A || is4A;
 
@@ -245,7 +258,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
 
             const handleAdd = () => {
               let finalSize = size1;
-              if (is3A) finalSize = `C:${size1}${gender} | B:${size2}${gender}`;
+              if (isOneSize) finalSize = item.size; // Use 'Único' or whatever is in DB
+              else if (is3A) finalSize = `C:${size1}${gender} | B:${size2}${gender}`;
               else if (is4A) finalSize = `G:${size2}${gender} | C:${size1}${gender}`;
               else if (isCalca || isTop) finalSize = `${size1}${gender}`;
 
@@ -275,8 +289,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800 space-y-4">
-                  {/* Gender Selector for appropriate items (Complex, Calça, Tops UNLESS they are Red Shirts or Gorros or single units) */}
-                  {(isComplex || isCalca || isTop) && !isGorro && !item.name.includes('par') && !item.name.includes('unidades') && (
+                  {/* Gender Selector for appropriate items (Complex, Calça, Tops UNLESS they are Red Shirts or Gorros or one-size items) */}
+                  {(isComplex || isCalca || isTop) && !isGorro && !isOneSize && !item.name.includes('par') && !item.name.includes('unidades') && (
                     <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-xl w-fit">
                       <button
                         onClick={() => setSelectedGenders(prev => ({ ...prev, [item.id]: 'M' }))}
@@ -307,11 +321,14 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                           {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
                         </>
                       )}
-                      {!isComplex && renderSizeButtons(
+                      {!isComplex && !isOneSize && renderSizeButtons(
                         size1,
                         isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : standardSizes)),
                         (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })),
                         'Tamanho'
+                      )}
+                      {isOneSize && (
+                        <p className="text-[10px] text-slate-400 font-black uppercase italic ml-1">Modelo de Tamanho Único</p>
                       )}
                     </div>
 
