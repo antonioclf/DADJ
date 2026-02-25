@@ -22,6 +22,10 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [showItemPicker, setShowItemPicker] = useState(false);
 
   const handleAddToCart = (item: InventoryItem) => {
+    const discountedPrice = item.discount && item.discount > 0
+      ? item.price * (1 - item.discount / 100)
+      : item.price;
+
     const existing = cart.find(i => i.inventoryId === item.id);
     if (existing) {
       setCart(cart.map(i => i.inventoryId === item.id ? { ...i, quantity: i.quantity + 1 } : i));
@@ -32,7 +36,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         name: item.name,
         size: item.size,
         quantity: 1,
-        price: item.price
+        price: discountedPrice
       }]);
     }
     setShowItemPicker(false);
@@ -145,7 +149,10 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                   </div>
                   <div>
                     <h3 className="text-sm font-bold dark:text-white">{item.name}</h3>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tam: {item.size} • Qtd: {item.quantity}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tam: {item.size} • Qtd: {item.quantity}</p>
+                      <span className="text-[8px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full uppercase">Preço Unit: R$ {item.price.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -199,7 +206,17 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                 <h3 className="text-sm font-bold dark:text-white">{item.name}</h3>
                 <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">{item.size} • {item.color} • {item.quantity} dispon.</p>
               </div>
-              <p className="font-bold text-primary">R$ {item.price.toFixed(2)}</p>
+              <div className="text-right">
+                <p className="font-bold text-primary">R$ {(item.discount ? item.price * (1 - item.discount / 100) : item.price).toFixed(2)}</p>
+                {item.discount && item.discount > 0 && (
+                  <p className="text-[9px] text-rose-500 font-bold line-through ml-auto opacity-60">R$ {item.price.toFixed(2)}</p>
+                )}
+              </div>
+              {item.discount && item.discount > 0 && (
+                <div className="absolute right-2 top-2 bg-rose-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-lg shadow-sm">
+                  -{item.discount}%
+                </div>
+              )}
             </div>
           ))}
           {inventory.filter(i => i.quantity > 0).length === 0 && (
