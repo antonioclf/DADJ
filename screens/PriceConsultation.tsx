@@ -78,7 +78,6 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
                                     <tr key={item.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-colors">
                                         <td className="px-6 py-4">
                                             <p className="text-sm font-bold dark:text-white">{item.name}</p>
-                                            <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{item.color} - {item.size}</p>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-[10px] font-black bg-primary/10 text-primary px-2 py-1 rounded-lg uppercase">

@@ -125,7 +125,7 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                                                 <div className="space-y-2">
                                                     {sale.items.map((item, idx) => (
                                                         <div key={idx} className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">
-                                                            <span>{item.quantity}x {item.name} ({item.size})</span>
+                                                            <span>{item.quantity}x {item.name}</span>
                                                             <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
                                                         </div>
                                                     ))}
