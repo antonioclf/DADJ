@@ -158,7 +158,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tam: {item.size} • Qtd: {item.quantity}</p>
                       <span className="text-[8px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full uppercase">Valor un: R$ {item.price.toFixed(2)}</span>
                       {item.discount && item.discount > 0 && (
-                        <span className="text-[8px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded-full uppercase shadow-sm">
+                        <span className="text-[8px] font-black bg-emerald-500 text-white px-1.5 py-0.5 rounded-full uppercase shadow-sm">
                           -{item.discount}% OFF
                         </span>
                       )}
@@ -216,20 +216,13 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                     <div className="flex items-center gap-2 mt-0.5">
                       <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{item.color}</p>
                       {(item.discount ?? 0) > 0 && (
-                        <span className="text-[9px] font-black bg-rose-500 text-white px-2 py-0.5 rounded-lg uppercase shadow-sm">
+                        <span className="text-[9px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-lg uppercase shadow-sm">
                           DESC. {item.discount}%
                         </span>
                       )}
                     </div>
-                    <div className="mt-2 text-primary">
-                      {item.discount && item.discount > 0 ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-slate-400 line-through opacity-60">De R$ {(item.price / (1 - item.discount / 100)).toFixed(2)}</span>
-                          <span className="text-sm font-black text-rose-500">Por R$ {item.price.toFixed(2)}</span>
-                        </div>
-                      ) : (
-                        <span className="text-sm font-black text-primary">R$ {item.price.toFixed(2)}</span>
-                      )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black text-primary">R$ {item.price.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
