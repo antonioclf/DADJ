@@ -89,6 +89,16 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     }
   };
 
+  const handleUpdateStatus = async (itemId: string, newStatus: string) => {
+    try {
+      await dataService.updateItemStatus(itemId, newStatus);
+      await onRefresh();
+    } catch (error) {
+      console.error('Error updating item status:', error);
+      alert('Erro ao atualizar status.');
+    }
+  };
+
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen">
       <Header title="Fluxo de Caixa" subtitle="Relatórios" />
@@ -243,6 +253,27 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                                 </select>
                               </div>
 
+                              <div className="flex-1 space-y-1">
+                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Status Item:</span>
+                                <div className="flex gap-1 p-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+                                  {[
+                                    { id: 'Pedido', icon: 'pending_actions', color: 'text-amber-500' },
+                                    { id: 'Pedido no DA', icon: 'assignment', color: 'text-purple-500' },
+                                    { id: 'Pedido na loja', icon: 'storefront', color: 'text-indigo-500' },
+                                    { id: 'Entregue', icon: 'package_2', color: 'text-blue-500' }
+                                  ].map((s) => (
+                                    <button
+                                      key={s.id}
+                                      onClick={() => handleUpdateStatus(item.id, s.id)}
+                                      title={s.id}
+                                      className={`flex-1 py-1.5 rounded-lg flex items-center justify-center transition-all ${item.status === s.id ? `bg-slate-50 dark:bg-slate-800 ${s.color} shadow-inner` : 'text-slate-300 hover:text-slate-400'}`}
+                                    >
+                                      <span className="material-symbols-outlined text-sm font-black">{s.icon}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
                               <div className="flex flex-col items-end gap-1">
                                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mr-1">Parcelas Pagas:</span>
                                 <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800">
@@ -265,6 +296,23 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                                   </button>
                                 </div>
                               </div>
+                            </div>
+
+                            <div className="flex items-center justify-between px-1">
+                              <p className={`text-[8px] font-black uppercase tracking-widest ${item.status === 'Pago' ? 'text-emerald-500' :
+                                item.status === 'Entregue' ? 'text-blue-500' :
+                                  'text-slate-400'
+                                }`}>
+                                Status: {item.status}
+                              </p>
+                              {isFullyPaid && item.status !== 'Pago' && (
+                                <button
+                                  onClick={() => handleUpdateStatus(item.id, 'Pago')}
+                                  className="text-[8px] font-black text-emerald-500 uppercase tracking-widest hover:underline"
+                                >
+                                  Marcar como Pago
+                                </button>
+                              )}
                             </div>
 
                             <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">

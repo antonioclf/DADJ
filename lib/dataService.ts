@@ -180,9 +180,16 @@ export const dataService = {
         const { error } = await supabase
             .from('sale_items')
             .update({
-                paid_installments: paidCount,
-                status: paidCount === 0 ? 'Pedido' : 'Pago' // Simplified auto-status for now, UI will handle more nuance
+                paid_installments: paidCount
             })
+            .eq('id', itemId);
+
+        if (error) throw error;
+    },
+    async updateItemStatus(itemId: string, status: string): Promise<void> {
+        const { error } = await supabase
+            .from('sale_items')
+            .update({ status })
             .eq('id', itemId);
 
         if (error) throw error;
