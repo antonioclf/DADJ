@@ -226,7 +226,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
 
       const pdfBase64 = doc.output('datauristring').split(',')[1];
 
-      const { data, error } = await supabase.functions.invoke('send-report', {
+      const { data, error: invokeError } = await supabase.functions.invoke('send-report', {
         body: {
           pdfBase64,
           recipientEmail: email,
@@ -235,11 +235,17 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
         }
       });
 
-      if (error) throw error;
+      if (invokeError) {
+        // Safe access to error message from function response
+        const errorMsg = invokeError instanceof Error ? invokeError.message : JSON.stringify(invokeError);
+        throw new Error(errorMsg);
+      }
+
       alert("E-mail enviado com sucesso!");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending email:', error);
-      alert('Erro ao enviar e-mail. Verifique se a Edge Function está implantada.');
+      const message = error.message || 'Erro desconhecido';
+      alert(`Erro ao enviar e-mail: ${message}\n\nNota: No plano gratuito do Resend, você só pode enviar para o seu próprio e-mail de cadastro.`);
     }
   };
 
