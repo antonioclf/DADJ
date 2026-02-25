@@ -47,3 +47,8 @@ ALTER TABLE sale_items ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow all actions for authenticated users" ON inventory FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Allow all actions for authenticated users" ON sales FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Allow all actions for authenticated users" ON sale_items FOR ALL USING (auth.role() = 'authenticated');
+
+-- Public policies (anon access) for consultations
+CREATE POLICY "Allow public read-only access to inventory" ON inventory FOR SELECT TO anon USING (true);
+CREATE POLICY "Allow public read-only access to sales" ON sales FOR SELECT TO anon USING (true);
+CREATE POLICY "Allow public read-only access to sale_items" ON sale_items FOR SELECT TO anon USING (true);

@@ -8,6 +8,8 @@ import Reports from './screens/Reports';
 import Team from './screens/Team';
 import Login from './screens/Login';
 import Layout from './Layout';
+import PriceConsultation from './screens/PriceConsultation';
+import PaymentConsultation from './screens/PaymentConsultation';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { dataService } from './lib/dataService';
 import { supabase } from './lib/supabase';
@@ -24,12 +26,14 @@ const AppContent: React.FC = () => {
 
   // Load data from Supabase
   const loadData = useCallback(async () => {
-    if (!user) return;
+    // If we're on price list, we need inventory even without login
+    const needsInventory = currentView === View.PRICE_LIST;
+    if (!user && !needsInventory) return;
     setDataLoading(true);
     try {
       const [invData, salesData] = await Promise.all([
         dataService.getInventory(),
-        dataService.getSales()
+        user ? dataService.getSales() : Promise.resolve([])
       ]);
       setInventory(invData);
       setSales(salesData);
@@ -85,6 +89,11 @@ const AppContent: React.FC = () => {
     window.location.hash = view;
     setCurrentView(view);
   };
+
+  // Expose navigate to window for Login.tsx buttons
+  useEffect(() => {
+    (window as any).navigate = navigate;
+  }, []);
 
   const handleUpdateInventory = async (newItem: InventoryItem) => {
     try {
@@ -151,6 +160,8 @@ const AppContent: React.FC = () => {
   }
 
   if (!user) {
+    if (currentView === View.PRICE_LIST) return <PriceConsultation inventory={inventory} onBack={() => navigate(View.HOME)} />;
+    if (currentView === View.PAYMENT_LOOKUP) return <PaymentConsultation onBack={() => navigate(View.HOME)} />;
     return <Login />;
   }
 

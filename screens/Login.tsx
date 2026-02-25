@@ -78,9 +78,25 @@ const Login: React.FC = () => {
                         </Button>
                     </form>
 
-                    <div className="pt-4 text-center">
-                        <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
-                            Precisa de ajuda? Entre em contato com a equipe.
+                    <div className="pt-4 space-y-3">
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => (window as any).navigate?.('price_list' as any)}
+                                className="flex-1 flex flex-col items-center gap-2 p-4 rounded-3xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-primary/20 hover:bg-white dark:hover:bg-slate-700 transition-all group"
+                            >
+                                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">label</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Consultar Preços</span>
+                            </button>
+                            <button
+                                onClick={() => (window as any).navigate?.('payment_lookup' as any)}
+                                className="flex-1 flex flex-col items-center gap-2 p-4 rounded-3xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-amber-500/20 hover:bg-white dark:hover:bg-slate-700 transition-all group"
+                            >
+                                <span className="material-symbols-outlined text-amber-500 group-hover:scale-110 transition-transform">find_in_page</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Pendências BM</span>
+                            </button>
+                        </div>
+                        <p className="text-[9px] text-slate-400 uppercase tracking-widest font-bold text-center">
+                            Acesso público para consultas básicas
                         </p>
                     </div>
                 </div>

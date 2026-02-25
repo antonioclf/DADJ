@@ -5,7 +5,9 @@ export enum View {
   INVENTORY = 'inventory',
   REPORTS = 'reports',
   PROFILE = 'profile',
-  TEAM = 'team'
+  TEAM = 'team',
+  PRICE_LIST = 'price_list',
+  PAYMENT_LOOKUP = 'payment_lookup'
 }
 
 export interface TeamMember {
