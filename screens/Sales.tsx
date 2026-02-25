@@ -211,7 +211,13 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 1;
               if (n.includes('3º a')) return 2;
               if (n.includes('5º b')) return 3;
-              return 4;
+              if (n.includes('camisa vermelha')) return 4;
+              if (n.includes('short')) return 5;
+              if (n.includes('sunga')) return 6;
+              if (n.includes('maiô')) return 7;
+              if (n.includes('suquini')) return 8;
+              if (n.includes('segunda pele')) return 9;
+              return 10;
             };
             const pA = getPriority(a.name);
             const pB = getPriority(b.name);
