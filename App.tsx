@@ -83,7 +83,7 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [loadData, currentView]);
 
   const navigate = (view: View) => {
     window.location.hash = view;
