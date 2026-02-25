@@ -20,24 +20,27 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [isPaid, setIsPaid] = useState(true);
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [showItemPicker, setShowItemPicker] = useState(false);
+  const [sizingItem, setSizingItem] = useState<string | null>(null);
 
-  const handleAddToCart = (item: InventoryItem) => {
+  const handleAddToCart = (item: InventoryItem, selectedSize?: string) => {
     const discountedPrice = item.price; // Provided price is already the final price
+    const size = selectedSize || item.size;
 
-    const existing = cart.find(i => i.inventoryId === item.id);
+    const existing = cart.find(i => i.inventoryId === item.id && i.size === size);
     if (existing) {
-      setCart(cart.map(i => i.inventoryId === item.id ? { ...i, quantity: i.quantity + 1 } : i));
+      setCart(cart.map(i => (i.inventoryId === item.id && i.size === size) ? { ...i, quantity: i.quantity + 1 } : i));
     } else {
       setCart([...cart, {
         id: Date.now().toString() + Math.random(),
         inventoryId: item.id,
         name: item.name,
-        size: item.size,
+        size: size,
         quantity: 1,
         price: discountedPrice,
         discount: item.discount
       }]);
     }
+    setSizingItem(null);
     setShowItemPicker(false);
   };
 
@@ -153,19 +156,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                   <div>
                     <h3 className="text-sm font-bold dark:text-white">{item.name}</h3>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
-                        <span className="text-[9px] font-black text-slate-400 uppercase">Tam:</span>
-                        <select
-                          value={item.size}
-                          onChange={(e) => updateCartItemSize(item.id, e.target.value)}
-                          className="bg-transparent text-[10px] font-bold text-primary focus:outline-none cursor-pointer"
-                        >
-                          {['PP', 'P', 'M', 'G', 'GG', 'EG'].map(s => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">• Qtd: {item.quantity}</span>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tam: {item.size} • Qtd: {item.quantity}</p>
                       <span className="text-[8px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full uppercase">Valor un: R$ {item.price.toFixed(2)}</span>
                       {item.discount && item.discount > 0 && (
                         <span className="text-[8px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded-full uppercase shadow-sm">
@@ -212,33 +203,57 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         onClose={() => setShowItemPicker(false)}
         title="Selecionar Fardamento"
       >
-        <div className="space-y-2 pb-4">
+        <div className="space-y-3 pb-6">
           {inventory.map(item => (
-            <div
-              key={item.id}
-              onClick={() => handleAddToCart(item)}
-              className="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl cursor-pointer transition-colors border border-transparent hover:border-primary/20"
-            >
-              <div className="size-12 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center">
-                {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-primary">apparel</span>}
+            <div key={item.id} className="space-y-2">
+              <div
+                onClick={() => setSizingItem(sizingItem === item.id ? null : item.id)}
+                className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all border ${sizingItem === item.id ? 'bg-primary/5 border-primary/20 shadow-inner' : 'bg-white dark:bg-slate-900 border-slate-50 dark:border-slate-800 hover:border-primary/20'}`}
+              >
+                <div className="size-12 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center">
+                  {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-primary">apparel</span>}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-black dark:text-white uppercase tracking-tight">{item.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">{item.color}</p>
+                    {(item.discount ?? 0) > 0 && (
+                      <span className="text-[8px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded-md uppercase animate-pulse">
+                        DESC. {item.discount}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  {item.discount && item.discount > 0 ? (
+                    <>
+                      <p className="text-[9px] text-slate-400 font-bold line-through opacity-60 italic">De R$ {(item.price / (1 - item.discount / 100)).toFixed(2)}</p>
+                      <p className="text-sm font-black text-rose-500">Por R$ {item.price.toFixed(2)}</p>
+                    </>
+                  ) : (
+                    <p className="text-sm font-black text-primary">R$ {item.price.toFixed(2)}</p>
+                  )}
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-bold dark:text-white">{item.name}</h3>
-                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">{item.size} • {item.color}</p>
-              </div>
-              <div className="text-right">
-                {item.discount && item.discount > 0 ? (
-                  <>
-                    <p className="text-[9px] text-slate-400 font-bold line-through opacity-60">De R$ {(item.price / (1 - item.discount / 100)).toFixed(2)}</p>
-                    <p className="font-bold text-rose-500">Por R$ {item.price.toFixed(2)}</p>
-                  </>
-                ) : (
-                  <p className="font-bold text-primary">R$ {item.price.toFixed(2)}</p>
-                )}
-              </div>
-              {(item.discount ?? 0) > 0 && (
-                <div className="absolute right-2 top-2 bg-rose-500 text-white text-[10px] font-black px-2 py-1 rounded-xl shadow-lg border-2 border-white dark:border-slate-900 transform -rotate-12 animate-pulse">
-                  -{item.discount}%
+
+              {/* Size Selector Expansion */}
+              {sizingItem === item.id && (
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Selecione o Tamanho:</p>
+                  <div className="grid grid-cols-6 gap-2">
+                    {['PP', 'P', 'M', 'G', 'GG', 'EG'].map(size => (
+                      <button
+                        key={size}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToCart(item, size);
+                        }}
+                        className="py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-black text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary transition-all active:scale-95"
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
