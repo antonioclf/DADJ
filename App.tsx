@@ -62,12 +62,15 @@ const AppContent: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Error loading data:', error);
-      if (error.message?.includes('relation "public.inventory" does not exist') || error.message?.includes('relation "inventory" does not exist')) {
+      const msg = error.message || '';
+      if (msg.includes('relation "public.inventory" does not exist') || msg.includes('relation "inventory" does not exist')) {
         setGlobalError('A tabela "inventory" não foi encontrada no banco de dados.');
-      } else if (error.message?.includes('relation "public.sales" does not exist') || error.message?.includes('relation "sales" does not exist')) {
+      } else if (msg.includes('relation "public.sales" does not exist') || msg.includes('relation "sales" does not exist')) {
         setGlobalError('A tabela "sales" não foi encontrada no banco de dados.');
+      } else if (msg.includes('relation "public.sale_items" does not exist') || msg.includes('relation "sale_items" does not exist')) {
+        setGlobalError('A tabela "sale_items" não foi encontrada no banco de dados.');
       } else {
-        setGlobalError('Erro ao conectar com o banco de dados. Verifique sua conexão.');
+        setGlobalError('Erro técnico: ' + (error.message || 'Falha na conexão com Supabase'));
       }
     } finally {
       setDataLoading(false);
