@@ -21,6 +21,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [showItemPicker, setShowItemPicker] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
+  const [selectedSecSizes, setSelectedSecSizes] = useState<Record<string, string>>({});
+  const [selectedGenders, setSelectedGenders] = useState<Record<string, 'M' | 'F'>>({});
 
   const handleAddToCart = (item: InventoryItem, selectedSize?: string) => {
     const discountedPrice = item.price; // Provided price is already the final price
@@ -204,7 +206,49 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
       >
         <div className="space-y-4 pb-10">
           {inventory.map(item => {
-            const currentSize = selectedSizes[item.id] || 'M';
+            const nameLower = item.name.toLowerCase();
+            const is3A = nameLower.includes('3º a') && !nameLower.includes('calça') && !nameLower.includes('camisa');
+            const is4A = nameLower.includes('4º a completo');
+            const isCalca = nameLower.includes('calça');
+            const isTop = nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom');
+            const isComplex = is3A || is4A;
+
+            const gender = selectedGenders[item.id] || 'M';
+            const size1 = selectedSizes[item.id] || (isCalca ? '36' : (isTop ? '1' : 'M'));
+            const size2 = selectedSecSizes[item.id] || (is3A || is4A ? (is3A ? '1' : '1') : '');
+
+            const numericSizes = Array.from({ length: 15 }, (_, i) => (i + 36).toString()); // 36-50
+            const smallNumericSizes = ['1', '2', '3', '4', '5'];
+            const standardSizes = ['PP', 'P', 'M', 'G', 'GG', 'EG'];
+
+            const renderSizeButtons = (current: string, options: string[], onSelect: (s: string) => void, label?: string) => (
+              <div className="flex-1 min-w-0">
+                {label && <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{label}:</p>}
+                <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
+                  {options.map(size => (
+                    <button
+                      key={size}
+                      onClick={() => onSelect(size)}
+                      className={`min-w-[36px] px-2 py-2 rounded-xl text-[10px] font-black transition-all border ${current === size
+                        ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                        : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700 hover:bg-slate-100'}`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+
+            const handleAdd = () => {
+              let finalSize = size1;
+              if (is3A) finalSize = `C:${size1}${gender} | B:${size2}${gender}`;
+              else if (is4A) finalSize = `G:${size2}${gender} | C:${size1}${gender}`;
+              else if (isCalca || isTop) finalSize = `${size1}${gender}`;
+
+              handleAddToCart(item, finalSize);
+            };
+
             return (
               <div key={item.id} className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:border-primary/20 transition-all">
                 <div className="flex items-center gap-4">
@@ -221,35 +265,60 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mt-2">
                       <span className="text-sm font-black text-primary">R$ {item.price.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-3 pt-4 border-t border-slate-50 dark:border-slate-800">
-                  <div className="flex-1">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Tamanho:</p>
-                    <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
-                      {['PP', 'P', 'M', 'G', 'GG', 'EG'].map(size => (
-                        <button
-                          key={size}
-                          onClick={() => setSelectedSizes(prev => ({ ...prev, [item.id]: size }))}
-                          className={`min-w-[40px] px-3 py-2 rounded-xl text-[10px] font-black transition-all border ${currentSize === size
-                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-105'
-                            : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700 hover:bg-slate-100'}`}
-                        >
-                          {size}
-                        </button>
-                      ))}
+                <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800 space-y-4">
+                  {/* Gender Selector for appropriate items */}
+                  {(isCalca || isTop || isComplex) && (
+                    <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-xl w-fit">
+                      <button
+                        onClick={() => setSelectedGenders(prev => ({ ...prev, [item.id]: 'M' }))}
+                        className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${gender === 'M' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-400'}`}
+                      >
+                        Masculino
+                      </button>
+                      <button
+                        onClick={() => setSelectedGenders(prev => ({ ...prev, [item.id]: 'F' }))}
+                        className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${gender === 'F' ? 'bg-white dark:bg-slate-700 text-rose-500 shadow-sm' : 'text-slate-400'}`}
+                      >
+                        Feminino
+                      </button>
                     </div>
+                  )}
+
+                  <div className="flex items-end gap-3">
+                    <div className="flex-1 space-y-3">
+                      {is3A && (
+                        <>
+                          {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
+                          {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Blusa')}
+                        </>
+                      )}
+                      {is4A && (
+                        <>
+                          {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Gandola')}
+                          {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
+                        </>
+                      )}
+                      {!isComplex && renderSizeButtons(
+                        size1,
+                        isCalca ? numericSizes : (isTop ? smallNumericSizes : standardSizes),
+                        (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })),
+                        'Tamanho'
+                      )}
+                    </div>
+
+                    <button
+                      onClick={handleAdd}
+                      className="size-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/25 hover:scale-110 active:scale-90 transition-all shrink-0 mb-1"
+                    >
+                      <span className="material-symbols-outlined font-black">add_shopping_cart</span>
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleAddToCart(item, currentSize)}
-                    className="size-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/25 hover:scale-110 active:scale-90 transition-all shrink-0 mt-4"
-                  >
-                    <span className="material-symbols-outlined font-black">add_shopping_cart</span>
-                  </button>
                 </div>
               </div>
             );
