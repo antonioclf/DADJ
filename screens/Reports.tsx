@@ -172,6 +172,77 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     doc.save(`relatorio_vendas_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
+  const handleEmailReport = async () => {
+    const email = prompt("Digite o e-mail para envio do relatório:");
+    if (!email) return;
+
+    try {
+      const doc = new jsPDF();
+
+      // Header
+      doc.setFontSize(20);
+      doc.text('Relatório de Vendas - DA Dois de Julho', 14, 22);
+
+      const periodText = startDate || endDate
+        ? `Período: ${startDate ? new Date(startDate).toLocaleDateString() : 'Início'} até ${endDate ? new Date(endDate).toLocaleDateString() : 'Hoje'}`
+        : 'Período: Completo';
+      doc.setFontSize(10);
+      doc.text(periodText, 14, 30);
+      doc.text(`Gerado em: ${new Date().toLocaleString()}`, 14, 35);
+
+      autoTable(doc, {
+        startY: 50,
+        head: [['Métrica', 'Valor']],
+        body: [
+          ['Total Bruto', `R$ ${stats.total.toFixed(2)}`],
+          ['Total Recebido', `R$ ${stats.paid.toFixed(2)}`],
+          ['Total Pendente', `R$ ${stats.pending.toFixed(2)}`],
+          ['Quantidade de Vendas', stats.count.toString()],
+        ],
+        theme: 'striped',
+        headStyles: { fillColor: [37, 99, 235] }
+      });
+
+      const tableData = filteredSales.flatMap(sale =>
+        sale.items.map(item => [
+          sale.date.split(',')[0],
+          sale.customerName,
+          item.name,
+          item.quantity,
+          `R$ ${item.price.toFixed(2)}`,
+          `R$ ${(item.price * item.quantity).toFixed(2)}`,
+          item.status
+        ])
+      );
+
+      autoTable(doc, {
+        startY: (doc as any).lastAutoTable.finalY + 20,
+        head: [['Data', 'Cliente', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [37, 99, 235] },
+        styles: { fontSize: 8 }
+      });
+
+      const pdfBase64 = doc.output('datauristring').split(',')[1];
+
+      const { data, error } = await supabase.functions.invoke('send-report', {
+        body: {
+          pdfBase64,
+          recipientEmail: email,
+          subject: `Relatório de Vendas (${periodText})`,
+          filename: `relatorio_${new Date().toISOString().split('T')[0]}.pdf`
+        }
+      });
+
+      if (error) throw error;
+      alert("E-mail enviado com sucesso!");
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('Erro ao enviar e-mail. Verifique se a Edge Function está implantada.');
+    }
+  };
+
   const handleUpdatePaidCount = async (itemId: string, newCount: number) => {
     try {
       await dataService.updateItemInstallments(itemId, newCount);
@@ -216,14 +287,24 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
         <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-50 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filtrar por Período</h3>
-            <Button
-              variant="ghost"
-              onClick={handleExportPDF}
-              className="text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full !h-auto flex items-center gap-1.5"
-            >
-              <span className="material-symbols-outlined text-sm">download</span>
-              Exportar PDF
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                onClick={handleEmailReport}
+                className="text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full !h-auto flex items-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-sm">mail</span>
+                Enviar por E-mail
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleExportPDF}
+                className="text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full !h-auto flex items-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-sm">download</span>
+                PDF
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
