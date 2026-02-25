@@ -232,6 +232,19 @@ const AppContent: React.FC = () => {
     }
   };
 
+  const handleDeleteSale = async (id: string) => {
+    try {
+      await dataService.deleteSale(id);
+      const salesData = await dataService.getSales();
+      setSales(salesData);
+      const invData = await dataService.getInventory();
+      setInventory(invData);
+    } catch (error: any) {
+      console.error('Error deleting sale:', error);
+      setGlobalError('Erro ao excluir venda: ' + (error.message || 'Erro desconhecido'));
+    }
+  };
+
   const renderContent = () => {
     switch (currentView) {
       case View.HOME:
@@ -241,7 +254,7 @@ const AppContent: React.FC = () => {
       case View.INVENTORY:
         return <Inventory inventory={inventory} onUpdate={handleUpdateInventory} onDelete={handleDeleteItem} />;
       case View.REPORTS:
-        return <Reports sales={sales} />;
+        return <Reports sales={sales} onDeleteSale={handleDeleteSale} />;
       case View.TEAM:
         return <Team
           onBack={() => navigate(View.HOME)}

@@ -7,9 +7,10 @@ import Header from '../ui/Header';
 
 interface ReportsProps {
   sales: SaleRecord[];
+  onDeleteSale: (id: string) => void;
 }
 
-const Reports: React.FC<ReportsProps> = ({ sales }) => {
+const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
 
@@ -132,6 +133,16 @@ const Reports: React.FC<ReportsProps> = ({ sales }) => {
                     {sale.status}
                   </p>
                 </div>
+                <button
+                  onClick={() => {
+                    if (window.confirm("Deseja realmente excluir esta venda?")) {
+                      onDeleteSale(sale.id);
+                    }
+                  }}
+                  className="ml-4 text-slate-300 hover:text-rose-500 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-lg">delete</span>
+                </button>
               </div>
             ))}
             {sales.length === 0 && (

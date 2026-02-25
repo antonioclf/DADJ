@@ -156,5 +156,14 @@ export const dataService = {
             .eq('id', id);
 
         if (error) throw error;
+    },
+
+    async deleteSale(id: string): Promise<void> {
+        const { error } = await supabase
+            .from('sales')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
     }
 };

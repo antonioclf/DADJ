@@ -148,7 +148,12 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                   <div>
                     <h3 className="text-sm font-bold dark:text-white">{item.name}</h3>
                     <div className="flex items-center gap-2">
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tam: {item.size} • Qtd: {item.quantity}</p>
+                      {item.type !== 'Fardamento' && (
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tam: {item.size} • Qtd: {item.quantity}</p>
+                      )}
+                      {item.type === 'Fardamento' && (
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tamanho: {item.size}</p>
+                      )}
                       <span className="text-[8px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full uppercase">Valor un: R$ {item.price.toFixed(2)}</span>
                     </div>
                   </div>
@@ -207,7 +212,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               <div className="text-right">
                 <p className="font-bold text-primary">R$ {item.price.toFixed(2)}</p>
               </div>
-              {item.discount && item.discount > 0 && (
+              {(item.discount ?? 0) > 0 && (
                 <div className="absolute right-2 top-2 bg-rose-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-lg shadow-sm">
                   -{item.discount}%
                 </div>
