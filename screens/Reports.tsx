@@ -139,7 +139,8 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
                       onDeleteSale(sale.id);
                     }
                   }}
-                  className="ml-4 text-slate-300 hover:text-rose-500 transition-colors"
+                  className="ml-4 p-3 bg-rose-50 dark:bg-rose-950/30 text-rose-500 rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-all flex items-center justify-center shadow-sm border border-rose-100 dark:border-rose-900"
+                  title="Excluir Venda"
                 >
                   <span className="material-symbols-outlined text-lg">delete</span>
                 </button>
