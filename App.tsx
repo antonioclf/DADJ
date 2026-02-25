@@ -10,6 +10,7 @@ import Login from './screens/Login';
 import Layout from './Layout';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { dataService } from './lib/dataService';
+import { supabase } from './lib/supabase';
 
 const AppContent: React.FC = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -18,6 +19,7 @@ const AppContent: React.FC = () => {
   const [sales, setSales] = useState<SaleRecord[]>([]);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
+  const [globalError, setGlobalError] = useState<string | null>(null);
   const [teamError, setTeamError] = useState<string | null>(null);
 
   // Load data from Supabase
@@ -31,6 +33,7 @@ const AppContent: React.FC = () => {
       ]);
       setInventory(invData);
       setSales(salesData);
+      setGlobalError(null);
 
       // Auto-populate inventory if empty
       if (invData.length === 0) {
@@ -51,14 +54,21 @@ const AppContent: React.FC = () => {
         }
       } catch (err: any) {
         console.error('Error loading team data:', err);
-        if (err.message?.includes('relation "public.team" does not exist')) {
+        if (err.message?.includes('relation "public.team" does not exist') || err.message?.includes('relation "team" does not exist')) {
           setTeamError('A tabela "team" não foi encontrada. Por favor, execute o SQL no Supabase.');
         } else {
           setTeamError('Erro ao carregar equipe.');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading data:', error);
+      if (error.message?.includes('relation "public.inventory" does not exist') || error.message?.includes('relation "inventory" does not exist')) {
+        setGlobalError('A tabela "inventory" não foi encontrada no banco de dados.');
+      } else if (error.message?.includes('relation "public.sales" does not exist') || error.message?.includes('relation "sales" does not exist')) {
+        setGlobalError('A tabela "sales" não foi encontrada no banco de dados.');
+      } else {
+        setGlobalError('Erro ao conectar com o banco de dados. Verifique sua conexão.');
+      }
     } finally {
       setDataLoading(false);
     }
@@ -164,14 +174,27 @@ const AppContent: React.FC = () => {
     ];
 
     try {
-      for (const item of fardamentoItems) {
-        await dataService.updateInventoryItem(item as any);
-      }
+      console.log('Inserting fardamento items...');
+      const { error } = await supabase
+        .from('inventory')
+        .upsert(fardamentoItems.map(item => ({
+          name: item.name,
+          size: item.size,
+          color: item.color,
+          quantity: item.quantity,
+          type: item.type,
+          price: item.price,
+          discount: item.discount
+        })), { onConflict: 'name,size,color' });
+
+      if (error) throw error;
+
       const invData = await dataService.getInventory();
       setInventory(invData);
-      console.log('Inventory seeded successfully!');
+      console.log('Inventory seeded successfully! 🎉');
     } catch (error: any) {
       console.error('Error seeding inventory:', error);
+      setGlobalError('Erro ao cadastrar itens automaticamente: ' + (error.message || 'Erro desconhecido'));
     }
   };
 
@@ -225,6 +248,17 @@ const AppContent: React.FC = () => {
 
   return (
     <Layout currentView={currentView} navigate={navigate} onLogout={signOut}>
+      {globalError && (
+        <div className="mx-4 mt-4 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-2xl">
+          <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+            <span className="material-symbols-outlined">error</span>
+            <div>
+              <p className="text-sm font-bold">{globalError}</p>
+              <p className="text-xs opacity-80 mt-1">Por favor, execute o script SQL de criação das tabelas no Supabase.</p>
+            </div>
+          </div>
+        </div>
+      )}
       {renderContent()}
     </Layout>
   );
