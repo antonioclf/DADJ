@@ -193,7 +193,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         title="Selecionar Fardamento"
       >
         <div className="space-y-2 pb-4">
-          {inventory.filter(i => i.quantity > 0).map(item => (
+          {inventory.map(item => (
             <div
               key={item.id}
               onClick={() => handleAddToCart(item)}
@@ -219,7 +219,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               )}
             </div>
           ))}
-          {inventory.filter(i => i.quantity > 0).length === 0 && (
+          {inventory.length === 0 && (
             <p className="text-center text-slate-400 py-10 text-sm">Nenhum item em estoque.</p>
           )}
         </div>

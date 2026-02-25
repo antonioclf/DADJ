@@ -193,8 +193,13 @@ const AppContent: React.FC = () => {
       if (error) throw error;
 
       const invData = await dataService.getInventory();
-      setInventory(invData);
-      console.log('Inventory seeded successfully! 🎉');
+
+      const hasFardamento = invData.some(i => i.type === 'Fardamento');
+      if (!hasFardamento) {
+        await handleSeedInventory();
+      } else {
+        setInventory(invData);
+      }
     } catch (error: any) {
       console.error('Error seeding inventory:', error);
       setGlobalError('Erro ao cadastrar itens automaticamente: ' + (error.message || 'Erro desconhecido'));
