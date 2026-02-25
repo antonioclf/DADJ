@@ -68,7 +68,6 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
                             <thead>
                                 <tr className="bg-slate-50/50 dark:bg-slate-800/30">
                                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Produto</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Categoria</th>
                                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Desconto</th>
                                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Preço Final</th>
                                 </tr>
@@ -78,11 +77,6 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
                                     <tr key={item.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-colors">
                                         <td className="px-6 py-4">
                                             <p className="text-sm font-bold dark:text-white">{item.name}</p>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-[10px] font-black bg-primary/10 text-primary px-2 py-1 rounded-lg uppercase">
-                                                {item.type}
-                                            </span>
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             {(item.discount ?? 0) > 0 ? (
