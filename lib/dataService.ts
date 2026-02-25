@@ -54,7 +54,8 @@ export const dataService = {
         *,
         items:sale_items(*)
       `)
-            .order('date', { ascending: false });
+            .order('date', { ascending: false })
+            .order('created_at', { foreignTable: 'sale_items', ascending: true });
 
         if (error) throw error;
 

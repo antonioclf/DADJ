@@ -99,6 +99,10 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
           <span className="material-symbols-outlined absolute top-8 right-8 opacity-20 text-4xl transform group-hover:rotate-12 transition-transform">payments</span>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-80 mb-2">Faturamento Bruto</p>
           <h2 className="text-4xl font-black mb-1">R$ {stats.total.toFixed(2)}</h2>
+          <div className="mt-4 flex items-center gap-2 bg-white/20 w-fit px-3 py-1.5 rounded-xl backdrop-blur-md">
+            <span className="material-symbols-outlined text-sm text-white">savings</span>
+            <p className="text-[10px] font-black uppercase tracking-widest text-white">Recebido: R$ {stats.paid.toFixed(2)}</p>
+          </div>
           <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Total acumulado de {stats.count} vendas</p>
         </div>
 
@@ -157,8 +161,8 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
           <div className="space-y-3">
             {sales.map(sale => {
               const isExpanded = expandedSale === sale.id;
-              const salePaid = sale.items.every(i => i.status === 'Pago');
-              const salePartial = !salePaid && sale.items.some(i => i.status === 'Pago');
+              const salePaid = sale.items.every(i => i.paidInstallments >= i.totalInstallments);
+              const salePartial = !salePaid && sale.items.some(i => i.paidInstallments > 0);
 
               return (
                 <div key={sale.id} className="flex flex-col gap-2">
@@ -182,7 +186,10 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-sm font-black dark:text-white">R$ {sale.total.toFixed(2)}</p>
+                        <p className="text-xs font-black dark:text-white">
+                          R$ {sale.items.reduce((acc, i) => acc + (i.price * i.quantity * (i.paidInstallments / i.totalInstallments)), 0).toFixed(2)}
+                          <span className="text-slate-400 text-[9px] font-bold"> / R$ {sale.total.toFixed(2)}</span>
+                        </p>
                         <p className={`text-[7px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg inline-block mt-1 ${salePaid ? 'bg-emerald-500 text-white' :
                           salePartial ? 'bg-amber-500 text-white' :
                             'bg-blue-500 text-white'

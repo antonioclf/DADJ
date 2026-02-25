@@ -47,8 +47,10 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                     size: item.size,
                     quantity: item.quantity,
                     price: item.price,
-                    status: item.status
-                })).filter((item: any) => item.status !== 'Pago')
+                    status: item.status,
+                    totalInstallments: item.total_installments || 1,
+                    paidInstallments: item.paid_installments || 0
+                })).filter((item: any) => item.paidInstallments < item.totalInstallments)
             })).filter((sale: any) => sale.items.length > 0));
         } catch (error) {
             console.error('Error searching payments:', error);
@@ -59,7 +61,7 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
     };
 
     const totalPending = results.reduce((acc, sale) =>
-        acc + sale.items.reduce((itemAcc, item) => itemAcc + (item.price * item.quantity), 0)
+        acc + sale.items.reduce((itemAcc, item) => itemAcc + (item.price * item.quantity * (1 - item.paidInstallments / item.totalInstallments)), 0)
         , 0);
 
     return (
@@ -118,12 +120,10 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                                             <div key={sale.id} className="p-5 rounded-3xl bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
                                                 <div className="flex justify-between items-start mb-4">
                                                     <div>
-                                                        <p className="text-xs font-black dark:text-white uppercase tracking-tight">{sale.date}</p>
-                                                        <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md mt-1 inline-block ${sale.status === 'Entregue' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600'}`}>
-                                                            {sale.status}
-                                                        </span>
+                                                        <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Total Pendente Desta Venda</p>
+                                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-tight ml-1">Original: R$ {sale.items.reduce((acc: any, item: any) => acc + (item.price * item.quantity), 0).toFixed(2)}</p>
                                                     </div>
-                                                    <p className="text-sm font-black dark:text-white">R$ {sale.items.reduce((acc, item) => acc + (item.price * item.quantity), 0).toFixed(2)}</p>
+                                                    <p className="text-sm font-black text-rose-500">R$ {sale.items.reduce((acc: any, item: any) => acc + (item.price * item.quantity * (1 - item.paidInstallments / item.totalInstallments)), 0).toFixed(2)}</p>
                                                 </div>
                                                 <div className="space-y-4">
                                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Itens do Pedido (Saldos em Aberto)</p>
@@ -173,7 +173,7 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
