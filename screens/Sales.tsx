@@ -210,14 +210,17 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
             const is3A = nameLower.includes('3º a') && !nameLower.includes('calça') && !nameLower.includes('camisa');
             const is4A = nameLower.includes('4º a completo');
             const isCalca = nameLower.includes('calça');
-            const isTop = nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom');
+            const isGorro = nameLower.includes('gorro');
+            const isRedShirt = nameLower.includes('camisa vermelha');
+            const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom')) && !isRedShirt;
             const isComplex = is3A || is4A;
 
             const gender = selectedGenders[item.id] || 'M';
-            const size1 = selectedSizes[item.id] || (isCalca ? '36' : (isTop ? '1' : 'M'));
-            const size2 = selectedSecSizes[item.id] || (is3A || is4A ? (is3A ? '1' : '1') : '');
+            const size1 = selectedSizes[item.id] || (isCalca ? '38' : (isTop ? '2' : (isGorro ? '56' : 'M')));
+            const size2 = selectedSecSizes[item.id] || (is3A || is4A ? (is3A ? '2' : '2') : '');
 
             const numericSizes = Array.from({ length: 15 }, (_, i) => (i + 36).toString()); // 36-50
+            const capSizes = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
             const smallNumericSizes = ['1', '2', '3', '4', '5'];
             const standardSizes = ['PP', 'P', 'M', 'G', 'GG', 'EG'];
 
@@ -272,8 +275,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800 space-y-4">
-                  {/* Gender Selector for appropriate items */}
-                  {(isCalca || isTop || isComplex) && (
+                  {/* Gender Selector for appropriate items (Complex, Calça, Tops UNLESS they are Red Shirts or Gorros or single units) */}
+                  {(isComplex || isCalca || isTop) && !isGorro && !item.name.includes('par') && !item.name.includes('unidades') && (
                     <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-xl w-fit">
                       <button
                         onClick={() => setSelectedGenders(prev => ({ ...prev, [item.id]: 'M' }))}
@@ -306,7 +309,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                       )}
                       {!isComplex && renderSizeButtons(
                         size1,
-                        isCalca ? numericSizes : (isTop ? smallNumericSizes : standardSizes),
+                        isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : standardSizes)),
                         (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })),
                         'Tamanho'
                       )}
