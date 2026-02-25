@@ -10,9 +10,10 @@ import { supabase } from '../lib/supabase';
 interface ReportsProps {
   sales: SaleRecord[];
   onDeleteSale: (id: string) => void;
+  onRefresh: () => Promise<void>;
 }
 
-const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
+const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [expandedSale, setExpandedSale] = useState<string | null>(null);
@@ -66,7 +67,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
   const handleUpdatePaidCount = async (itemId: string, newCount: number) => {
     try {
       await dataService.updateItemInstallments(itemId, newCount);
-      window.location.reload();
+      await onRefresh();
     } catch (error) {
       console.error('Error updating item installments:', error);
       alert('Erro ao atualizar parcelas.');
@@ -81,7 +82,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
         .eq('id', itemId);
 
       if (error) throw error;
-      window.location.reload();
+      await onRefresh();
     } catch (error) {
       console.error('Error updating total installments:', error);
       alert('Erro ao atualizar total de parcelas.');
@@ -221,39 +222,37 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Parcelas:</span>
-                                <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-white dark:bg-slate-900">
-                                  <button
-                                    onClick={() => handleUpdateTotalInstallments(item.id, Math.max(1, item.totalInstallments - 1))}
-                                    className="px-2 py-1 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                                  >-</button>
-                                  <span className="px-3 py-1 text-[10px] font-black dark:text-white min-w-[30px] text-center">{item.totalInstallments}x</span>
-                                  <button
-                                    onClick={() => handleUpdateTotalInstallments(item.id, item.totalInstallments + 1)}
-                                    className="px-2 py-1 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                                  >+</button>
-                                </div>
+                            <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl">
+                              <div className="space-y-1">
+                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Parcelas Totais:</span>
+                                <select
+                                  value={item.totalInstallments}
+                                  onChange={(e) => handleUpdateTotalInstallments(item.id, parseInt(e.target.value))}
+                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-[10px] font-black dark:text-white focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                >
+                                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
+                                    <option key={n} value={n}>{n}x</option>
+                                  ))}
+                                </select>
                               </div>
 
-                              <div className="flex items-center gap-2">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pagas:</span>
-                                <div className="flex items-center gap-1">
+                              <div className="flex flex-col items-end gap-1">
+                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mr-1">Parcelas Pagas:</span>
+                                <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800">
                                   <button
                                     disabled={item.paidInstallments <= 0}
                                     onClick={() => handleUpdatePaidCount(item.id, item.paidInstallments - 1)}
-                                    className={`size-7 rounded-lg flex items-center justify-center transition-all ${item.paidInstallments <= 0 ? 'opacity-30' : 'bg-rose-500 text-white shadow-sm'}`}
+                                    className={`size-8 rounded-lg flex items-center justify-center transition-all ${item.paidInstallments <= 0 ? 'opacity-30 text-slate-300' : 'bg-rose-50 dark:bg-rose-950/30 text-rose-500 hover:scale-110 active:scale-95'}`}
                                   >
                                     <span className="material-symbols-outlined text-sm">remove</span>
                                   </button>
-                                  <div className="px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
-                                    <p className="text-[10px] font-black dark:text-white">{item.paidInstallments} / {item.totalInstallments}</p>
+                                  <div className="px-4 py-1">
+                                    <p className="text-[11px] font-black dark:text-white">{item.paidInstallments} / {item.totalInstallments}</p>
                                   </div>
                                   <button
                                     disabled={isFullyPaid}
                                     onClick={() => handleUpdatePaidCount(item.id, item.paidInstallments + 1)}
-                                    className={`size-7 rounded-lg flex items-center justify-center transition-all ${isFullyPaid ? 'opacity-30' : 'bg-emerald-500 text-white shadow-sm'}`}
+                                    className={`size-8 rounded-lg flex items-center justify-center transition-all ${isFullyPaid ? 'opacity-30 text-slate-300' : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-500 hover:scale-110 active:scale-95'}`}
                                   >
                                     <span className="material-symbols-outlined text-sm">add</span>
                                   </button>
