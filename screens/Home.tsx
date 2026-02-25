@@ -9,8 +9,9 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
-  const totalItems = inventory.reduce((acc, curr) => acc + curr.quantity, 0);
-  const lowStock = inventory.filter(i => i.quantity < 5).length;
+  const managedInventory = inventory.filter(item => item.type !== 'Fardamento');
+  const totalItems = managedInventory.reduce((acc, curr) => acc + curr.quantity, 0);
+  const lowStock = managedInventory.filter(i => i.quantity < 5).length;
   const monthSales = sales.reduce((acc, curr) => acc + curr.total, 0);
 
   return (

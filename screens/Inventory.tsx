@@ -19,15 +19,17 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
   const [editingItem, setEditingItem] = useState<Partial<InventoryItem> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filters = ['Todos', 'Camiseta', 'Baby Look', 'Moletom', 'Acessório', 'Fardamento'];
+  const filters = ['Todos', 'Camiseta', 'Baby Look', 'Moletom', 'Acessório'];
 
   const filteredItems = useMemo(() => {
-    return inventory.filter(item => {
-      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.color.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFilter = activeFilter === 'Todos' || item.type === activeFilter;
-      return matchesSearch && matchesFilter;
-    });
+    return inventory
+      .filter(item => item.type !== 'Fardamento')
+      .filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.color.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesFilter = activeFilter === 'Todos' || item.type === activeFilter;
+        return matchesSearch && matchesFilter;
+      });
   }, [inventory, searchTerm, activeFilter]);
 
   const handleOpenAdd = () => {
