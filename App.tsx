@@ -156,24 +156,24 @@ const AppContent: React.FC = () => {
 
   const handleSeedInventory = async () => {
     const fardamentoItems = [
-      { name: '4º A Completo', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 408.45, discount: 11 },
-      { name: 'Calça 4º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 209.00, discount: 3 },
-      { name: 'Joelheira 4º A (par)', size: 'Único', color: 'Preto', quantity: 10, type: 'Fardamento' as const, price: 47.15, discount: 14 },
-      { name: 'Gorro rígido 4º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 44.00, discount: 12 },
-      { name: 'Gorro flexível 4º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 37.70, discount: 5 },
-      { name: 'Tarjeta (3 unidades)', size: 'Único', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 29.40, discount: 2 },
-      { name: '5º B Bordado', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 199.40, discount: 20 },
-      { name: '5º B sem Bordado', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 194.15, discount: 9 },
-      { name: 'Camisa Vermelha Bordada', size: 'M', color: 'Vermelho', quantity: 10, type: 'Fardamento' as const, price: 52.40, discount: 5 },
-      { name: 'Camisa Vermelha sem Bordado', size: 'M', color: 'Vermelho', quantity: 10, type: 'Fardamento' as const, price: 47.15, discount: 5 },
-      { name: 'Short', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 31.40, discount: 10 },
-      { name: 'Sunga', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 52.40, discount: 12 },
-      { name: 'Maiô', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 97.00, discount: 0 },
-      { name: 'Suquini', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 100.00, discount: 0 },
-      { name: 'Segunda Pele Bordada', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 83.90, discount: 1 },
-      { name: '3º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 264.90, discount: 0 },
-      { name: 'Camisa 3º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 119.90, discount: 0 },
-      { name: 'Calça 3º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 145.00, discount: 0 }
+      { name: '4º A Completo', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 408.45, discount: 11 },
+      { name: 'Calça 4º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 209.00, discount: 3 },
+      { name: 'Joelheira 4º A (par)', size: 'Único', color: 'Preto', quantity: 999, type: 'Fardamento', price: 47.15, discount: 14 },
+      { name: 'Gorro rígido 4º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 44.00, discount: 12 },
+      { name: 'Gorro flexível 4º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 37.70, discount: 5 },
+      { name: 'Tarjeta (3 unidades)', size: 'Único', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 29.40, discount: 2 },
+      { name: '5º B Bordado', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 199.40, discount: 20 },
+      { name: '5º B sem Bordado', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 194.15, discount: 9 },
+      { name: 'Camisa Vermelha Bordada', size: 'M', color: 'Vermelho', quantity: 999, type: 'Fardamento', price: 52.40, discount: 5 },
+      { name: 'Camisa Vermelha sem Bordado', size: 'M', color: 'Vermelho', quantity: 999, type: 'Fardamento', price: 47.15, discount: 5 },
+      { name: 'Short', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 31.40, discount: 10 },
+      { name: 'Sunga', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 52.40, discount: 12 },
+      { name: 'Maiô', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 97.00 },
+      { name: 'Suquini', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 100.00 },
+      { name: 'Segunda Pele Bordada', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 83.90, discount: 1 },
+      { name: '3º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 264.90 },
+      { name: 'Camisa 3º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 119.90 },
+      { name: 'Calça 3º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 145.00 }
     ];
 
     try {
@@ -195,7 +195,9 @@ const AppContent: React.FC = () => {
       const invData = await dataService.getInventory();
 
       const hasFardamento = invData.some(i => i.type === 'Fardamento');
-      if (!hasFardamento) {
+      // If no fardamento items exist, seed them. 
+      // Manual deletion of all items will also trigger this since invData.length will be 0.
+      if (!hasFardamento || invData.length === 0) {
         await handleSeedInventory();
       } else {
         setInventory(invData);
