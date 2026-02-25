@@ -44,6 +44,6 @@ export interface SaleRecord {
   date: string;
   items: OrderItem[];
   total: number;
-  status: 'Pago' | 'Pendente';
+  status: 'Pedido' | 'Entregue' | 'Pago';
   seller: string;
 }

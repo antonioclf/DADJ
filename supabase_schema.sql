@@ -20,7 +20,7 @@ CREATE TABLE sales (
   customer_phone TEXT,
   date TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-  status TEXT NOT NULL CHECK (status IN ('Pago', 'Pendente')),
+  status TEXT NOT NULL CHECK (status IN ('Pedido', 'Entregue', 'Pago')),
   seller TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );

@@ -129,7 +129,10 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-black dark:text-white">R$ {sale.total.toFixed(2)}</p>
-                  <p className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg inline-block mt-1 ${sale.status === 'Pago' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                  <p className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg inline-block mt-1 ${sale.status === 'Pago' ? 'bg-emerald-50 text-emerald-600' :
+                      sale.status === 'Entregue' ? 'bg-blue-50 text-blue-600' :
+                        'bg-amber-50 text-amber-600'
+                    }`}>
                     {sale.status}
                   </p>
                 </div>

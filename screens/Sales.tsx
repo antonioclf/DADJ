@@ -17,7 +17,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [seller, setSeller] = useState(team[0]?.name || '');
   const [buyer, setBuyer] = useState('');
   const [phone, setPhone] = useState('');
-  const [isPaid, setIsPaid] = useState(true);
+  const [orderStatus, setOrderStatus] = useState<'Pedido' | 'Entregue' | 'Pago'>('Pedido');
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [showItemPicker, setShowItemPicker] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
@@ -68,7 +68,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
       date: new Date().toLocaleString('pt-BR'),
       items: cart,
       total: total,
-      status: isPaid ? 'Pago' : 'Pendente',
+      status: orderStatus,
       seller: seller
     };
 
@@ -109,23 +109,25 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               type="tel"
             />
 
-            <div className="flex flex-col w-full">
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider pb-1 ml-1">Status do Pagamento</p>
-              <div className="flex gap-2">
-                <Button
-                  variant={isPaid ? 'primary' : 'ghost'}
-                  onClick={() => setIsPaid(true)}
-                  className="flex-1 text-xs uppercase tracking-wider py-3"
-                >
-                  Pago
-                </Button>
-                <Button
-                  variant={!isPaid ? 'primary' : 'ghost'}
-                  onClick={() => setIsPaid(false)}
-                  className={`flex-1 text-xs uppercase tracking-wider py-3 ${!isPaid ? '!bg-amber-500 !shadow-amber-500/30' : ''}`}
-                >
-                  Pendente
-                </Button>
+            <div className="space-y-4">
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider pb-1 ml-1">Status do Pedido</p>
+              <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                {[
+                  { id: 'Pedido', label: 'Pedido', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+                  { id: 'Entregue', label: 'Entregue', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+                  { id: 'Pago', label: 'Pago', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' }
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setOrderStatus(s.id as any)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${orderStatus === s.id ? `${s.bg} ${s.color} shadow-sm` : 'text-slate-400 hover:text-slate-600'}`}
+                  >
+                    <span className="material-symbols-outlined text-[14px] font-black">
+                      {s.id === 'Pedido' ? 'pending_actions' : s.id === 'Entregue' ? 'package_2' : 'payments'}
+                    </span>
+                    {s.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
