@@ -63,6 +63,7 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
           icon="shopping_cart"
           buttonLabel="Iniciar Venda"
           onClick={() => navigate(View.SALES)}
+          imagePosition="top"
         />
 
         <ModuleCard
@@ -73,6 +74,7 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
           buttonLabel="Abrir Estoque"
           onClick={() => navigate(View.INVENTORY)}
           alert={lowStock > 0}
+          imagePosition="top"
         />
       </div>
 
@@ -101,10 +103,11 @@ const ModuleCard: React.FC<{
   buttonLabel: string;
   onClick: () => void;
   alert?: boolean;
-}> = ({ title, description, image, icon, buttonLabel, onClick, alert }) => (
+  imagePosition?: string;
+}> = ({ title, description, image, icon, buttonLabel, onClick, alert, imagePosition = 'center' }) => (
   <div className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-xl hover:shadow-primary/5 active:scale-[0.98]">
     <div
-      className="h-32 w-full bg-cover bg-bottom grayscale-[0.3] group-hover:grayscale-0 transition-all duration-500"
+      className={`h-32 w-full bg-cover grayscale-[0.3] group-hover:grayscale-0 transition-all duration-500 bg-${imagePosition}`}
       style={{ backgroundImage: `url('${image}')` }}
     />
     <div className="p-6">
