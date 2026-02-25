@@ -32,6 +32,12 @@ const AppContent: React.FC = () => {
       setInventory(invData);
       setSales(salesData);
 
+      // Auto-populate inventory if empty
+      if (invData.length === 0) {
+        console.log('Inventory is empty, triggering auto-seed...');
+        await handleSeedInventory();
+      }
+
       // Fetch team separately
       try {
         const teamData = await dataService.getTeam();
@@ -134,6 +140,40 @@ const AppContent: React.FC = () => {
   if (!user) {
     return <Login />;
   }
+
+  const handleSeedInventory = async () => {
+    const fardamentoItems = [
+      { name: '4º A Completo', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 408.45, discount: 11 },
+      { name: 'Calça 4º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 209.00, discount: 3 },
+      { name: 'Joelheira 4º A (par)', size: 'Único', color: 'Preto', quantity: 10, type: 'Fardamento' as const, price: 47.15, discount: 14 },
+      { name: 'Gorro rígido 4º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 44.00, discount: 12 },
+      { name: 'Gorro flexível 4º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 37.70, discount: 5 },
+      { name: 'Tarjeta (3 unidades)', size: 'Único', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 29.40, discount: 2 },
+      { name: '5º B Bordado', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 199.40, discount: 20 },
+      { name: '5º B sem Bordado', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 194.15, discount: 9 },
+      { name: 'Camisa Vermelha Bordada', size: 'M', color: 'Vermelho', quantity: 10, type: 'Fardamento' as const, price: 52.40, discount: 5 },
+      { name: 'Camisa Vermelha sem Bordado', size: 'M', color: 'Vermelho', quantity: 10, type: 'Fardamento' as const, price: 47.15, discount: 5 },
+      { name: 'Short', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 31.40, discount: 10 },
+      { name: 'Sunga', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 52.40, discount: 12 },
+      { name: 'Maiô', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 97.00, discount: 0 },
+      { name: 'Suquini', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 100.00, discount: 0 },
+      { name: 'Segunda Pele Bordada', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 83.90, discount: 1 },
+      { name: '3º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 264.90, discount: 0 },
+      { name: 'Camisa 3º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 119.90, discount: 0 },
+      { name: 'Calça 3º A', size: 'M', color: 'Padrão', quantity: 10, type: 'Fardamento' as const, price: 145.00, discount: 0 }
+    ];
+
+    try {
+      for (const item of fardamentoItems) {
+        await dataService.updateInventoryItem(item as any);
+      }
+      const invData = await dataService.getInventory();
+      setInventory(invData);
+      console.log('Inventory seeded successfully!');
+    } catch (error: any) {
+      console.error('Error seeding inventory:', error);
+    }
+  };
 
   const handleSeedTeam = async () => {
     const officialMembers = [
