@@ -16,6 +16,7 @@ interface SalesProps {
 const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => {
   const [seller, setSeller] = useState(team[0]?.name || '');
   const [buyer, setBuyer] = useState('');
+  const [buyerBM, setBuyerBM] = useState('');
   const [phone, setPhone] = useState('');
   const [orderStatus, setOrderStatus] = useState<'Pedido' | 'Entregue' | 'Pago'>('Pedido');
   const [cart, setCart] = useState<OrderItem[]>([]);
@@ -65,6 +66,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
       id: Date.now().toString(),
       customerName: buyer,
       customerPhone: phone,
+      customerBM: buyerBM,
       date: new Date().toLocaleString('pt-BR'),
       items: cart,
       total: total,
@@ -94,6 +96,13 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               {team.map(m => <option key={m.id} value={m.name}>{m.name}</option>)}
               {team.length === 0 && <option value="">Nenhum vendedor cadastrado</option>}
             </Input>
+            <Input
+              label="Número BM do Comprador"
+              icon="badge"
+              placeholder="Número BM do comprador"
+              value={buyerBM}
+              onChange={(e) => setBuyerBM((e.target as HTMLInputElement).value)}
+            />
             <Input
               label="Nome do Aluno (Comprador)"
               placeholder="Ex: João da Silva"

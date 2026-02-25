@@ -41,6 +41,7 @@ export interface SaleRecord {
   id: string;
   customerName: string;
   customerPhone?: string;
+  customerBM?: string;
   date: string;
   items: OrderItem[];
   total: number;

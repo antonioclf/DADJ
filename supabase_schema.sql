@@ -18,6 +18,7 @@ CREATE TABLE sales (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_name TEXT NOT NULL,
   customer_phone TEXT,
+  customer_bm TEXT,
   date TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   status TEXT NOT NULL CHECK (status IN ('Pedido', 'Entregue', 'Pago')),

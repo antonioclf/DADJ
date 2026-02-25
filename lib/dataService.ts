@@ -63,6 +63,7 @@ export const dataService = {
             id: sale.id,
             customerName: sale.customer_name,
             customerPhone: sale.customer_phone,
+            customerBM: sale.customer_bm,
             date: new Date(sale.date).toLocaleString('pt-BR'),
             total: sale.total,
             status: sale.status,
@@ -85,6 +86,7 @@ export const dataService = {
             .insert({
                 customer_name: sale.customerName,
                 customer_phone: sale.customerPhone,
+                customer_bm: sale.customerBM,
                 total: sale.total,
                 status: sale.status,
                 seller: sale.seller

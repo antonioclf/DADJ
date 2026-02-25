@@ -123,15 +123,20 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
                     <span className="material-symbols-outlined">person</span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-black dark:text-white uppercase tracking-tight">{sale.customerName}</h4>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{sale.date}</p>
+                    <h3 className="text-sm font-black dark:text-white uppercase tracking-tight">{sale.customerName}</h3>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{sale.date}</p>
+                      {sale.customerBM && (
+                        <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-md uppercase">BM: {sale.customerBM}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-black dark:text-white">R$ {sale.total.toFixed(2)}</p>
                   <p className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg inline-block mt-1 ${sale.status === 'Pago' ? 'bg-emerald-50 text-emerald-600' :
-                      sale.status === 'Entregue' ? 'bg-blue-50 text-blue-600' :
-                        'bg-amber-50 text-amber-600'
+                    sale.status === 'Entregue' ? 'bg-blue-50 text-blue-600' :
+                      'bg-amber-50 text-amber-600'
                     }`}>
                     {sale.status}
                   </p>
