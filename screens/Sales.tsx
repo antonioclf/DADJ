@@ -34,7 +34,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         name: item.name,
         size: item.size,
         quantity: 1,
-        price: discountedPrice
+        price: discountedPrice,
+        discount: item.discount
       }]);
     }
     setShowItemPicker(false);
@@ -42,6 +43,10 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
 
   const removeFromCart = (id: string) => {
     setCart(cart.filter(i => i.id !== id));
+  };
+
+  const updateCartItemSize = (id: string, newSize: string) => {
+    setCart(cart.map(i => i.id === id ? { ...i, size: newSize } : i));
   };
 
   const total = cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
@@ -147,14 +152,26 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                   </div>
                   <div>
                     <h3 className="text-sm font-bold dark:text-white">{item.name}</h3>
-                    <div className="flex items-center gap-2">
-                      {item.type !== 'Fardamento' && (
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tam: {item.size} • Qtd: {item.quantity}</p>
-                      )}
-                      {item.type === 'Fardamento' && (
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tamanho: {item.size}</p>
-                      )}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <span className="text-[9px] font-black text-slate-400 uppercase">Tam:</span>
+                        <select
+                          value={item.size}
+                          onChange={(e) => updateCartItemSize(item.id, e.target.value)}
+                          className="bg-transparent text-[10px] font-bold text-primary focus:outline-none cursor-pointer"
+                        >
+                          {['PP', 'P', 'M', 'G', 'GG', 'EG'].map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">• Qtd: {item.quantity}</span>
                       <span className="text-[8px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full uppercase">Valor un: R$ {item.price.toFixed(2)}</span>
+                      {item.discount && item.discount > 0 && (
+                        <span className="text-[8px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded-full uppercase shadow-sm">
+                          -{item.discount}% OFF
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -210,10 +227,17 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                 <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">{item.size} • {item.color}</p>
               </div>
               <div className="text-right">
-                <p className="font-bold text-primary">R$ {item.price.toFixed(2)}</p>
+                {item.discount && item.discount > 0 ? (
+                  <>
+                    <p className="text-[9px] text-slate-400 font-bold line-through opacity-60">De R$ {(item.price / (1 - item.discount / 100)).toFixed(2)}</p>
+                    <p className="font-bold text-rose-500">Por R$ {item.price.toFixed(2)}</p>
+                  </>
+                ) : (
+                  <p className="font-bold text-primary">R$ {item.price.toFixed(2)}</p>
+                )}
               </div>
               {(item.discount ?? 0) > 0 && (
-                <div className="absolute right-2 top-2 bg-rose-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-lg shadow-sm">
+                <div className="absolute right-2 top-2 bg-rose-500 text-white text-[10px] font-black px-2 py-1 rounded-xl shadow-lg border-2 border-white dark:border-slate-900 transform -rotate-12 animate-pulse">
                   -{item.discount}%
                 </div>
               )}
