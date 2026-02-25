@@ -37,6 +37,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
   discount?: number;
+  status: 'Pedido' | 'Entregue' | 'Pago';
 }
 
 export interface SaleRecord {

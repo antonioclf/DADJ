@@ -46,9 +46,10 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                     name: item.name,
                     size: item.size,
                     quantity: item.quantity,
-                    price: item.price
-                }))
-            })));
+                    price: item.price,
+                    status: item.status
+                })).filter((item: any) => item.status !== 'Pago')
+            })).filter((sale: any) => sale.items.length > 0));
         } catch (error) {
             console.error('Error searching payments:', error);
             alert('Erro ao consultar pagamentos.');
@@ -57,7 +58,9 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
         }
     };
 
-    const totalPending = results.reduce((acc, curr) => acc + curr.total, 0);
+    const totalPending = results.reduce((acc, sale) =>
+        acc + sale.items.reduce((itemAcc, item) => itemAcc + (item.price * item.quantity), 0)
+        , 0);
 
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark p-6">
@@ -120,7 +123,7 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                                                             {sale.status}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm font-black dark:text-white">R$ {sale.total.toFixed(2)}</p>
+                                                    <p className="text-sm font-black dark:text-white">R$ {sale.items.reduce((acc, item) => acc + (item.price * item.quantity), 0).toFixed(2)}</p>
                                                 </div>
                                                 <div className="space-y-2">
                                                     {sale.items.map((item, idx) => (

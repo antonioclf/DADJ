@@ -4,6 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 import { SaleRecord } from '../types';
 import Button from '../ui/Button';
 import Header from '../ui/Header';
+import { dataService } from '../lib/dataService';
 
 interface ReportsProps {
   sales: SaleRecord[];
@@ -13,10 +14,22 @@ interface ReportsProps {
 const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [expandedSale, setExpandedSale] = useState<string | null>(null);
 
   const stats = useMemo(() => {
-    const total = sales.reduce((acc, curr) => acc + curr.total, 0);
-    const paid = sales.filter(s => s.status === 'Pago').reduce((acc, curr) => acc + curr.total, 0);
+    let total = 0;
+    let paid = 0;
+
+    sales.forEach(sale => {
+      sale.items.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        if (item.status === 'Pago') {
+          paid += itemTotal;
+        }
+      });
+    });
+
     const pending = total - paid;
     return { total, paid, pending, count: sales.length };
   }, [sales]);
@@ -47,6 +60,17 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
       setAiSummary("Erro ao conectar com a IA.");
     } finally {
       setIsGeneratingAI(false);
+    }
+  };
+
+  const handleUpdateItemStatus = async (itemId: string, currentStatus: string) => {
+    try {
+      const nextStatus = currentStatus === 'Pago' ? 'Entregue' : 'Pago';
+      await dataService.updateSaleItemStatus(itemId, nextStatus);
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating item status:', error);
+      alert('Erro ao atualizar status do item.');
     }
   };
 
@@ -116,44 +140,81 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
           </div>
 
           <div className="space-y-3">
-            {sales.map(sale => (
-              <div key={sale.id} className="bg-white dark:bg-slate-900 p-5 rounded-[1.5rem] flex items-center justify-between shadow-sm border border-slate-50 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                    <span className="material-symbols-outlined">person</span>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-black dark:text-white uppercase tracking-tight">{sale.customerName}</h3>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{sale.date}</p>
-                      {sale.customerBM && (
-                        <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-md uppercase">BM: {sale.customerBM}</span>
-                      )}
+            {sales.map(sale => {
+              const isExpanded = expandedSale === sale.id;
+              const salePaid = sale.items.every(i => i.status === 'Pago');
+              const salePartial = !salePaid && sale.items.some(i => i.status === 'Pago');
+
+              return (
+                <div key={sale.id} className="flex flex-col gap-2">
+                  <div
+                    onClick={() => setExpandedSale(isExpanded ? null : sale.id)}
+                    className="bg-white dark:bg-slate-900 p-5 rounded-[1.5rem] flex items-center justify-between shadow-sm border border-slate-50 dark:border-slate-800 cursor-pointer hover:border-primary/20 transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                        <span className="material-symbols-outlined">{isExpanded ? 'expand_less' : 'person'}</span>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-black dark:text-white uppercase tracking-tight">{sale.customerName}</h3>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{sale.date}</p>
+                          {sale.customerBM && (
+                            <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-md uppercase">BM: {sale.customerBM}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-sm font-black dark:text-white">R$ {sale.total.toFixed(2)}</p>
+                        <p className={`text-[7px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg inline-block mt-1 ${salePaid ? 'bg-emerald-500 text-white' :
+                          salePartial ? 'bg-amber-500 text-white' :
+                            'bg-blue-500 text-white'
+                          }`}>
+                          {salePaid ? 'Pago' : salePartial ? 'Parcial' : sale.status}
+                        </p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm("Deseja realmente excluir esta venda?")) {
+                            onDeleteSale(sale.id);
+                          }
+                        }}
+                        className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all"
+                      >
+                        <span className="material-symbols-outlined text-lg">delete</span>
+                      </button>
                     </div>
                   </div>
+
+                  {isExpanded && (
+                    <div className="mx-4 p-4 bg-slate-50/50 dark:bg-slate-800/30 border-x border-b border-slate-100 dark:border-slate-800 rounded-b-[1.5rem] -mt-4 pt-6 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Itens do Pedido</p>
+                      {sale.items.map(item => (
+                        <div key={item.id} className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-50 dark:border-slate-800 shadow-sm">
+                          <div className="flex-1">
+                            <p className="text-[10px] font-black dark:text-white uppercase tracking-tight">{item.quantity}x {item.name}</p>
+                            <p className="text-[9px] text-slate-400 font-bold">R$ {(item.price * item.quantity).toFixed(2)}</p>
+                          </div>
+                          <button
+                            onClick={() => handleUpdateItemStatus(item.id, item.status)}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${item.status === 'Pago'
+                              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                              }`}
+                          >
+                            <span>{item.status === 'Pago' ? 'Pago' : 'Pendente'}</span>
+                            <span className="material-symbols-outlined text-sm">{item.status === 'Pago' ? 'check_circle' : 'pending'}</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-black dark:text-white">R$ {sale.total.toFixed(2)}</p>
-                  <p className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg inline-block mt-1 ${sale.status === 'Pago' ? 'bg-emerald-50 text-emerald-600' :
-                    sale.status === 'Entregue' ? 'bg-blue-50 text-blue-600' :
-                      'bg-amber-50 text-amber-600'
-                    }`}>
-                    {sale.status}
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    if (window.confirm("Deseja realmente excluir esta venda?")) {
-                      onDeleteSale(sale.id);
-                    }
-                  }}
-                  className="ml-4 p-3 bg-rose-50 dark:bg-rose-950/30 text-rose-500 rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-all flex items-center justify-center shadow-sm border border-rose-100 dark:border-rose-900"
-                  title="Excluir Venda"
-                >
-                  <span className="material-symbols-outlined text-lg">delete</span>
-                </button>
-              </div>
-            ))}
+              );
+            })}
             {sales.length === 0 && (
               <p className="text-center py-20 text-slate-300 text-xs font-bold uppercase tracking-widest">Nenhum registro encontrado</p>
             )}

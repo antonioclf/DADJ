@@ -74,7 +74,8 @@ export const dataService = {
                 name: item.name,
                 size: item.size,
                 quantity: item.quantity,
-                price: item.price
+                price: item.price,
+                status: item.status
             }))
         }));
     },
@@ -96,14 +97,15 @@ export const dataService = {
 
         if (saleError) throw saleError;
 
-        // 2. Insert sale items
+        // 2. Insert sale items with status matching the sale status
         const saleItems = sale.items.map(item => ({
             sale_id: saleData.id,
             inventory_id: item.inventoryId,
             name: item.name,
             size: item.size,
             quantity: item.quantity,
-            price: item.price
+            price: item.price,
+            status: sale.status // Initialize item status from sale status
         }));
 
         const { error: itemsError } = await supabase
@@ -165,6 +167,14 @@ export const dataService = {
             .from('sales')
             .delete()
             .eq('id', id);
+
+        if (error) throw error;
+    },
+    async updateSaleItemStatus(itemId: string, newStatus: string): Promise<void> {
+        const { error } = await supabase
+            .from('sale_items')
+            .update({ status: newStatus })
+            .eq('id', itemId);
 
         if (error) throw error;
     }
