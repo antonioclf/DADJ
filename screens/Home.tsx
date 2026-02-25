@@ -68,7 +68,7 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
         <ModuleCard
           title="Controle de Estoque"
           description={`${lowStock} itens precisam de reposição.`}
-          image="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=800"
+          image="/estoque.jpeg"
           icon="inventory_2"
           buttonLabel="Abrir Estoque"
           onClick={() => navigate(View.INVENTORY)}
