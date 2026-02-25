@@ -29,7 +29,9 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                 `)
                 .eq('customer_bm', bm)
                 .neq('status', 'Pago')
-                .order('date', { ascending: false });
+                .order('date', { ascending: false })
+                .order('created_at', { foreignTable: 'sale_items', ascending: true })
+                .order('id', { foreignTable: 'sale_items', ascending: true });
 
             if (error) throw error;
 

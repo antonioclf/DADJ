@@ -12,7 +12,13 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
   const managedInventory = inventory.filter(item => item.type !== 'Fardamento');
   const totalItems = managedInventory.reduce((acc, curr) => acc + curr.quantity, 0);
   const lowStock = managedInventory.filter(i => i.quantity < 5).length;
-  const monthSales = sales.reduce((acc, curr) => acc + curr.total, 0);
+
+  const totalPaid = sales.reduce((acc, sale) => {
+    return acc + sale.items.reduce((itemAcc, item) => {
+      const itemTotal = item.price * item.quantity;
+      return itemAcc + (itemTotal * (item.paidInstallments / (item.totalInstallments || 1)));
+    }, 0);
+  }, 0);
 
   return (
     <div className="p-4 space-y-6">
@@ -42,9 +48,9 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
           </div>
         </div>
         <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl shadow-sm border border-slate-50 dark:border-slate-800">
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Vendas (Total)</p>
+          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Receita Realizada</p>
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-black text-primary">R$ {monthSales.toFixed(0)}</span>
+            <span className="text-xl font-black text-emerald-500">R$ {totalPaid.toFixed(0)}</span>
           </div>
         </div>
       </div>
