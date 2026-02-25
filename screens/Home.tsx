@@ -59,7 +59,7 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
         <ModuleCard
           title="Vendas de Fardamento"
           description="Registre pedidos e receba pagamentos."
-          image="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=800"
+          image="/hero_sales.jpg"
           icon="shopping_cart"
           buttonLabel="Iniciar Venda"
           onClick={() => navigate(View.SALES)}
