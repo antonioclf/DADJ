@@ -6,6 +6,8 @@ import Button from '../ui/Button';
 import Header from '../ui/Header';
 import { dataService } from '../lib/dataService';
 import { supabase } from '../lib/supabase';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface ReportsProps {
   sales: SaleRecord[];
@@ -17,12 +19,35 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [expandedSale, setExpandedSale] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+
+  const filteredSales = useMemo(() => {
+    if (!startDate && !endDate) return sales;
+
+    return sales.filter(sale => {
+      // Parse DD/MM/YYYY to dynamic Date
+      const [datePart] = sale.date.split(', ');
+      const [day, month, year] = datePart.split('/').map(Number);
+      const saleDate = new Date(year, month - 1, day);
+
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+
+      if (start) start.setHours(0, 0, 0, 0);
+      if (end) end.setHours(23, 59, 59, 999);
+
+      if (start && saleDate < start) return false;
+      if (end && saleDate > end) return false;
+      return true;
+    });
+  }, [sales, startDate, endDate]);
 
   const stats = useMemo(() => {
     let total = 0;
     let paid = 0;
 
-    sales.forEach(sale => {
+    filteredSales.forEach(sale => {
       sale.items.forEach(item => {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
@@ -32,8 +57,8 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     });
 
     const pending = total - paid;
-    return { total, paid, pending, count: sales.length };
-  }, [sales]);
+    return { total, paid, pending, count: filteredSales.length };
+  }, [filteredSales]);
 
   const handleSmartSummary = async () => {
     if (isGeneratingAI || sales.length === 0) return;
@@ -62,6 +87,89 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     } finally {
       setIsGeneratingAI(false);
     }
+  };
+
+  const setPeriodShortcut = (period: 'thisMonth' | 'lastMonth' | 'thisYear' | 'all') => {
+    const today = new Date();
+    let start = new Date();
+    let end = new Date();
+
+    if (period === 'thisMonth') {
+      start = new Date(today.getFullYear(), today.getMonth(), 1);
+      end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    } else if (period === 'lastMonth') {
+      start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      end = new Date(today.getFullYear(), today.getMonth(), 0);
+    } else if (period === 'thisYear') {
+      start = new Date(today.getFullYear(), 0, 1);
+      end = new Date(today.getFullYear(), 11, 31);
+    } else if (period === 'all') {
+      setStartDate('');
+      setEndDate('');
+      return;
+    }
+
+    setStartDate(start.toISOString().split('T')[0]);
+    setEndDate(end.toISOString().split('T')[0]);
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+
+    // Header
+    doc.setFontSize(20);
+    doc.text('Relatório de Vendas - DA Dois de Julho', 14, 22);
+
+    doc.setFontSize(10);
+    const periodText = startDate || endDate
+      ? `Período: ${startDate ? new Date(startDate).toLocaleDateString() : 'Início'} até ${endDate ? new Date(endDate).toLocaleDateString() : 'Hoje'}`
+      : 'Período: Completo';
+    doc.text(periodText, 14, 30);
+    doc.text(`Gerado em: ${new Date().toLocaleString()}`, 14, 35);
+
+    // Financial Summary
+    doc.setFontSize(14);
+    doc.text('Resumo Financeiro', 14, 45);
+
+    autoTable(doc, {
+      startY: 50,
+      head: [['Métrica', 'Valor']],
+      body: [
+        ['Total Bruto', `R$ ${stats.total.toFixed(2)}`],
+        ['Total Recebido', `R$ ${stats.paid.toFixed(2)}`],
+        ['Total Pendente', `R$ ${stats.pending.toFixed(2)}`],
+        ['Quantidade de Vendas', stats.count.toString()],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [37, 99, 235] }
+    });
+
+    // Sales Details
+    doc.setFontSize(14);
+    doc.text('Detalhamento de Vendas', 14, (doc as any).lastAutoTable.finalY + 15);
+
+    const tableData = filteredSales.flatMap(sale =>
+      sale.items.map(item => [
+        sale.date.split(',')[0],
+        sale.customerName,
+        item.name,
+        item.quantity,
+        `R$ ${item.price.toFixed(2)}`,
+        `R$ ${(item.price * item.quantity).toFixed(2)}`,
+        item.status
+      ])
+    );
+
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 20,
+      head: [['Data', 'Cliente', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [37, 99, 235] },
+      styles: { fontSize: 8 }
+    });
+
+    doc.save(`relatorio_vendas_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const handleUpdatePaidCount = async (itemId: string, newCount: number) => {
@@ -104,6 +212,58 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
       <Header title="Fluxo de Caixa" subtitle="Relatórios" />
 
       <div className="px-4 py-6 space-y-4">
+        {/* Date Filters */}
+        <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-50 dark:border-slate-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filtrar por Período</h3>
+            <Button
+              variant="ghost"
+              onClick={handleExportPDF}
+              className="text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full !h-auto flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-sm">download</span>
+              Exportar PDF
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Início</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Fim</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl px-4 py-2.5 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-2">
+            {[
+              { id: 'thisMonth', label: 'Este Mês' },
+              { id: 'lastMonth', label: 'Mês Passado' },
+              { id: 'thisYear', label: 'Este Ano' },
+              { id: 'all', label: 'Tudo' }
+            ].map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setPeriodShortcut(s.id as any)}
+                className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-[9px] font-black text-slate-500 uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-all"
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
         {/* Main Card */}
         <div className="bg-primary p-8 rounded-[3rem] text-white shadow-2xl shadow-primary/30 relative overflow-hidden group">
           <span className="material-symbols-outlined absolute top-8 right-8 opacity-20 text-4xl transform group-hover:rotate-12 transition-transform">payments</span>
@@ -169,7 +329,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
           </div>
 
           <div className="space-y-3">
-            {sales.map(sale => {
+            {filteredSales.map(sale => {
               const isExpanded = expandedSale === sale.id;
               const salePaid = sale.items.every(i => i.paidInstallments >= i.totalInstallments);
               const salePartial = !salePaid && sale.items.some(i => i.paidInstallments > 0);
@@ -328,7 +488,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                 </div>
               );
             })}
-            {sales.length === 0 && (
+            {filteredSales.length === 0 && (
               <p className="text-center py-20 text-slate-300 text-xs font-bold uppercase tracking-widest">Nenhum registro encontrado</p>
             )}
           </div>
