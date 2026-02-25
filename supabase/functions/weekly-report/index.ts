@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { jsPDF } from 'https://esm.sh/jspdf@2.5.1'
-import 'https://esm.sh/jspdf-autotable@3.5.28'
+import autoTable from 'https://esm.sh/jspdf-autotable@3.8.2'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
@@ -32,10 +32,10 @@ Deno.serve(async (req) => {
 
     if (salesError) throw salesError
 
-    const recentSales = sales.filter(sale => {
+    const recentSales = (sales || []).filter(sale => {
       const saleDate = new Date(sale.created_at)
       return saleDate >= sevenDaysAgo
-    }) || []
+    })
 
     // 2. Calcular Estatísticas
     let totalBruto = 0
@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 35);
 
     // Resumo Financeiro no PDF
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 45,
       head: [['Métrica', 'Valor']],
       body: [
@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
       ])
     );
 
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: (doc as any).lastAutoTable.finalY + 15,
       head: [['Data', 'Cliente', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
       body: tableData,
