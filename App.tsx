@@ -24,6 +24,88 @@ const AppContent: React.FC = () => {
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [teamError, setTeamError] = useState<string | null>(null);
 
+  const handleSeedInventory = useCallback(async () => {
+    const fardamentoItems = [
+      { name: '4º A Completo', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 408.45, discount: 11 },
+      { name: 'Calça 4º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 209.00, discount: 3 },
+      { name: 'Joelheira 4º A (par)', size: 'Único', color: 'Preto', quantity: 999, type: 'Fardamento', price: 47.15, discount: 14 },
+      { name: 'Gorro rígido 4º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 44.00, discount: 12 },
+      { name: 'Gorro flexível 4º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 37.70, discount: 5 },
+      { name: 'Tarjeta (3 unidades)', size: 'Único', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 29.40, discount: 2 },
+      { name: '5º B Bordado', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 199.40, discount: 20 },
+      { name: '5º B sem Bordado', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 194.15, discount: 9 },
+      { name: 'Camisa Vermelha Bordada', size: 'M', color: 'Vermelho', quantity: 999, type: 'Fardamento', price: 52.40, discount: 5 },
+      { name: 'Camisa Vermelha sem Bordado', size: 'M', color: 'Vermelho', quantity: 999, type: 'Fardamento', price: 47.15, discount: 5 },
+      { name: 'Short', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 31.40, discount: 10 },
+      { name: 'Sunga', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 52.40, discount: 12 },
+      { name: 'Maiô', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 97.00 },
+      { name: 'Suquini', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 100.00 },
+      { name: 'Segunda Pele Bordada', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 83.90, discount: 1 },
+      { name: '3º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 264.90 },
+      { name: 'Camisa 3º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 119.90 },
+      { name: 'Calça 3º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 145.00 }
+    ];
+
+    try {
+      console.log('Inserting fardamento items...');
+      const { error } = await supabase
+        .from('inventory')
+        .upsert(fardamentoItems.map(item => ({
+          name: item.name,
+          size: item.size,
+          color: item.color,
+          quantity: item.quantity,
+          type: item.type,
+          price: item.price,
+          discount: item.discount
+        })), { onConflict: 'name,size,color' });
+
+      if (error) throw error;
+
+      const invData = await dataService.getInventory();
+
+      const hasFardamento = invData.some(i => i.type === 'Fardamento');
+      if (!hasFardamento || invData.length === 0) {
+        await handleSeedInventory();
+      } else {
+        setInventory(invData);
+      }
+    } catch (error: any) {
+      console.error('Error seeding inventory:', error);
+      setGlobalError('Erro ao cadastrar itens automaticamente: ' + (error.message || 'Erro desconhecido'));
+    }
+  }, []);
+
+  const handleSeedTeam = useCallback(async () => {
+    const officialMembers = [
+      { name: 'Cad Barreto', role: 'CFO III', active: true },
+      { name: 'Cad Carneiro', role: 'CFO III', active: true },
+      { name: 'Cad Natália Machado', role: 'CFO III', active: true },
+      { name: 'Cad Araújo', role: 'CFO II', active: true },
+      { name: 'Cad Bahia', role: 'CFO II', active: true },
+      { name: 'Cad Lima', role: 'CFO II', active: true },
+      { name: 'Cad Azalim', role: 'CFO II', active: true },
+      { name: 'Cad Samir', role: 'CFO II', active: true }
+    ];
+
+    try {
+      for (const member of officialMembers) {
+        await dataService.addTeamMember(member as any);
+      }
+      // Note: loadData is not available here yet if declared after, but we can call loadData manually or wait for effect
+      const [invData, salesData] = await Promise.all([
+        dataService.getInventory(),
+        dataService.getSales()
+      ]);
+      setInventory(invData);
+      setSales(salesData);
+      alert('Vendedores cadastrados com sucesso! ✅');
+    } catch (error: any) {
+      console.error('Error seeding team:', error);
+      alert('Erro ao cadastrar: ' + (error.message || 'Erro desconhecido'));
+    }
+  }, []);
+
   // Load data from Supabase
   const loadData = useCallback(async () => {
     // If we're on price list, we need inventory even without login
@@ -79,7 +161,7 @@ const AppContent: React.FC = () => {
     } finally {
       setDataLoading(false);
     }
-  }, [user]);
+  }, [user, currentView, handleSeedInventory, handleSeedTeam]);
 
   useEffect(() => {
     loadData();
@@ -151,10 +233,14 @@ const AppContent: React.FC = () => {
     }
   };
 
-  if (authLoading || (user && dataLoading && inventory.length === 0)) {
+  const needsData = user || currentView === View.PRICE_LIST;
+  if (authLoading || (dataLoading && inventory.length === 0 && needsData)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Carregando dados...</p>
+        </div>
       </div>
     );
   }
@@ -165,83 +251,6 @@ const AppContent: React.FC = () => {
     return <Login />;
   }
 
-  const handleSeedInventory = async () => {
-    const fardamentoItems = [
-      { name: '4º A Completo', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 408.45, discount: 11 },
-      { name: 'Calça 4º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 209.00, discount: 3 },
-      { name: 'Joelheira 4º A (par)', size: 'Único', color: 'Preto', quantity: 999, type: 'Fardamento', price: 47.15, discount: 14 },
-      { name: 'Gorro rígido 4º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 44.00, discount: 12 },
-      { name: 'Gorro flexível 4º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 37.70, discount: 5 },
-      { name: 'Tarjeta (3 unidades)', size: 'Único', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 29.40, discount: 2 },
-      { name: '5º B Bordado', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 199.40, discount: 20 },
-      { name: '5º B sem Bordado', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 194.15, discount: 9 },
-      { name: 'Camisa Vermelha Bordada', size: 'M', color: 'Vermelho', quantity: 999, type: 'Fardamento', price: 52.40, discount: 5 },
-      { name: 'Camisa Vermelha sem Bordado', size: 'M', color: 'Vermelho', quantity: 999, type: 'Fardamento', price: 47.15, discount: 5 },
-      { name: 'Short', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 31.40, discount: 10 },
-      { name: 'Sunga', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 52.40, discount: 12 },
-      { name: 'Maiô', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 97.00 },
-      { name: 'Suquini', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 100.00 },
-      { name: 'Segunda Pele Bordada', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 83.90, discount: 1 },
-      { name: '3º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 264.90 },
-      { name: 'Camisa 3º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 119.90 },
-      { name: 'Calça 3º A', size: 'M', color: 'Padrão', quantity: 999, type: 'Fardamento', price: 145.00 }
-    ];
-
-    try {
-      console.log('Inserting fardamento items...');
-      const { error } = await supabase
-        .from('inventory')
-        .upsert(fardamentoItems.map(item => ({
-          name: item.name,
-          size: item.size,
-          color: item.color,
-          quantity: item.quantity,
-          type: item.type,
-          price: item.price,
-          discount: item.discount
-        })), { onConflict: 'name,size,color' });
-
-      if (error) throw error;
-
-      const invData = await dataService.getInventory();
-
-      const hasFardamento = invData.some(i => i.type === 'Fardamento');
-      // If no fardamento items exist, seed them. 
-      // Manual deletion of all items will also trigger this since invData.length will be 0.
-      if (!hasFardamento || invData.length === 0) {
-        await handleSeedInventory();
-      } else {
-        setInventory(invData);
-      }
-    } catch (error: any) {
-      console.error('Error seeding inventory:', error);
-      setGlobalError('Erro ao cadastrar itens automaticamente: ' + (error.message || 'Erro desconhecido'));
-    }
-  };
-
-  const handleSeedTeam = async () => {
-    const officialMembers = [
-      { name: 'Cad Barreto', role: 'CFO III', active: true },
-      { name: 'Cad Carneiro', role: 'CFO III', active: true },
-      { name: 'Cad Natália Machado', role: 'CFO III', active: true },
-      { name: 'Cad Araújo', role: 'CFO II', active: true },
-      { name: 'Cad Bahia', role: 'CFO II', active: true },
-      { name: 'Cad Lima', role: 'CFO II', active: true },
-      { name: 'Cad Azalim', role: 'CFO II', active: true },
-      { name: 'Cad Samir', role: 'CFO II', active: true }
-    ];
-
-    try {
-      for (const member of officialMembers) {
-        await dataService.addTeamMember(member as any);
-      }
-      await loadData();
-      alert('Vendedores cadastrados com sucesso! ✅');
-    } catch (error: any) {
-      console.error('Error seeding team:', error);
-      alert('Erro ao cadastrar: ' + (error.message || 'Erro desconhecido'));
-    }
-  };
 
   const handleDeleteSale = async (id: string) => {
     try {
