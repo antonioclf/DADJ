@@ -75,7 +75,9 @@ export const dataService = {
                 size: item.size,
                 quantity: item.quantity,
                 price: item.price,
-                status: item.status
+                status: item.status,
+                totalInstallments: item.total_installments || 1,
+                paidInstallments: item.paid_installments || 0
             }))
         }));
     },
@@ -105,7 +107,9 @@ export const dataService = {
             size: item.size,
             quantity: item.quantity,
             price: item.price,
-            status: sale.status // Initialize item status from sale status
+            status: sale.status, // Initialize item status from sale status
+            total_installments: item.totalInstallments || 1,
+            paid_installments: item.paidInstallments || 0
         }));
 
         const { error: itemsError } = await supabase
@@ -170,10 +174,13 @@ export const dataService = {
 
         if (error) throw error;
     },
-    async updateSaleItemStatus(itemId: string, newStatus: string): Promise<void> {
+    async updateItemInstallments(itemId: string, paidCount: number): Promise<void> {
         const { error } = await supabase
             .from('sale_items')
-            .update({ status: newStatus })
+            .update({
+                paid_installments: paidCount,
+                status: paidCount === 0 ? 'Pedido' : 'Pago' // Simplified auto-status for now, UI will handle more nuance
+            })
             .eq('id', itemId);
 
         if (error) throw error;

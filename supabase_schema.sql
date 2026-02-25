@@ -35,6 +35,9 @@ CREATE TABLE sale_items (
   size TEXT NOT NULL,
   quantity INTEGER NOT NULL DEFAULT 1,
   price DECIMAL(10,2) NOT NULL,
+  status TEXT NOT NULL DEFAULT 'Pedido' CHECK (status IN ('Pedido', 'Entregue', 'Pago')),
+  total_installments INTEGER NOT NULL DEFAULT 1,
+  paid_installments INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

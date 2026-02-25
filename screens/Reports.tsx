@@ -5,6 +5,7 @@ import { SaleRecord } from '../types';
 import Button from '../ui/Button';
 import Header from '../ui/Header';
 import { dataService } from '../lib/dataService';
+import { supabase } from '../lib/supabase';
 
 interface ReportsProps {
   sales: SaleRecord[];
@@ -24,9 +25,8 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
       sale.items.forEach(item => {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
-        if (item.status === 'Pago') {
-          paid += itemTotal;
-        }
+        const paidPortion = itemTotal * (item.paidInstallments / (item.totalInstallments || 1));
+        paid += paidPortion;
       });
     });
 
@@ -63,14 +63,28 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
     }
   };
 
-  const handleUpdateItemStatus = async (itemId: string, currentStatus: string) => {
+  const handleUpdatePaidCount = async (itemId: string, newCount: number) => {
     try {
-      const nextStatus = currentStatus === 'Pago' ? 'Entregue' : 'Pago';
-      await dataService.updateSaleItemStatus(itemId, nextStatus);
+      await dataService.updateItemInstallments(itemId, newCount);
       window.location.reload();
     } catch (error) {
-      console.error('Error updating item status:', error);
-      alert('Erro ao atualizar status do item.');
+      console.error('Error updating item installments:', error);
+      alert('Erro ao atualizar parcelas.');
+    }
+  };
+
+  const handleUpdateTotalInstallments = async (itemId: string, newTotal: number) => {
+    try {
+      const { error } = await supabase
+        .from('sale_items')
+        .update({ total_installments: newTotal })
+        .eq('id', itemId);
+
+      if (error) throw error;
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating total installments:', error);
+      alert('Erro ao atualizar total de parcelas.');
     }
   };
 
@@ -191,25 +205,71 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale }) => {
 
                   {isExpanded && (
                     <div className="mx-4 p-4 bg-slate-50/50 dark:bg-slate-800/30 border-x border-b border-slate-100 dark:border-slate-800 rounded-b-[1.5rem] -mt-4 pt-6 space-y-3 animate-in slide-in-from-top-2 duration-200">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Itens do Pedido</p>
-                      {sale.items.map(item => (
-                        <div key={item.id} className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-50 dark:border-slate-800 shadow-sm">
-                          <div className="flex-1">
-                            <p className="text-[10px] font-black dark:text-white uppercase tracking-tight">{item.quantity}x {item.name}</p>
-                            <p className="text-[9px] text-slate-400 font-bold">R$ {(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Itens do Pedido (Parcelamento)</p>
+                      {sale.items.map(item => {
+                        const isFullyPaid = item.paidInstallments >= item.totalInstallments;
+                        return (
+                          <div key={item.id} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-50 dark:border-slate-800 shadow-sm space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <p className="text-[10px] font-black dark:text-white uppercase tracking-tight">{item.quantity}x {item.name}</p>
+                                <p className="text-[9px] text-slate-400 font-bold">Total: R$ {(item.price * item.quantity).toFixed(2)}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-[10px] font-black text-primary">Saldo: R$ {(item.price * item.quantity * (1 - item.paidInstallments / item.totalInstallments)).toFixed(2)}</p>
+                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">A pagar</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Parcelas:</span>
+                                <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-white dark:bg-slate-900">
+                                  <button
+                                    onClick={() => handleUpdateTotalInstallments(item.id, Math.max(1, item.totalInstallments - 1))}
+                                    className="px-2 py-1 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                  >-</button>
+                                  <span className="px-3 py-1 text-[10px] font-black dark:text-white min-w-[30px] text-center">{item.totalInstallments}x</span>
+                                  <button
+                                    onClick={() => handleUpdateTotalInstallments(item.id, item.totalInstallments + 1)}
+                                    className="px-2 py-1 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                  >+</button>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pagas:</span>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    disabled={item.paidInstallments <= 0}
+                                    onClick={() => handleUpdatePaidCount(item.id, item.paidInstallments - 1)}
+                                    className={`size-7 rounded-lg flex items-center justify-center transition-all ${item.paidInstallments <= 0 ? 'opacity-30' : 'bg-rose-500 text-white shadow-sm'}`}
+                                  >
+                                    <span className="material-symbols-outlined text-sm">remove</span>
+                                  </button>
+                                  <div className="px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <p className="text-[10px] font-black dark:text-white">{item.paidInstallments} / {item.totalInstallments}</p>
+                                  </div>
+                                  <button
+                                    disabled={isFullyPaid}
+                                    onClick={() => handleUpdatePaidCount(item.id, item.paidInstallments + 1)}
+                                    className={`size-7 rounded-lg flex items-center justify-center transition-all ${isFullyPaid ? 'opacity-30' : 'bg-emerald-500 text-white shadow-sm'}`}
+                                  >
+                                    <span className="material-symbols-outlined text-sm">add</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full transition-all duration-500 ${isFullyPaid ? 'bg-emerald-500' : 'bg-primary'}`}
+                                style={{ width: `${(item.paidInstallments / item.totalInstallments) * 100}%` }}
+                              />
+                            </div>
                           </div>
-                          <button
-                            onClick={() => handleUpdateItemStatus(item.id, item.status)}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${item.status === 'Pago'
-                              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
-                              }`}
-                          >
-                            <span>{item.status === 'Pago' ? 'Pago' : 'Pendente'}</span>
-                            <span className="material-symbols-outlined text-sm">{item.status === 'Pago' ? 'check_circle' : 'pending'}</span>
-                          </button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

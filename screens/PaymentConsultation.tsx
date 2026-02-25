@@ -125,13 +125,36 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                                                     </div>
                                                     <p className="text-sm font-black dark:text-white">R$ {sale.items.reduce((acc, item) => acc + (item.price * item.quantity), 0).toFixed(2)}</p>
                                                 </div>
-                                                <div className="space-y-2">
-                                                    {sale.items.map((item, idx) => (
-                                                        <div key={idx} className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">
-                                                            <span>{item.quantity}x {item.name}</span>
-                                                            <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
-                                                        </div>
-                                                    ))}
+                                                <div className="space-y-4">
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Itens do Pedido (Saldos em Aberto)</p>
+                                                    {sale.items.map((item: any, idx) => {
+                                                        const itemTotal = item.price * item.quantity;
+                                                        const itemPaid = itemTotal * (item.paidInstallments / item.totalInstallments);
+                                                        const itemPending = itemTotal - itemPaid;
+
+                                                        return (
+                                                            <div key={idx} className="p-5 rounded-3xl bg-slate-50/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                                                <div className="flex justify-between items-start mb-2">
+                                                                    <div>
+                                                                        <p className="text-xs font-black dark:text-white uppercase tracking-tight">{item.quantity}x {item.name}</p>
+                                                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Total do Item: R$ {itemTotal.toFixed(2)}</p>
+                                                                    </div>
+                                                                    <div className="text-right">
+                                                                        <p className="text-sm font-black text-amber-600">Falta: R$ {itemPending.toFixed(2)}</p>
+                                                                        <span className="text-[8px] font-black bg-amber-100 text-amber-600 px-2 py-0.5 rounded-md mt-1 inline-block">
+                                                                            Parcelas: {item.paidInstallments} / {item.totalInstallments}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="w-full bg-slate-200 dark:bg-slate-700 h-1 rounded-full overflow-hidden">
+                                                                    <div
+                                                                        className="bg-amber-500 h-full transition-all duration-500"
+                                                                        style={{ width: `${(item.paidInstallments / item.totalInstallments) * 100}%` }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         ))}

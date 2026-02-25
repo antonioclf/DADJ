@@ -38,6 +38,8 @@ export interface OrderItem {
   price: number;
   discount?: number;
   status: 'Pedido' | 'Entregue' | 'Pago';
+  totalInstallments: number;
+  paidInstallments: number;
 }
 
 export interface SaleRecord {
