@@ -196,19 +196,37 @@ export const dataService = {
     },
     async updateItemStatus(itemId: string, status: string): Promise<void> {
         const updateObj: any = { status };
-        if (status === 'Entregue') updateObj.delivered_at = new Date().toISOString();
-        if (status === 'Pago') updateObj.paid_at = new Date().toISOString();
+        const now = new Date().toISOString();
+        if (status === 'Entregue') updateObj.delivered_at = now;
+        if (status === 'Pago') updateObj.paid_at = now;
 
-        const { error } = await supabase
+        // 1. Update the item
+        const { data: itemData, error: itemError } = await supabase
             .from('sale_items')
             .update(updateObj)
-            .eq('id', itemId);
+            .eq('id', itemId)
+            .select('sale_id')
+            .single();
 
-        if (error) throw error;
+        if (itemError) throw itemError;
 
-        // Propagate to sale if all items match the new status or something similar could be done here, 
-        // but for now, we follow the current pattern of item-level status updates.
-        // Let's also update the sale status if it makes sense.
-        // For simplicity and matching current UI flow, we'll just update the item.
+        // 2. Update the parent sale record for visibility in reports
+        // We update the sale's status and dates if reasonable.
+        const saleUpdate: any = {};
+        if (status === 'Entregue') {
+            saleUpdate.status = 'Entregue';
+            saleUpdate.delivered_at = now;
+        } else if (status === 'Pago') {
+            // Only mark sale as Pago if status is Pago
+            saleUpdate.status = 'Pago';
+            saleUpdate.paid_at = now;
+        } else {
+            saleUpdate.status = status;
+        }
+
+        await supabase
+            .from('sales')
+            .update(saleUpdate)
+            .eq('id', itemData.sale_id);
     }
 };

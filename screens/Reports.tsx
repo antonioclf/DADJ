@@ -566,6 +566,8 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                                   'text-slate-400'
                                 }`}>
                                 Status: {item.status}
+                                {item.status === 'Entregue' && item.deliveredAt && ` (${item.deliveredAt.split(',')[0]})`}
+                                {item.status === 'Pago' && item.paidAt && ` (${item.paidAt.split(',')[0]})`}
                               </p>
                               {isFullyPaid && item.status !== 'Pago' && (
                                 <button
