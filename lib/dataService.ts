@@ -70,6 +70,9 @@ export const dataService = {
             total: sale.total,
             status: sale.status,
             seller: sale.seller,
+            deliveredAt: sale.delivered_at ? new Date(sale.delivered_at).toLocaleString('pt-BR') : undefined,
+            paidAt: sale.paid_at ? new Date(sale.paid_at).toLocaleString('pt-BR') : undefined,
+            deliveryForecast: sale.delivery_forecast ? new Date(sale.delivery_forecast).toLocaleDateString('pt-BR') : undefined,
             items: sale.items.map((item: any) => ({
                 id: item.id,
                 inventoryId: item.inventory_id,
@@ -79,7 +82,9 @@ export const dataService = {
                 price: item.price,
                 status: item.status,
                 totalInstallments: item.total_installments || 1,
-                paidInstallments: item.paid_installments || 0
+                paidInstallments: item.paid_installments || 0,
+                deliveredAt: item.delivered_at ? new Date(item.delivered_at).toLocaleString('pt-BR') : undefined,
+                paidAt: item.paid_at ? new Date(item.paid_at).toLocaleString('pt-BR') : undefined
             }))
         }));
     },
@@ -94,7 +99,10 @@ export const dataService = {
                 customer_bm: sale.customerBM,
                 total: sale.total,
                 status: sale.status,
-                seller: sale.seller
+                seller: sale.seller,
+                delivery_forecast: sale.deliveryForecast ? new Date(sale.deliveryForecast.split('/').reverse().join('-')).toISOString() : null,
+                delivered_at: sale.status === 'Entregue' ? new Date().toISOString() : null,
+                paid_at: sale.status === 'Pago' ? new Date().toISOString() : null
             })
             .select()
             .single();
@@ -111,7 +119,9 @@ export const dataService = {
             price: item.price,
             status: sale.status, // Initialize item status from sale status
             total_installments: item.totalInstallments || 1,
-            paid_installments: item.paidInstallments || 0
+            paid_installments: item.paidInstallments || 0,
+            delivered_at: sale.status === 'Entregue' ? new Date().toISOString() : null,
+            paid_at: sale.status === 'Pago' ? new Date().toISOString() : null
         }));
 
         const { error: itemsError } = await supabase
@@ -187,11 +197,20 @@ export const dataService = {
         if (error) throw error;
     },
     async updateItemStatus(itemId: string, status: string): Promise<void> {
+        const updateObj: any = { status };
+        if (status === 'Entregue') updateObj.delivered_at = new Date().toISOString();
+        if (status === 'Pago') updateObj.paid_at = new Date().toISOString();
+
         const { error } = await supabase
             .from('sale_items')
-            .update({ status })
+            .update(updateObj)
             .eq('id', itemId);
 
         if (error) throw error;
+
+        // Propagate to sale if all items match the new status or something similar could be done here, 
+        // but for now, we follow the current pattern of item-level status updates.
+        // Let's also update the sale status if it makes sense.
+        // For simplicity and matching current UI flow, we'll just update the item.
     }
 };

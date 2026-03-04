@@ -40,6 +40,8 @@ export interface OrderItem {
   status: 'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago';
   totalInstallments: number;
   paidInstallments: number;
+  deliveredAt?: string;
+  paidAt?: string;
 }
 
 export interface SaleRecord {
@@ -52,4 +54,7 @@ export interface SaleRecord {
   total: number;
   status: 'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago';
   seller: string;
+  deliveredAt?: string;
+  paidAt?: string;
+  deliveryForecast?: string;
 }

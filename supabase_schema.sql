@@ -21,8 +21,11 @@ CREATE TABLE sales (
   customer_bm TEXT,
   date TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-  status TEXT NOT NULL CHECK (status IN ('Pedido', 'Entregue', 'Pago')),
+  status TEXT NOT NULL CHECK (status IN ('Pedido no DA', 'Pedido na loja', 'Entregue', 'Pago')),
   seller TEXT NOT NULL,
+  delivered_at TIMESTAMP WITH TIME ZONE,
+  paid_at TIMESTAMP WITH TIME ZONE,
+  delivery_forecast DATE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -35,9 +38,11 @@ CREATE TABLE sale_items (
   size TEXT NOT NULL,
   quantity INTEGER NOT NULL DEFAULT 1,
   price DECIMAL(10,2) NOT NULL,
-  status TEXT NOT NULL DEFAULT 'Pedido' CHECK (status IN ('Pedido', 'Entregue', 'Pago')),
+  status TEXT NOT NULL DEFAULT 'Pedido no DA' CHECK (status IN ('Pedido no DA', 'Pedido na loja', 'Entregue', 'Pago')),
   total_installments INTEGER NOT NULL DEFAULT 1,
   paid_installments INTEGER NOT NULL DEFAULT 0,
+  delivered_at TIMESTAMP WITH TIME ZONE,
+  paid_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

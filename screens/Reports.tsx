@@ -152,21 +152,23 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
       sale.items.map(item => [
         sale.date.split(',')[0],
         sale.customerName,
+        sale.seller,
         item.name,
         item.quantity,
         `R$ ${item.price.toFixed(2)}`,
         `R$ ${(item.price * item.quantity).toFixed(2)}`,
-        item.status
+        item.status,
+        sale.deliveryForecast || '-'
       ])
     );
 
     autoTable(doc, {
       startY: (doc as any).lastAutoTable.finalY + 20,
-      head: [['Data', 'Cliente', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+      head: [['Data', 'Cliente', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status', 'Prev.']],
       body: tableData,
       theme: 'grid',
       headStyles: { fillColor: [37, 99, 235] },
-      styles: { fontSize: 8 }
+      styles: { fontSize: 7 }
     });
 
     doc.save(`relatorio_vendas_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -207,21 +209,23 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
         sale.items.map(item => [
           sale.date.split(',')[0],
           sale.customerName,
+          sale.seller,
           item.name,
           item.quantity,
           `R$ ${item.price.toFixed(2)}`,
           `R$ ${(item.price * item.quantity).toFixed(2)}`,
-          item.status
+          item.status,
+          sale.deliveryForecast || '-'
         ])
       );
 
       autoTable(doc, {
         startY: (doc as any).lastAutoTable.finalY + 20,
-        head: [['Data', 'Cliente', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+        head: [['Data', 'Cliente', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status', 'Prev.']],
         body: tableData,
         theme: 'grid',
         headStyles: { fillColor: [37, 99, 235] },
-        styles: { fontSize: 8 }
+        styles: { fontSize: 7 }
       });
 
       const pdfBase64 = doc.output('datauristring').split(',')[1];
@@ -446,10 +450,14 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                       </div>
                       <div>
                         <h3 className="text-sm font-black dark:text-white uppercase tracking-tight">{sale.customerName}</h3>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{sale.date}</p>
                           {sale.customerBM && (
                             <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-md uppercase">BM: {sale.customerBM}</span>
+                          )}
+                          <span className="text-[9px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded-md uppercase">Vend: {sale.seller}</span>
+                          {sale.deliveryForecast && (
+                            <span className="text-[9px] font-black bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-md uppercase">Prev: {sale.deliveryForecast}</span>
                           )}
                         </div>
                       </div>
@@ -583,6 +591,27 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                           </div>
                         );
                       })}
+
+                      {(sale.deliveredAt || sale.paidAt) && (
+                        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-50 dark:border-slate-800 shadow-sm space-y-2 mt-2">
+                          <div className="flex items-center gap-2 text-primary">
+                            <span className="material-symbols-outlined text-sm">history</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest">Atualizações de Status</span>
+                          </div>
+                          <div className="grid grid-cols-1 gap-1">
+                            {sale.deliveredAt && (
+                              <p className="text-[10px] font-bold text-slate-500">
+                                <span className="text-blue-500">●</span> Entregue no dia <span className="text-slate-900 dark:text-white">{sale.deliveredAt}</span>
+                              </p>
+                            )}
+                            {sale.paidAt && (
+                              <p className="text-[10px] font-bold text-slate-500">
+                                <span className="text-emerald-500">●</span> Pago no dia <span className="text-slate-900 dark:text-white">{sale.paidAt}</span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
