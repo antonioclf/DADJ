@@ -47,15 +47,25 @@ CREATE TABLE sale_items (
   CONSTRAINT sale_items_status_check CHECK (status IN ('Pedido no DA', 'Pedido na loja', 'Entregue', 'Pago'))
 );
 
+CREATE TABLE IF NOT EXISTS installment_payments (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  sale_item_id UUID REFERENCES sale_items(id) ON DELETE CASCADE,
+  installment_number INTEGER NOT NULL,
+  paid_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE inventory ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sales ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sale_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE installment_payments ENABLE ROW LEVEL SECURITY;
 
 -- Simple policies for authenticated users
 CREATE POLICY "Allow all actions for authenticated users" ON inventory FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Allow all actions for authenticated users" ON sales FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Allow all actions for authenticated users" ON sale_items FOR ALL USING (auth.role() = 'authenticated');
+CREATE POLICY "Allow all actions for authenticated users" ON installment_payments FOR ALL USING (auth.role() = 'authenticated');
 
 -- Public policies (anon access) for consultations
 CREATE POLICY "Allow public read-only access to inventory" ON inventory FOR SELECT TO anon USING (true);

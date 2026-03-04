@@ -10,6 +10,13 @@ export enum View {
   PAYMENT_LOOKUP = 'payment_lookup'
 }
 
+export type ReportType = 'Vendas' | 'Estoque' | 'Alunos' | 'Vendedores';
+
+export interface InstallmentPayment {
+  installmentNumber: number;
+  paidAt: string;
+}
+
 export interface TeamMember {
   id: string;
   name: string;
@@ -43,6 +50,7 @@ export interface OrderItem {
   deliveredAt?: string;
   paidAt?: string;
   lastPaymentAt?: string;
+  installmentHistory?: InstallmentPayment[];
 }
 
 export interface SaleRecord {

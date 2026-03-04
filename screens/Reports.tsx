@@ -561,14 +561,27 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                             </div>
 
                             <div className="flex items-center justify-between px-1">
-                              <p className={`text-[8px] font-black uppercase tracking-widest ${item.status === 'Pago' ? 'text-emerald-500' :
-                                item.status === 'Entregue' ? 'text-blue-500' :
-                                  'text-slate-400'
-                                }`}>
-                                Status: {item.status}
-                                {item.status === 'Entregue' && item.deliveredAt && ` (${item.deliveredAt.split(',')[0]})`}
-                                {item.status === 'Pago' && item.paidAt && ` (${item.paidAt.split(',')[0]})`}
-                              </p>
+                              <div className="space-y-1">
+                                <p className={`text-[8px] font-black uppercase tracking-widest ${item.status === 'Pago' ? 'text-emerald-500' :
+                                  item.status === 'Entregue' ? 'text-blue-500' :
+                                    'text-slate-400'
+                                  }`}>
+                                  Status: {item.status}
+                                  {item.status === 'Entregue' && item.deliveredAt && ` (${item.deliveredAt.split(',')[0]})`}
+                                  {item.status === 'Pago' && item.paidAt && ` (${item.paidAt.split(',')[0]})`}
+                                </p>
+
+                                {item.installmentHistory && item.installmentHistory.length > 0 && (
+                                  <div className="space-y-0.5 ml-2 border-l-2 border-slate-100 dark:border-slate-800 pl-2">
+                                    {item.installmentHistory.map((payment, idx) => (
+                                      <p key={idx} className="text-[7px] font-bold text-slate-400 italic">
+                                        Parcela {payment.installmentNumber}: {payment.paidAt.split(',')[0]}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+
                               {isFullyPaid && item.status !== 'Pago' && (
                                 <button
                                   onClick={() => handleUpdateStatus(item.id, 'Pago')}

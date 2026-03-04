@@ -51,12 +51,13 @@ export const dataService = {
         const { data, error } = await supabase
             .from('sales')
             .select(`
-        *,
-        items:sale_items(*)
-      `)
-            .order('date', { ascending: false })
-            .order('created_at', { foreignTable: 'sale_items', ascending: true })
-            .order('id', { foreignTable: 'sale_items', ascending: true });
+                *,
+                items:sale_items(
+                    *,
+                    installment_payments(*)
+                )
+            `)
+            .order('created_at', { ascending: false });
 
         if (error) throw error;
 
@@ -84,7 +85,13 @@ export const dataService = {
                 paidInstallments: item.paid_installments || 0,
                 deliveredAt: item.delivered_at ? new Date(item.delivered_at).toLocaleString('pt-BR') : undefined,
                 paidAt: item.paid_at ? new Date(item.paid_at).toLocaleString('pt-BR') : undefined,
-                lastPaymentAt: item.last_payment_at ? new Date(item.last_payment_at).toLocaleString('pt-BR') : undefined
+                lastPaymentAt: item.last_payment_at ? new Date(item.last_payment_at).toLocaleString('pt-BR') : undefined,
+                installmentHistory: (item.installment_payments || [])
+                    .sort((a: any, b: any) => a.installment_number - b.installment_number)
+                    .map((p: any) => ({
+                        installmentNumber: p.installment_number,
+                        paidAt: new Date(p.paid_at).toLocaleString('pt-BR')
+                    }))
             }))
         }));
     },
@@ -186,7 +193,19 @@ export const dataService = {
         if (error) throw error;
     },
     async updateItemInstallments(itemId: string, paidCount: number): Promise<void> {
-        const { error } = await supabase
+        // 1. Get current item to know if we are incrementing or decrementing
+        const { data: currentItem, error: fetchError } = await supabase
+            .from('sale_items')
+            .select('paid_installments')
+            .eq('id', itemId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        const oldPaidCount = currentItem.paid_installments || 0;
+
+        // 2. Update the count and last payment date
+        const { error: updateError } = await supabase
             .from('sale_items')
             .update({
                 paid_installments: paidCount,
@@ -194,7 +213,28 @@ export const dataService = {
             })
             .eq('id', itemId);
 
-        if (error) throw error;
+        if (updateError) throw updateError;
+
+        // 3. Handle installment records
+        if (paidCount > oldPaidCount) {
+            // Record new payments
+            const newPayments = [];
+            for (let i = oldPaidCount + 1; i <= paidCount; i++) {
+                newPayments.push({
+                    sale_item_id: itemId,
+                    installment_number: i,
+                    paid_at: new Date().toISOString()
+                });
+            }
+            await supabase.from('installment_payments').insert(newPayments);
+        } else if (paidCount < oldPaidCount) {
+            // Remove payments that were "undone"
+            await supabase
+                .from('installment_payments')
+                .delete()
+                .eq('sale_item_id', itemId)
+                .gt('installment_number', paidCount);
+        }
     },
     async updateItemStatus(itemId: string, status: string): Promise<void> {
         const updateObj: any = { status };
