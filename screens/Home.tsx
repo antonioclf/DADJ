@@ -50,7 +50,7 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
         <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl shadow-sm border border-slate-50 dark:border-slate-800">
           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Receita Realizada</p>
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-black text-emerald-500">R$ {totalPaid.toFixed(0)}</span>
+            <span className="text-xl font-black text-emerald-500">R$ {totalPaid.toFixed(2)}</span>
           </div>
         </div>
       </div>
