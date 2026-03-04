@@ -72,7 +72,6 @@ export const dataService = {
             seller: sale.seller,
             deliveredAt: sale.delivered_at ? new Date(sale.delivered_at).toLocaleString('pt-BR') : undefined,
             paidAt: sale.paid_at ? new Date(sale.paid_at).toLocaleString('pt-BR') : undefined,
-            deliveryForecast: sale.delivery_forecast ? new Date(sale.delivery_forecast).toLocaleDateString('pt-BR') : undefined,
             items: sale.items.map((item: any) => ({
                 id: item.id,
                 inventoryId: item.inventory_id,
@@ -100,7 +99,6 @@ export const dataService = {
                 total: sale.total,
                 status: sale.status,
                 seller: sale.seller,
-                delivery_forecast: sale.deliveryForecast ? new Date(sale.deliveryForecast.split('/').reverse().join('-')).toISOString() : null,
                 delivered_at: sale.status === 'Entregue' ? new Date().toISOString() : null,
                 paid_at: sale.status === 'Pago' ? new Date().toISOString() : null
             })

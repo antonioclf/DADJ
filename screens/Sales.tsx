@@ -19,7 +19,6 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [buyerBM, setBuyerBM] = useState('');
   const [phone, setPhone] = useState('');
   const [orderStatus, setOrderStatus] = useState<'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago'>('Pedido no DA');
-  const [deliveryForecast, setDeliveryForecast] = useState('');
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [showItemPicker, setShowItemPicker] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
@@ -72,8 +71,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
       items: cart,
       total: total,
       status: orderStatus,
-      seller: seller,
-      deliveryForecast: deliveryForecast
+      seller: seller
     };
 
     onAddSale(newSale);
@@ -142,14 +140,6 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                 ))}
               </div>
             </div>
-
-            <Input
-              label="Previsão de Entrega"
-              icon="calendar_month"
-              type="date"
-              value={deliveryForecast}
-              onChange={(e) => setDeliveryForecast((e.target as HTMLInputElement).value)}
-            />
           </div>
         </section>
 

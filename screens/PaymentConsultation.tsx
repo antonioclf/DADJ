@@ -52,8 +52,7 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                     status: item.status,
                     totalInstallments: item.total_installments || 1,
                     paidInstallments: item.paid_installments || 0
-                })).filter((item: any) => item.paidInstallments < item.totalInstallments),
-                deliveryForecast: sale.delivery_forecast ? new Date(sale.delivery_forecast).toLocaleDateString('pt-BR') : undefined
+                })).filter((item: any) => item.paidInstallments < item.totalInstallments)
             })).filter((sale: any) => sale.items.length > 0));
         } catch (error) {
             console.error('Error searching payments:', error);
@@ -125,12 +124,6 @@ const PaymentConsultation: React.FC<PaymentConsultationProps> = ({ onBack }) => 
                                                     <div>
                                                         <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Total Pendente Desta Venda</p>
                                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-tight ml-1">Original: R$ {sale.items.reduce((acc: any, item: any) => acc + (item.price * item.quantity), 0).toFixed(2)}</p>
-                                                        {sale.deliveryForecast && (
-                                                            <div className="flex items-center gap-1.5 mt-2 bg-amber-50 dark:bg-amber-900/40 px-3 py-1.5 rounded-xl border border-amber-100/50 dark:border-amber-800/50 w-fit">
-                                                                <span className="material-symbols-outlined text-[14px] text-amber-600">calendar_today</span>
-                                                                <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Previsão: {sale.deliveryForecast}</p>
-                                                            </div>
-                                                        )}
                                                     </div>
                                                     <p className="text-sm font-black text-rose-500">R$ {sale.items.reduce((acc: any, item: any) => acc + (item.price * item.quantity * (1 - item.paidInstallments / item.totalInstallments)), 0).toFixed(2)}</p>
                                                 </div>

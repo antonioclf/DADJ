@@ -25,7 +25,6 @@ CREATE TABLE sales (
   seller TEXT NOT NULL,
   delivered_at TIMESTAMP WITH TIME ZONE,
   paid_at TIMESTAMP WITH TIME ZONE,
-  delivery_forecast DATE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

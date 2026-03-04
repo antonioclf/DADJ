@@ -157,18 +157,17 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
         item.quantity,
         `R$ ${item.price.toFixed(2)}`,
         `R$ ${(item.price * item.quantity).toFixed(2)}`,
-        item.status,
-        sale.deliveryForecast || '-'
+        item.status
       ])
     );
 
     autoTable(doc, {
       startY: (doc as any).lastAutoTable.finalY + 20,
-      head: [['Data', 'Cliente', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status', 'Prev.']],
+      head: [['Data', 'Cliente', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
       body: tableData,
       theme: 'grid',
       headStyles: { fillColor: [37, 99, 235] },
-      styles: { fontSize: 7 }
+      styles: { fontSize: 8 }
     });
 
     doc.save(`relatorio_vendas_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -214,18 +213,17 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
           item.quantity,
           `R$ ${item.price.toFixed(2)}`,
           `R$ ${(item.price * item.quantity).toFixed(2)}`,
-          item.status,
-          sale.deliveryForecast || '-'
+          item.status
         ])
       );
 
       autoTable(doc, {
         startY: (doc as any).lastAutoTable.finalY + 20,
-        head: [['Data', 'Cliente', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status', 'Prev.']],
+        head: [['Data', 'Cliente', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
         body: tableData,
         theme: 'grid',
         headStyles: { fillColor: [37, 99, 235] },
-        styles: { fontSize: 7 }
+        styles: { fontSize: 8 }
       });
 
       const pdfBase64 = doc.output('datauristring').split(',')[1];
@@ -456,9 +454,6 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                             <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-md uppercase">BM: {sale.customerBM}</span>
                           )}
                           <span className="text-[9px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded-md uppercase">Vend: {sale.seller}</span>
-                          {sale.deliveryForecast && (
-                            <span className="text-[9px] font-black bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-md uppercase">Prev: {sale.deliveryForecast}</span>
-                          )}
                         </div>
                       </div>
                     </div>

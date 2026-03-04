@@ -56,5 +56,4 @@ export interface SaleRecord {
   seller: string;
   deliveredAt?: string;
   paidAt?: string;
-  deliveryForecast?: string;
 }
