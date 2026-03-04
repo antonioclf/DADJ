@@ -42,6 +42,7 @@ export interface OrderItem {
   paidInstallments: number;
   deliveredAt?: string;
   paidAt?: string;
+  lastPaymentAt?: string;
 }
 
 export interface SaleRecord {

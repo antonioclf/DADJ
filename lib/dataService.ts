@@ -83,7 +83,8 @@ export const dataService = {
                 totalInstallments: item.total_installments || 1,
                 paidInstallments: item.paid_installments || 0,
                 deliveredAt: item.delivered_at ? new Date(item.delivered_at).toLocaleString('pt-BR') : undefined,
-                paidAt: item.paid_at ? new Date(item.paid_at).toLocaleString('pt-BR') : undefined
+                paidAt: item.paid_at ? new Date(item.paid_at).toLocaleString('pt-BR') : undefined,
+                lastPaymentAt: item.last_payment_at ? new Date(item.last_payment_at).toLocaleString('pt-BR') : undefined
             }))
         }));
     },
@@ -188,7 +189,8 @@ export const dataService = {
         const { error } = await supabase
             .from('sale_items')
             .update({
-                paid_installments: paidCount
+                paid_installments: paidCount,
+                last_payment_at: new Date().toISOString()
             })
             .eq('id', itemId);
 

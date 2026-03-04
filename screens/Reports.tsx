@@ -157,7 +157,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
         item.quantity,
         `R$ ${item.price.toFixed(2)}`,
         `R$ ${(item.price * item.quantity).toFixed(2)}`,
-        item.status
+        `${item.status}${item.totalInstallments > 1 ? ` [${item.paidInstallments}/${item.totalInstallments}]` : ''}${item.status === 'Entregue' && item.deliveredAt ? ` (${item.deliveredAt.split(',')[0]})` : item.status === 'Pago' && item.paidAt ? ` (${item.paidAt.split(',')[0]})` : ''}`
       ])
     );
 
@@ -213,7 +213,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
           item.quantity,
           `R$ ${item.price.toFixed(2)}`,
           `R$ ${(item.price * item.quantity).toFixed(2)}`,
-          item.status
+          `${item.status}${item.totalInstallments > 1 ? ` [${item.paidInstallments}/${item.totalInstallments}]` : ''}${item.status === 'Entregue' && item.deliveredAt ? ` (${item.deliveredAt.split(',')[0]})` : item.status === 'Pago' && item.paidAt ? ` (${item.paidAt.split(',')[0]})` : ''}`
         ])
       );
 
@@ -598,12 +598,17 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                           <div className="grid grid-cols-1 gap-1">
                             {sale.deliveredAt && (
                               <p className="text-[10px] font-bold text-slate-500">
-                                <span className="text-blue-500">●</span> Entregue no dia <span className="text-slate-900 dark:text-white">{sale.deliveredAt}</span>
+                                <span className="text-blue-500">●</span> Entregue no dia <span className="text-slate-900 dark:text-white">{sale.deliveredAt.split(',')[0]}</span>
                               </p>
                             )}
                             {sale.paidAt && (
                               <p className="text-[10px] font-bold text-slate-500">
-                                <span className="text-emerald-500">●</span> Pago no dia <span className="text-slate-900 dark:text-white">{sale.paidAt}</span>
+                                <span className="text-emerald-500">●</span> Pago Total no dia <span className="text-slate-900 dark:text-white">{sale.paidAt.split(',')[0]}</span>
+                              </p>
+                            )}
+                            {sale.items.some(i => i.lastPaymentAt) && (
+                              <p className="text-[10px] font-bold text-slate-500">
+                                <span className="text-amber-500">●</span> Última Parcela em <span className="text-slate-900 dark:text-white">{sale.items.sort((a, b) => (b.lastPaymentAt || '').localeCompare(a.lastPaymentAt || ''))[0].lastPaymentAt?.split(',')[0]}</span>
                               </p>
                             )}
                           </div>

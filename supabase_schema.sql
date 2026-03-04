@@ -39,10 +39,12 @@ CREATE TABLE sale_items (
   price DECIMAL(10,2) NOT NULL,
   status TEXT NOT NULL DEFAULT 'Pedido no DA' CHECK (status IN ('Pedido no DA', 'Pedido na loja', 'Entregue', 'Pago')),
   total_installments INTEGER NOT NULL DEFAULT 1,
-  paid_installments INTEGER NOT NULL DEFAULT 0,
+  paid_installments INTEGER DEFAULT 0,
   delivered_at TIMESTAMP WITH TIME ZONE,
   paid_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  last_payment_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT sale_items_status_check CHECK (status IN ('Pedido no DA', 'Pedido na loja', 'Entregue', 'Pago'))
 );
 
 -- Enable Row Level Security (RLS)
