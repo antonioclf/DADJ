@@ -28,6 +28,13 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [activeFilter, setActiveFilter] = useState('Todos');
   const filters = ['Todos', '4º A', '3º A', '5º A/B', 'Meias', 'Calçados'];
 
+  const formatPhone = (val: string) => {
+    const raw = val.replace(/\D/g, '').slice(0, 11);
+    if (raw.length <= 2) return raw;
+    if (raw.length <= 7) return `(${raw.slice(0, 2)}) ${raw.slice(2)}`;
+    return `(${raw.slice(0, 2)}) ${raw.slice(2, 7)}-${raw.slice(7)}`;
+  };
+
   const handleAddToCart = (item: InventoryItem, selectedSize?: string) => {
     const discountedPrice = item.price; // Provided price is already the final price
     const size = selectedSize || item.size;
@@ -118,7 +125,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               icon="call"
               placeholder="(00) 00000-0000"
               value={phone}
-              onChange={(e) => setPhone((e.target as HTMLInputElement).value)}
+              onChange={(e) => setPhone(formatPhone((e.target as HTMLInputElement).value))}
               type="tel"
             />
 

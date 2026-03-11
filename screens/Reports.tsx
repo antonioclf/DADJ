@@ -22,6 +22,14 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
+  const formatPhone = (val?: string) => {
+    if (!val) return '';
+    const raw = val.replace(/\D/g, '').slice(0, 11);
+    if (raw.length <= 2) return raw;
+    if (raw.length <= 7) return `(${raw.slice(0, 2)}) ${raw.slice(2)}`;
+    return `(${raw.slice(0, 2)}) ${raw.slice(2, 7)}-${raw.slice(7)}`;
+  };
+
   const filteredSales = useMemo(() => {
     if (!startDate && !endDate) return sales;
 
@@ -152,7 +160,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
       sale.items.map(item => [
         sale.date.split(',')[0],
         sale.customerName,
-        sale.customerPhone || 'N/A',
+        formatPhone(sale.customerPhone) || 'N/A',
         sale.seller,
         item.name,
         item.quantity,
@@ -209,7 +217,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
         sale.items.map(item => [
           sale.date.split(',')[0],
           sale.customerName,
-          sale.customerPhone || 'N/A',
+          formatPhone(sale.customerPhone) || 'N/A',
           sale.seller,
           item.name,
           item.quantity,
@@ -459,7 +467,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                           {sale.customerPhone && (
                             <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                               <span className="material-symbols-outlined text-[10px]">call</span>
-                              <span className="text-[9px] font-black uppercase tracking-widest">{sale.customerPhone}</span>
+                              <span className="text-[9px] font-black uppercase tracking-widest">{formatPhone(sale.customerPhone)}</span>
                             </div>
                           )}
                         </div>
