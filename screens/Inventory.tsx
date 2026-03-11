@@ -34,7 +34,22 @@ const STANDARD_ITEMS = [
   { name: 'Calça 3º A', type: 'Fardamento' as InventoryItemType, price: 145.00, color: 'Padrão' }
 ];
 
-const SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XG', 'Único'];
+const NUMERIC_SIZES = Array.from({ length: 15 }, (_, i) => (i + 36).toString()); // 36-50
+const CAP_SIZES = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
+const SMALL_NUMERIC_SIZES = ['1', '2', '3', '4', '5'];
+const STANDARD_SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
+
+const getAvailableSizes = (name: string) => {
+  const n = name.toLowerCase();
+  if (n.includes('tarjeta') || n.includes('joelheira') || n.includes('par') || n.includes('unidades')) return ['Único'];
+  if (n.includes('calça')) return NUMERIC_SIZES;
+  if (n.includes('gorro')) return CAP_SIZES;
+  if (n.includes('blusa') || n.includes('gandola') || n.includes('camisa') || n.includes('camiseta') || n.includes('moletom')) {
+    if (n.includes('camisa vermelha')) return STANDARD_SIZES;
+    return SMALL_NUMERIC_SIZES;
+  }
+  return STANDARD_SIZES;
+};
 
 const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -94,6 +109,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
   }, [inventory, searchTerm, activeFilter]);
 
   const handleOpenAdd = () => {
+    const sizes = getAvailableSizes('').reduce((acc, size) => ({ ...acc, [size]: { quantity: 0 } }), {});
     setEditingGroup({
       name: '',
       color: 'Padrão',
@@ -102,13 +118,14 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
       price: 0,
       discount: 0,
       image: '',
-      sizes: SIZES.reduce((acc, size) => ({ ...acc, [size]: { quantity: 0 } }), {})
+      sizes
     });
     setIsModalOpen(true);
   };
 
   const handleEditGroup = (group: any, gender: string) => {
-    const sizeMap = SIZES.reduce((acc, size) => {
+    const categorySizes = getAvailableSizes(group.name);
+    const sizeMap = categorySizes.reduce((acc, size) => {
       const existing = group.items.find((i: any) => i.size === size && (i.gender || 'Unissex') === gender);
       return {
         ...acc,
@@ -164,13 +181,18 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
   const handleSelectStandard = (name: string) => {
     const standard = STANDARD_ITEMS.find(s => s.name === name);
     if (standard && editingGroup) {
+      const newSizes: { [key: string]: { quantity: number } } = {};
+      const categorySizes = getAvailableSizes(standard.name);
+      categorySizes.forEach(s => newSizes[s] = { quantity: 0 });
+
       setEditingGroup({
         ...editingGroup,
         name: standard.name,
         type: standard.type,
         price: standard.price,
         color: standard.color,
-        gender: standard.type === 'Baby Look' ? 'Feminino' : 'Masculino'
+        gender: standard.type === 'Baby Look' ? 'Feminino' : 'Masculino',
+        sizes: newSizes
       });
     }
   };
@@ -263,7 +285,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
                         <span className="text-[10px] font-black text-slate-400 tracking-widest uppercase">{gender}</span>
                       </div>
                       <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                        {SIZES.map(size => {
+                        {getAvailableSizes(group.name).map(size => {
                           const item = group.items.find(i => i.size === size && (i.gender || 'Unissex') === gender);
                           const qty = item?.quantity || 0;
                           return (
@@ -399,7 +421,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
             <div className="col-span-2 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Quantidades por Tamanho</label>
               <div className="grid grid-cols-4 gap-3">
-                {SIZES.map(size => (
+                {getAvailableSizes(editingGroup?.name || '').map(size => (
                   <div key={size} className="flex flex-col gap-1">
                     <span className="text-[9px] font-black text-slate-500 text-center uppercase">{size}</span>
                     <input
