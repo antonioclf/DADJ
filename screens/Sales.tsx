@@ -296,7 +296,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
 
               const numericSizes = ['36', '38', '40', '42', '44', '46', '48', '50'];
               const capSizes = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
-              const smallNumericSizes = ['1', '2', '3', '4', '5'];
+              const smallNumericSizes = ['0', '1', '2', '3', '4', '5'];
               const standardSizes = ['PP', 'P', 'M', 'G', 'GG', 'EG'];
 
               const renderSizeButtons = (current: string, options: string[], onSelect: (s: string) => void, label?: string) => (

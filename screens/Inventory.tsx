@@ -16,7 +16,7 @@ const STANDARD_ITEMS = CATALOG_ITEMS;
 
 const NUMERIC_SIZES = ['36', '38', '40', '42', '44', '46', '48', '50'];
 const CAP_SIZES = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
-const SMALL_NUMERIC_SIZES = ['1', '2', '3', '4', '5'];
+const SMALL_NUMERIC_SIZES = ['0', '1', '2', '3', '4', '5'];
 const STANDARD_SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
 
 const getAvailableSizes = (name: string) => {
