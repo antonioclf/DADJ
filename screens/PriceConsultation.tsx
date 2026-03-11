@@ -25,16 +25,18 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
         return 10;
     };
 
-    const mergedItems = CATALOG_ITEMS.map(catItem => {
-        const invMatch = inventory.find(i => i.name === catItem.name && i.color === catItem.color);
-        return {
-            id: `price-${catItem.name}`,
-            name: catItem.name,
-            type: catItem.type,
-            price: invMatch?.price ?? catItem.price,
-            discount: invMatch?.discount ?? 0
-        };
-    });
+    const mergedItems = CATALOG_ITEMS
+        .filter(catItem => !(catItem as any).hideFromSales)
+        .map(catItem => {
+            const invMatch = inventory.find(i => i.name === catItem.name && i.color === catItem.color);
+            return {
+                id: `price-${catItem.name}`,
+                name: catItem.name,
+                type: catItem.type,
+                price: invMatch?.price ?? catItem.price,
+                discount: invMatch?.discount ?? 0
+            };
+        });
 
     const filteredItems = mergedItems
         .filter(item =>

@@ -250,10 +250,12 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
             });
 
             // Map CATALOG_ITEMS to their inventory counterparts
-            const catalogWithInventory = CATALOG_ITEMS.map(catItem => ({
-              base: { ...catItem, id: `cat-${catItem.name}-${catItem.color}` } as unknown as InventoryItem,
-              inventoryItems: inventoryGroups[`${catItem.name}-${catItem.color}`] || []
-            }));
+            const catalogWithInventory = CATALOG_ITEMS
+              .filter(catItem => !(catItem as any).hideFromSales)
+              .map(catItem => ({
+                base: { ...catItem, id: `cat-${catItem.name}-${catItem.color}` } as unknown as InventoryItem,
+                inventoryItems: inventoryGroups[`${catItem.name}-${catItem.color}`] || []
+              }));
 
             return catalogWithInventory.sort((a, b) => {
               const getPriority = (name: string) => {
