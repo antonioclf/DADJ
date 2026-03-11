@@ -34,7 +34,7 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
                 name: catItem.name,
                 type: catItem.type,
                 price: invMatch?.price ?? catItem.price,
-                discount: invMatch?.discount ?? 0
+                discount: invMatch?.discount ?? catItem.discount ?? 0
             };
         });
 
