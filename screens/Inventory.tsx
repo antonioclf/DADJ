@@ -266,8 +266,8 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
                       </div>
                       <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                         {getAvailableSizes(group.name).map(size => {
-                          const item = group.items.find(i => i.size === size && (i.gender || 'Unissex') === gender);
-                          const qty = item?.quantity || 0;
+                          const matchingItems = group.items.filter(i => i.size === size && (i.gender || 'Unissex') === gender);
+                          const qty = matchingItems.reduce((sum, i) => sum + i.quantity, 0);
                           return (
                             <div key={size} className={`flex flex-col items-center p-2 rounded-xl border ${qty > 0 ? 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700' : 'opacity-30 border-dashed border-slate-200'}`}>
                               <span className="text-[10px] font-black text-slate-400 mb-1">{size}</span>

@@ -291,6 +291,9 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               const size1 = selectedSizes[item.id] || (isCalca ? '38' : (isTop ? '2' : (isGorro ? '56' : 'M')));
               const size2 = selectedSecSizes[item.id] || (is3A || is4A ? (is3A ? '2' : '2') : '');
 
+              const effectiveDiscount = group.inventoryItems[0]?.discount ?? item.discount ?? 0;
+              const effectivePrice = group.inventoryItems[0]?.price ?? item.price;
+
               const numericSizes = ['36', '38', '40', '42', '44', '46', '48', '50'];
               const capSizes = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
               const smallNumericSizes = ['1', '2', '3', '4', '5'];
@@ -331,7 +334,12 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                   (i.gender === targetGender || i.gender === 'Unissex')
                 );
 
-                handleAddToCart(specificItem || item, finalSize);
+                handleAddToCart({
+                  ...item,
+                  price: effectivePrice,
+                  discount: effectiveDiscount,
+                  id: specificItem?.id || item.id
+                }, finalSize);
               };
 
               return (
@@ -344,14 +352,14 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                       <h3 className="text-sm font-black dark:text-white uppercase tracking-tight truncate">{item.name}</h3>
                       <div className="flex items-center gap-2 mt-0.5">
                         <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{item.color}</p>
-                        {(item.discount ?? 0) > 0 && (
+                        {effectiveDiscount > 0 && (
                           <span className="text-[9px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-lg uppercase shadow-sm">
-                            DESC. {item.discount}%
+                            DESC. {effectiveDiscount}%
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-sm font-black text-primary">R$ {item.price.toFixed(2)}</span>
+                        <span className="text-sm font-black text-primary">R$ {effectivePrice.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
