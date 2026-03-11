@@ -24,13 +24,15 @@ export interface TeamMember {
   active: boolean;
 }
 
+export type InventoryItemType = 'Camiseta' | 'Baby Look' | 'Moletom' | 'Acessório' | 'Fardamento';
+
 export interface InventoryItem {
   id: string;
   name: string;
   size: string;
   color: string;
   quantity: number;
-  type: 'Camiseta' | 'Baby Look' | 'Moletom' | 'Acessório' | 'Fardamento';
+  type: InventoryItemType;
   price: number;
   discount?: number;
   image?: string; // Base64 or URL

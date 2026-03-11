@@ -29,7 +29,7 @@ export const dataService = {
                 price: item.price,
                 discount: item.discount,
                 image: item.image
-            })
+            }, { onConflict: 'name,size,color' })
             .select()
             .single();
 

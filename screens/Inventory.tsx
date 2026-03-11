@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useRef } from 'react';
-import { InventoryItem } from '../types';
+import { InventoryItem, InventoryItemType } from '../types';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Header from '../ui/Header';
@@ -12,45 +12,152 @@ interface InventoryProps {
   onDelete: (id: string) => void;
 }
 
+// Standard items from App.tsx handling
+const STANDARD_ITEMS = [
+  { name: '4º A Completo', type: 'Fardamento' as InventoryItemType, price: 408.45, color: 'Padrão' },
+  { name: 'Calça 4º A', type: 'Fardamento' as InventoryItemType, price: 209.00, color: 'Padrão' },
+  { name: 'Joelheira 4º A (par)', type: 'Fardamento' as InventoryItemType, price: 47.15, color: 'Preto' },
+  { name: 'Gorro rígido 4º A', type: 'Fardamento' as InventoryItemType, price: 44.00, color: 'Padrão' },
+  { name: 'Gorro flexível 4º A', type: 'Fardamento' as InventoryItemType, price: 37.70, color: 'Padrão' },
+  { name: 'Tarjeta (3 unidades)', type: 'Fardamento' as InventoryItemType, price: 29.40, color: 'Padrão' },
+  { name: '5º B Bordado', type: 'Fardamento' as InventoryItemType, price: 199.40, color: 'Padrão' },
+  { name: '5º B sem Bordado', type: 'Fardamento' as InventoryItemType, price: 194.15, color: 'Padrão' },
+  { name: 'Camisa Vermelha Bordada', type: 'Fardamento' as InventoryItemType, price: 52.40, color: 'Vermelho' },
+  { name: 'Camisa Vermelha sem Bordado', type: 'Fardamento' as InventoryItemType, price: 47.15, color: 'Vermelho' },
+  { name: 'Short', type: 'Fardamento' as InventoryItemType, price: 31.40, color: 'Padrão' },
+  { name: 'Sunga', type: 'Fardamento' as InventoryItemType, price: 52.40, color: 'Padrão' },
+  { name: 'Maiô', type: 'Fardamento' as InventoryItemType, price: 97.00, color: 'Padrão' },
+  { name: 'Suquini', type: 'Fardamento' as InventoryItemType, price: 100.00, color: 'Padrão' },
+  { name: 'Segunda Pele Bordada', type: 'Fardamento' as InventoryItemType, price: 83.90, color: 'Padrão' },
+  { name: '3º A', type: 'Fardamento' as InventoryItemType, price: 264.90, color: 'Padrão' },
+  { name: 'Camisa 3º A', type: 'Fardamento' as InventoryItemType, price: 119.90, color: 'Padrão' },
+  { name: 'Calça 3º A', type: 'Fardamento' as InventoryItemType, price: 145.00, color: 'Padrão' }
+];
+
+const SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XG', 'Único'];
+
 const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('Todos');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Partial<InventoryItem> | null>(null);
+  const [editingGroup, setEditingGroup] = useState<{
+    name: string;
+    color: string;
+    type: InventoryItemType;
+    price: number;
+    discount?: number;
+    image?: string;
+    sizes: { [key: string]: { id?: string; quantity: number } };
+  } | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filters = ['Todos', 'Camiseta', 'Baby Look', 'Moletom', 'Acessório'];
+  const filters = ['Todos', 'Fardamento', 'Camiseta', 'Baby Look', 'Moletom', 'Acessório'];
 
-  const filteredItems = useMemo(() => {
-    return inventory
-      .filter(item => item.type !== 'Fardamento')
-      .filter(item => {
-        const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.color.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = activeFilter === 'Todos' || item.type === activeFilter;
-        return matchesSearch && matchesFilter;
-      });
+  const groupedInventory = useMemo(() => {
+    const groups: {
+      [key: string]: {
+        name: string,
+        color: string,
+        type: InventoryItemType,
+        price: number,
+        discount?: number,
+        image?: string,
+        items: InventoryItem[]
+      }
+    } = {};
+
+    inventory.forEach(item => {
+      const key = `${item.name}-${item.color}`;
+      if (!groups[key]) {
+        groups[key] = {
+          name: item.name,
+          color: item.color,
+          type: item.type,
+          price: item.price,
+          discount: item.discount,
+          image: item.image,
+          items: []
+        };
+      }
+      groups[key].items.push(item);
+    });
+
+    return Object.values(groups).filter(group => {
+      const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        group.color.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFilter = activeFilter === 'Todos' || group.type === activeFilter;
+      return matchesSearch && matchesFilter;
+    });
   }, [inventory, searchTerm, activeFilter]);
 
   const handleOpenAdd = () => {
-    setEditingItem({
-      id: Date.now().toString(),
+    setEditingGroup({
       name: '',
-      size: 'M',
-      color: '',
-      quantity: 0,
+      color: 'Padrão',
+      type: 'Fardamento',
       price: 0,
-      type: 'Camiseta',
-      image: ''
+      discount: 0,
+      image: '',
+      sizes: SIZES.reduce((acc, size) => ({ ...acc, [size]: { quantity: 0 } }), {})
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleEditGroup = (group: any) => {
+    const sizeMap = SIZES.reduce((acc, size) => {
+      const existing = group.items.find((i: any) => i.size === size);
+      return {
+        ...acc,
+        [size]: existing ? { id: existing.id, quantity: existing.quantity } : { quantity: 0 }
+      };
+    }, {});
+
+    setEditingGroup({
+      name: group.name,
+      color: group.color,
+      type: group.type,
+      price: group.price,
+      discount: group.discount,
+      image: group.image,
+      sizes: sizeMap
     });
     setIsModalOpen(true);
   };
 
   const handleSave = () => {
-    if (editingItem && editingItem.name) {
-      onUpdate(editingItem as InventoryItem);
+    if (editingGroup && editingGroup.name) {
+      // Save each size that has a quantity > 0 OR already has an ID (was edited)
+      Object.entries(editingGroup.sizes).forEach(([size, data]: [string, any]) => {
+        if (data.id || data.quantity >= 0) {
+          onUpdate({
+            id: data.id || `temp-${size}-${Date.now()}`,
+            name: editingGroup.name,
+            size,
+            color: editingGroup.color,
+            quantity: data.quantity,
+            type: editingGroup.type,
+            price: editingGroup.price,
+            discount: editingGroup.discount || 0,
+            image: editingGroup.image || ''
+          });
+        }
+      });
       setIsModalOpen(false);
-      setEditingItem(null);
+      setEditingGroup(null);
+    }
+  };
+
+  const handleSelectStandard = (name: string) => {
+    const standard = STANDARD_ITEMS.find(s => s.name === name);
+    if (standard && editingGroup) {
+      setEditingGroup({
+        ...editingGroup,
+        name: standard.name,
+        type: standard.type,
+        price: standard.price,
+        color: standard.color
+      });
     }
   };
 
@@ -59,7 +166,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setEditingItem(prev => prev ? { ...prev, image: reader.result as string } : null);
+        setEditingGroup(prev => prev ? { ...prev, image: reader.result as string } : null);
       };
       reader.readAsDataURL(file);
     }
@@ -72,7 +179,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
       <div className="px-4 py-4 space-y-4">
         <Input
           icon="search"
-          placeholder="Pesquisar fardamento..."
+          placeholder="Pesquisar estoque..."
           value={searchTerm}
           onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
         />
@@ -95,52 +202,69 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
 
       <main className="px-4 pb-32">
         <div className="flex items-center justify-between mb-4 mt-2">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">Itens em Estoque</h2>
-          <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total: {filteredItems.length} tipos</span>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">Produtos</h2>
+          <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total: {groupedInventory.length} tipos</span>
         </div>
 
-        <div className="space-y-3">
-          {filteredItems.map(item => (
-            <div key={item.id} className="flex items-center p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm hover:border-primary/30 transition-all group relative overflow-hidden">
-              <div className="size-14 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mr-4 border border-slate-100 dark:border-slate-700 text-primary group-hover:scale-105 transition-transform overflow-hidden">
-                {item.image ? (
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="material-symbols-outlined">{item.type === 'Moletom' ? 'apparel' : item.type === 'Acessório' ? 'diamond' : 'checkroom'}</span>
-                )}
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-[#111318] dark:text-white text-sm">{item.name}</h3>
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider opacity-70">Tamanho: {item.size} • {item.color}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-primary font-bold text-xs">R$ {item.price.toFixed(2)}</p>
-                  {item.discount && item.discount > 0 ? (
-                    <div className="flex items-center gap-1 bg-rose-50 dark:bg-rose-900/30 text-rose-500 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter animate-pulse">
-                      <span className="material-symbols-outlined text-[10px]">sell</span>
-                      {item.discount}% OFF
+        <div className="space-y-4">
+          {groupedInventory.map(group => {
+            const totalQty = group.items.reduce((sum, i) => sum + i.quantity, 0);
+            return (
+              <div key={`${group.name}-${group.color}`} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-4 flex items-center gap-4">
+                  <div className="size-14 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700 text-primary overflow-hidden">
+                    {group.image ? (
+                      <img src={group.image} alt={group.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="material-symbols-outlined">{group.type === 'Moletom' ? 'apparel' : group.type === 'Acessório' ? 'diamond' : 'checkroom'}</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-[#111318] dark:text-white text-sm">{group.name}</h3>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider opacity-70">{group.type} • {group.color}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-primary font-bold text-xs">R$ {group.price.toFixed(2)}</p>
+                      {group.discount && group.discount > 0 ? (
+                        <div className="flex items-center gap-1 bg-rose-50 dark:bg-rose-900/30 text-rose-500 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter">
+                          {group.discount}% OFF
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl font-bold text-primary">{totalQty.toString().padStart(2, '0')}</div>
+                    <div className="text-[9px] font-bold uppercase text-slate-400">Total</div>
+                  </div>
                 </div>
-              </div>
-              <div className="text-right flex flex-col items-end gap-1">
-                <span className={`text-xl font-bold ${item.quantity === 0 ? 'text-rose-500' :
-                  item.quantity < 5 ? 'text-amber-500' : 'text-primary'
-                  }`}>
-                  {item.quantity.toString().padStart(2, '0')}
-                </span>
-                <div className="flex gap-1">
-                  <button onClick={() => { setEditingItem(item); setIsModalOpen(true); }} className="text-slate-400 hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined text-sm">edit</span>
-                  </button>
-                  <button onClick={() => onDelete(item.id)} className="text-slate-400 hover:text-rose-500 transition-colors">
-                    <span className="material-symbols-outlined text-sm">delete</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
 
-          {filteredItems.length === 0 && (
+                <div className="px-4 pb-4">
+                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                    {SIZES.map(size => {
+                      const item = group.items.find(i => i.size === size);
+                      const qty = item?.quantity || 0;
+                      return (
+                        <div key={size} className={`flex flex-col items-center p-2 rounded-xl border ${qty > 0 ? 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700' : 'opacity-30 border-dashed border-slate-200'}`}>
+                          <span className="text-[10px] font-black text-slate-400 mb-1">{size}</span>
+                          <span className={`text-xs font-bold ${qty === 0 ? 'text-rose-500' : 'text-slate-700 dark:text-slate-300'}`}>{qty}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex justify-end gap-3 mt-4">
+                    <button onClick={() => handleEditGroup(group)} className="text-[10px] font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all">
+                      <span className="material-symbols-outlined text-sm">edit</span> EDITAR
+                    </button>
+                    <button onClick={() => group.items.forEach(i => onDelete(i.id))} className="text-[10px] font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-600 hover:bg-rose-500 hover:text-white transition-all">
+                      <span className="material-symbols-outlined text-sm">delete</span> EXCLUIR
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {groupedInventory.length === 0 && (
             <div className="py-20 text-center opacity-50 text-gray-500">
               <span className="material-symbols-outlined text-4xl mb-2">inventory</span>
               <p className="text-sm font-medium">Nenhum item encontrado</p>
@@ -152,14 +276,14 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
       <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-40">
         <Button onClick={handleOpenAdd} className="w-full">
           <span className="material-symbols-outlined">add_circle</span>
-          Novo Fardamento
+          Adicionar ao Estoque
         </Button>
       </div>
 
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Gerenciar Fardamento"
+        title="Gerenciar Estoque"
       >
         <div className="space-y-4">
           <div className="flex flex-col items-center gap-3">
@@ -167,8 +291,8 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
               onClick={() => fileInputRef.current?.click()}
               className="size-32 rounded-3xl bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden cursor-pointer group hover:border-primary transition-colors"
             >
-              {editingItem?.image ? (
-                <img src={editingItem.image} alt="Preview" className="w-full h-full object-cover" />
+              {editingGroup?.image ? (
+                <img src={editingGroup.image} alt="Preview" className="w-full h-full object-cover" />
               ) : (
                 <div className="flex flex-col items-center text-slate-400 group-hover:text-primary">
                   <span className="material-symbols-outlined text-3xl">add_a_photo</span>
@@ -180,56 +304,88 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
           </div>
 
           <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2 space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Produto Padrão</label>
+              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                {STANDARD_ITEMS.map(item => (
+                  <button
+                    key={item.name}
+                    onClick={() => handleSelectStandard(item.name)}
+                    className={`flex h-8 shrink-0 items-center justify-center rounded-lg px-3 text-[10px] font-bold transition-all whitespace-nowrap border ${editingGroup?.name === item.name
+                      ? 'bg-primary border-primary text-white'
+                      : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500'
+                      }`}
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <Input
-              label="Nome do Item"
+              label="Nome Personalizado"
               className="col-span-2"
-              value={editingItem?.name || ''}
-              onChange={e => setEditingItem(prev => prev ? { ...prev, name: (e.target as HTMLInputElement).value } : null)}
+              value={editingGroup?.name || ''}
+              onChange={e => setEditingGroup(prev => prev ? { ...prev, name: (e.target as HTMLInputElement).value } : null)}
             />
+
+            <Input
+              label="Categoria"
+              as="select"
+              value={editingGroup?.type || 'Camiseta'}
+              onChange={e => setEditingGroup(prev => prev ? { ...prev, type: (e.target as HTMLSelectElement).value as any } : null)}
+            >
+              {filters.filter(f => f !== 'Todos').map(f => <option key={f} value={f}>{f}</option>)}
+            </Input>
+
             <Input
               label="Cor"
-              value={editingItem?.color || ''}
-              onChange={e => setEditingItem(prev => prev ? { ...prev, color: (e.target as HTMLInputElement).value } : null)}
+              value={editingGroup?.color || ''}
+              onChange={e => setEditingGroup(prev => prev ? { ...prev, color: (e.target as HTMLInputElement).value } : null)}
             />
-            <Input
-              label="Tamanho"
-              as="select"
-              value={editingItem?.size || 'M'}
-              onChange={e => setEditingItem(prev => prev ? { ...prev, size: (e.target as HTMLSelectElement).value } : null)}
-            >
-              {['PP', 'P', 'M', 'G', 'GG', 'XG', 'Único'].map(s => <option key={s} value={s}>{s}</option>)}
-            </Input>
-            <Input
-              label="Quantidade"
-              type="number"
-              value={editingItem?.quantity || 0}
-              onChange={e => setEditingItem(prev => prev ? { ...prev, quantity: parseInt((e.target as HTMLInputElement).value) || 0 } : null)}
-            />
+
             <Input
               label="Preço (R$)"
               type="number"
-              value={editingItem?.price || 0}
-              onChange={e => setEditingItem(prev => prev ? { ...prev, price: parseFloat((e.target as HTMLInputElement).value) || 0 } : null)}
+              value={editingGroup?.price || 0}
+              onChange={e => setEditingGroup(prev => prev ? { ...prev, price: parseFloat((e.target as HTMLInputElement).value) || 0 } : null)}
             />
             <Input
               label="Desconto (%)"
               type="number"
-              value={editingItem?.discount || 0}
-              onChange={e => setEditingItem(prev => prev ? { ...prev, discount: parseFloat((e.target as HTMLInputElement).value) || 0 } : null)}
+              value={editingGroup?.discount || 0}
+              onChange={e => setEditingGroup(prev => prev ? { ...prev, discount: parseFloat((e.target as HTMLInputElement).value) || 0 } : null)}
             />
-            <Input
-              label="Categoria"
-              as="select"
-              className="col-span-2"
-              value={editingItem?.type || 'Camiseta'}
-              onChange={e => setEditingItem(prev => prev ? { ...prev, type: (e.target as HTMLSelectElement).value as any } : null)}
-            >
-              {filters.filter(f => f !== 'Todos').map(f => <option key={f} value={f}>{f}</option>)}
-            </Input>
+
+            <div className="col-span-2 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Quantidades por Tamanho</label>
+              <div className="grid grid-cols-4 gap-3">
+                {SIZES.map(size => (
+                  <div key={size} className="flex flex-col gap-1">
+                    <span className="text-[9px] font-black text-slate-500 text-center uppercase">{size}</span>
+                    <input
+                      type="number"
+                      className="w-full h-10 rounded-xl bg-white dark:bg-slate-800 border-none text-center text-xs font-bold focus:ring-2 focus:ring-primary shadow-sm"
+                      value={editingGroup?.sizes[size]?.quantity || 0}
+                      onChange={e => setEditingGroup(prev => {
+                        if (!prev) return null;
+                        return {
+                          ...prev,
+                          sizes: {
+                            ...prev.sizes,
+                            [size]: { ...prev.sizes[size], quantity: parseInt(e.target.value) || 0 }
+                          }
+                        };
+                      })}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <Button onClick={handleSave} className="w-full mt-4">
-            Salvar Alterações
+            Salvar no Estoque
           </Button>
         </div>
       </Modal>
