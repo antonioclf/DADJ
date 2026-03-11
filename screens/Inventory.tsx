@@ -44,6 +44,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
     name: string;
     color: string;
     type: InventoryItemType;
+    gender: 'Masculino' | 'Feminino' | 'Unissex';
     price: number;
     discount?: number;
     image?: string;
@@ -96,6 +97,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
       name: '',
       color: 'Padrão',
       type: 'Fardamento',
+      gender: 'Unissex',
       price: 0,
       discount: 0,
       image: '',
@@ -104,9 +106,9 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
     setIsModalOpen(true);
   };
 
-  const handleEditGroup = (group: any) => {
+  const handleEditGroup = (group: any, gender: string) => {
     const sizeMap = SIZES.reduce((acc, size) => {
-      const existing = group.items.find((i: any) => i.size === size);
+      const existing = group.items.find((i: any) => i.size === size && (i.gender || 'Unissex') === gender);
       return {
         ...acc,
         [size]: existing ? { id: existing.id, quantity: existing.quantity } : { quantity: 0 }
@@ -117,6 +119,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
       name: group.name,
       color: group.color,
       type: group.type,
+      gender: gender as any,
       price: group.price,
       discount: group.discount,
       image: group.image,
@@ -127,14 +130,14 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
 
   const handleSave = () => {
     if (editingGroup && editingGroup.name) {
-      // Save each size that has a quantity > 0 OR already has an ID (was edited)
       Object.entries(editingGroup.sizes).forEach(([size, data]: [string, any]) => {
         if (data.id || data.quantity >= 0) {
           onUpdate({
-            id: data.id || `temp-${size}-${Date.now()}`,
+            id: data.id || `temp-${size}-${editingGroup.gender}-${Date.now()}`,
             name: editingGroup.name,
             size,
             color: editingGroup.color,
+            gender: editingGroup.gender,
             quantity: data.quantity,
             type: editingGroup.type,
             price: editingGroup.price,
@@ -156,7 +159,8 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
         name: standard.name,
         type: standard.type,
         price: standard.price,
-        color: standard.color
+        color: standard.color,
+        gender: standard.type === 'Baby Look' ? 'Feminino' : 'Masculino'
       });
     }
   };
@@ -209,6 +213,8 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
         <div className="space-y-4">
           {groupedInventory.map(group => {
             const totalQty = group.items.reduce((sum, i) => sum + i.quantity, 0);
+            const genders = Array.from(new Set(group.items.map(i => i.gender || 'Unissex')));
+
             return (
               <div key={`${group.name}-${group.color}`} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-4 flex items-center gap-4">
@@ -237,26 +243,38 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
                   </div>
                 </div>
 
-                <div className="px-4 pb-4">
-                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                    {SIZES.map(size => {
-                      const item = group.items.find(i => i.size === size);
-                      const qty = item?.quantity || 0;
-                      return (
-                        <div key={size} className={`flex flex-col items-center p-2 rounded-xl border ${qty > 0 ? 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700' : 'opacity-30 border-dashed border-slate-200'}`}>
-                          <span className="text-[10px] font-black text-slate-400 mb-1">{size}</span>
-                          <span className={`text-xs font-bold ${qty === 0 ? 'text-rose-500' : 'text-slate-700 dark:text-slate-300'}`}>{qty}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div className="px-4 pb-4 space-y-4">
+                  {genders.sort((a, b) => a === 'Masculino' ? -1 : 1).map(gender => (
+                    <div key={gender} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`material-symbols-outlined text-xs ${gender === 'Feminino' ? 'text-rose-400' : gender === 'Masculino' ? 'text-blue-400' : 'text-slate-400'}`}>
+                          {gender === 'Feminino' ? 'female' : gender === 'Masculino' ? 'male' : 'wc'}
+                        </span>
+                        <span className="text-[10px] font-black text-slate-400 tracking-widest uppercase">{gender}</span>
+                      </div>
+                      <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                        {SIZES.map(size => {
+                          const item = group.items.find(i => i.size === size && (i.gender || 'Unissex') === gender);
+                          const qty = item?.quantity || 0;
+                          return (
+                            <div key={size} className={`flex flex-col items-center p-2 rounded-xl border ${qty > 0 ? 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700' : 'opacity-30 border-dashed border-slate-200'}`}>
+                              <span className="text-[10px] font-black text-slate-400 mb-1">{size}</span>
+                              <span className={`text-xs font-bold ${qty === 0 ? 'text-rose-500' : 'text-slate-700 dark:text-slate-300'}`}>{qty}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="flex justify-end pt-1">
+                        <button onClick={() => handleEditGroup(group, gender)} className="text-[9px] font-bold flex items-center gap-1 opacity-60 hover:opacity-100 text-primary transition-all">
+                          <span className="material-symbols-outlined text-xs">edit</span> EDITAR {gender.toUpperCase()}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
 
-                  <div className="flex justify-end gap-3 mt-4">
-                    <button onClick={() => handleEditGroup(group)} className="text-[10px] font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/10 hover:text-primary transition-all">
-                      <span className="material-symbols-outlined text-sm">edit</span> EDITAR
-                    </button>
+                  <div className="flex justify-end gap-3 pt-2 border-t border-slate-50 dark:border-slate-800">
                     <button onClick={() => group.items.forEach(i => onDelete(i.id))} className="text-[10px] font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-600 hover:bg-rose-500 hover:text-white transition-all">
-                      <span className="material-symbols-outlined text-sm">delete</span> EXCLUIR
+                      <span className="material-symbols-outlined text-sm">delete</span> EXCLUIR PRODUTO
                     </button>
                   </div>
                 </div>
@@ -343,6 +361,17 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
               value={editingGroup?.color || ''}
               onChange={e => setEditingGroup(prev => prev ? { ...prev, color: (e.target as HTMLInputElement).value } : null)}
             />
+
+            <Input
+              label="Gênero"
+              as="select"
+              value={editingGroup?.gender || 'Unissex'}
+              onChange={e => setEditingGroup(prev => prev ? { ...prev, gender: (e.target as HTMLSelectElement).value as any } : null)}
+            >
+              <option value="Masculino">Masculino</option>
+              <option value="Feminino">Feminino</option>
+              <option value="Unissex">Unissex</option>
+            </Input>
 
             <Input
               label="Preço (R$)"

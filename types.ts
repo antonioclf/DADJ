@@ -31,6 +31,7 @@ export interface InventoryItem {
   name: string;
   size: string;
   color: string;
+  gender: 'Masculino' | 'Feminino' | 'Unissex';
   quantity: number;
   type: InventoryItemType;
   price: number;

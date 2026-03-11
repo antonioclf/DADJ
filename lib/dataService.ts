@@ -24,12 +24,13 @@ export const dataService = {
                 name: item.name,
                 size: item.size,
                 color: item.color,
+                gender: item.gender || 'Unissex',
                 quantity: item.quantity,
                 type: item.type,
                 price: item.price,
                 discount: item.discount,
                 image: item.image
-            }, { onConflict: 'name,size,color' })
+            }, { onConflict: 'name,size,color,gender' })
             .select()
             .single();
 
