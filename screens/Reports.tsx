@@ -152,6 +152,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
       sale.items.map(item => [
         sale.date.split(',')[0],
         sale.customerName,
+        sale.customerPhone || 'N/A',
         sale.seller,
         item.name,
         item.quantity,
@@ -163,7 +164,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
 
     autoTable(doc, {
       startY: (doc as any).lastAutoTable.finalY + 20,
-      head: [['Data', 'Cliente', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+      head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
       body: tableData,
       theme: 'grid',
       headStyles: { fillColor: [37, 99, 235] },
@@ -208,6 +209,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
         sale.items.map(item => [
           sale.date.split(',')[0],
           sale.customerName,
+          sale.customerPhone || 'N/A',
           sale.seller,
           item.name,
           item.quantity,
@@ -219,7 +221,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
 
       autoTable(doc, {
         startY: (doc as any).lastAutoTable.finalY + 20,
-        head: [['Data', 'Cliente', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+        head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
         body: tableData,
         theme: 'grid',
         headStyles: { fillColor: [37, 99, 235] },
@@ -454,6 +456,12 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                             <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-md uppercase">BM: {sale.customerBM}</span>
                           )}
                           <span className="text-[9px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded-md uppercase">Vend: {sale.seller}</span>
+                          {sale.customerPhone && (
+                            <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                              <span className="material-symbols-outlined text-[10px]">call</span>
+                              <span className="text-[9px] font-black uppercase tracking-widest">{sale.customerPhone}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
