@@ -47,6 +47,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
   discount?: number;
+  source?: 'Estoque' | 'Loja';
   status: 'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago';
   totalInstallments: number;
   paidInstallments: number;
