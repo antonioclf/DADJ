@@ -27,7 +27,10 @@ const STANDARD_ITEMS = [
   { name: 'Suquini', type: 'Fardamento' as InventoryItemType, price: 100.00, color: 'Padrão' },
   { name: 'Segunda Pele Bordada', type: 'Fardamento' as InventoryItemType, price: 83.90, color: 'Padrão' },
   { name: 'Camisa 3º A', type: 'Fardamento' as InventoryItemType, price: 119.90, color: 'Padrão' },
-  { name: 'Calça 3º A', type: 'Fardamento' as InventoryItemType, price: 145.00, color: 'Padrão' }
+  { name: 'Calça 3º A', type: 'Fardamento' as InventoryItemType, price: 145.00, color: 'Padrão' },
+  { name: 'Gandola 4º A', type: 'Fardamento' as InventoryItemType, price: 180.00, color: 'Padrão' },
+  { name: 'Gandola 3º A', type: 'Fardamento' as InventoryItemType, price: 160.00, color: 'Padrão' },
+  { name: 'Camiseta de Educação Física', type: 'Camiseta' as InventoryItemType, price: 45.00, color: 'Branca' },
 ];
 
 const NUMERIC_SIZES = ['36', '38', '40', '42', '44', '46', '48', '50'];
@@ -352,15 +355,18 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
 
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Produto Padrão</label>
-              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+              <div className="flex items-center justify-between ml-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Catálogo de Produtos</label>
+                <span className="text-[8px] font-bold text-primary px-2 py-0.5 bg-primary/5 rounded-full uppercase">Seleção Rápida</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {STANDARD_ITEMS.map(item => (
                   <button
                     key={item.name}
                     onClick={() => handleSelectStandard(item.name)}
-                    className={`flex h-8 shrink-0 items-center justify-center rounded-lg px-3 text-[10px] font-bold transition-all whitespace-nowrap border ${editingGroup?.name === item.name
-                      ? 'bg-primary border-primary text-white'
-                      : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500'
+                    className={`flex h-12 items-center px-4 rounded-2xl text-[10px] font-bold transition-all border text-left leading-tight ${editingGroup?.name === item.name
+                      ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20'
+                      : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 hover:border-primary/30'
                       }`}
                   >
                     {item.name}

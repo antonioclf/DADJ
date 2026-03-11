@@ -240,149 +240,167 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         title="Selecionar Fardamento"
       >
         <div className="space-y-4 pb-10">
-          {[...inventory].sort((a, b) => {
-            const getPriority = (name: string) => {
-              const n = name.toLowerCase();
-              if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 1;
-              if (n.includes('3º a')) return 2;
-              if (n.includes('5º b')) return 3;
-              if (n.includes('camisa vermelha')) return 4;
-              if (n.includes('short')) return 5;
-              if (n.includes('sunga')) return 6;
-              if (n.includes('maiô')) return 7;
-              if (n.includes('suquini')) return 8;
-              if (n.includes('segunda pele')) return 9;
-              return 10;
-            };
-            const pA = getPriority(a.name);
-            const pB = getPriority(b.name);
-            if (pA !== pB) return pA - pB;
-            return a.name.localeCompare(b.name);
-          }).map(item => {
-            const nameLower = item.name.toLowerCase();
-            const is3A = nameLower.includes('3º a') && !nameLower.includes('calça') && !nameLower.includes('camisa');
-            const is4A = nameLower.includes('4º a completo');
-            const isCalca = nameLower.includes('calça');
-            const isGorro = nameLower.includes('gorro');
-            const isRedShirt = nameLower.includes('camisa vermelha');
-            const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira');
-            const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom')) && !isRedShirt;
-            const isComplex = is3A || is4A;
+          {(() => {
+            const groups: Record<string, { base: InventoryItem, items: InventoryItem[] }> = {};
+            inventory.forEach(item => {
+              const key = `${item.name}-${item.color}`;
+              if (!groups[key]) groups[key] = { base: item, items: [] };
+              groups[key].items.push(item);
+            });
 
-            const gender = selectedGenders[item.id] || 'M';
-            const size1 = selectedSizes[item.id] || (isCalca ? '38' : (isTop ? '2' : (isGorro ? '56' : 'M')));
-            const size2 = selectedSecSizes[item.id] || (is3A || is4A ? (is3A ? '2' : '2') : '');
+            return Object.values(groups).sort((a, b) => {
+              const getPriority = (name: string) => {
+                const n = name.toLowerCase();
+                if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 1;
+                if (n.includes('3º a')) return 2;
+                if (n.includes('5º b')) return 3;
+                if (n.includes('camisa vermelha')) return 4;
+                if (n.includes('short')) return 5;
+                if (n.includes('sunga')) return 6;
+                if (n.includes('maiô')) return 7;
+                if (n.includes('suquini')) return 8;
+                if (n.includes('segunda pele')) return 9;
+                return 10;
+              };
+              const pA = getPriority(a.base.name);
+              const pB = getPriority(b.base.name);
+              if (pA !== pB) return pA - pB;
+              return a.base.name.localeCompare(b.base.name);
+            }).map(group => {
+              const item = group.base;
+              const nameLower = item.name.toLowerCase();
+              const is3A = nameLower.includes('3º a') && !nameLower.includes('calça') && !nameLower.includes('camisa');
+              const is4A = nameLower.includes('4º a completo');
+              const isCalca = nameLower.includes('calça');
+              const isGorro = nameLower.includes('gorro');
+              const isRedShirt = nameLower.includes('camisa vermelha');
+              const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira');
+              const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom')) && !isRedShirt;
+              const isComplex = is3A || is4A;
 
-            const numericSizes = ['36', '38', '40', '42', '44', '46', '48', '50'];
-            const capSizes = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
-            const smallNumericSizes = ['1', '2', '3', '4', '5'];
-            const standardSizes = ['PP', 'P', 'M', 'G', 'GG', 'EG'];
+              const gender = selectedGenders[item.id] || 'M';
+              const size1 = selectedSizes[item.id] || (isCalca ? '38' : (isTop ? '2' : (isGorro ? '56' : 'M')));
+              const size2 = selectedSecSizes[item.id] || (is3A || is4A ? (is3A ? '2' : '2') : '');
 
-            const renderSizeButtons = (current: string, options: string[], onSelect: (s: string) => void, label?: string) => (
-              <div className="flex-1 min-w-0">
-                {label && <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{label}:</p>}
-                <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
-                  {options.map(size => (
-                    <button
-                      key={size}
-                      onClick={() => onSelect(size)}
-                      className={`min-w-[36px] px-2 py-2 rounded-xl text-[10px] font-black transition-all border ${current === size
-                        ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
-                        : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700 hover:bg-slate-100'}`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
+              const numericSizes = ['36', '38', '40', '42', '44', '46', '48', '50'];
+              const capSizes = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
+              const smallNumericSizes = ['1', '2', '3', '4', '5'];
+              const standardSizes = ['PP', 'P', 'M', 'G', 'GG', 'EG'];
 
-            const handleAdd = () => {
-              let finalSize = size1;
-              if (isOneSize) finalSize = item.size; // Use 'Único' or whatever is in DB
-              else if (is3A) finalSize = `C:${size1}${gender} | B:${size2}${gender}`;
-              else if (is4A) finalSize = `G:${size2}${gender} | C:${size1}${gender}`;
-              else if (isCalca || isTop) finalSize = `${size1}${gender}`;
-
-              handleAddToCart(item, finalSize);
-            };
-
-            return (
-              <div key={item.id} className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:border-primary/20 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="size-14 rounded-2xl bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center shrink-0">
-                    {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-primary text-2xl">apparel</span>}
+              const renderSizeButtons = (current: string, options: string[], onSelect: (s: string) => void, label?: string) => (
+                <div className="flex-1 min-w-0">
+                  {label && <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{label}:</p>}
+                  <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
+                    {options.map(size => (
+                      <button
+                        key={size}
+                        onClick={() => onSelect(size)}
+                        className={`min-w-[36px] px-2 py-2 rounded-xl text-[10px] font-black transition-all border ${current === size
+                          ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                          : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700 hover:bg-slate-100'}`}
+                      >
+                        {size}
+                      </button>
+                    ))}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-black dark:text-white uppercase tracking-tight truncate">{item.name}</h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{item.color}</p>
-                      {(item.discount ?? 0) > 0 && (
-                        <span className="text-[9px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-lg uppercase shadow-sm">
-                          DESC. {item.discount}%
-                        </span>
+                </div>
+              );
+
+              const handleAdd = () => {
+                let finalSize = size1;
+                if (isOneSize) finalSize = item.size;
+                else if (is3A) finalSize = `C:${size1}${gender} | B:${size2}${gender}`;
+                else if (is4A) finalSize = `G:${size2}${gender} | C:${size1}${gender}`;
+                else if (isCalca || isTop) finalSize = `${size1}${gender}`;
+
+                // Search for the specific inventory item ID to ensure stock tracking works
+                const targetGender = gender === 'F' ? 'Feminino' : 'Masculino';
+                const searchSize = (isOneSize || isComplex) ? item.size : size1;
+
+                const specificItem = group.items.find(i =>
+                  i.size === searchSize &&
+                  (i.gender === targetGender || i.gender === 'Unissex')
+                );
+
+                handleAddToCart(specificItem || item, finalSize);
+              };
+
+              return (
+                <div key={item.id} className="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:border-primary/20 transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="size-14 rounded-2xl bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center shrink-0">
+                      {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-primary text-2xl">apparel</span>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-black dark:text-white uppercase tracking-tight truncate">{item.name}</h3>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{item.color}</p>
+                        {(item.discount ?? 0) > 0 && (
+                          <span className="text-[9px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-lg uppercase shadow-sm">
+                            DESC. {item.discount}%
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-sm font-black text-primary">R$ {item.price.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800 flex flex-col gap-4">
+                    {(isComplex || isCalca || isTop) && !isGorro && !isOneSize && !item.name.includes('par') && !item.name.includes('unidades') && (
+                      <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-xl w-fit">
+                        <button
+                          onClick={() => setSelectedGenders(prev => ({ ...prev, [item.id]: 'M' }))}
+                          className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${gender === 'M' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-400'}`}
+                        >
+                          Masculino
+                        </button>
+                        <button
+                          onClick={() => setSelectedGenders(prev => ({ ...prev, [item.id]: 'F' }))}
+                          className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${gender === 'F' ? 'bg-white dark:bg-slate-700 text-rose-500 shadow-sm' : 'text-slate-400'}`}
+                        >
+                          Feminino
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="space-y-3">
+                      {is3A && (
+                        <div className="space-y-3">
+                          {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
+                          {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Blusa')}
+                        </div>
+                      )}
+                      {is4A && (
+                        <div className="space-y-3">
+                          {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Gandola')}
+                          {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
+                        </div>
+                      )}
+                      {!isComplex && !isOneSize && renderSizeButtons(
+                        size1,
+                        isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : standardSizes)),
+                        (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })),
+                        'Tamanho'
+                      )}
+                      {isOneSize && (
+                        <p className="text-[10px] text-slate-400 font-black uppercase italic ml-1 pt-1">Modelo de Tamanho Único</p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-sm font-black text-primary">R$ {item.price.toFixed(2)}</span>
-                    </div>
+
+                    <Button
+                      onClick={handleAdd}
+                      className="w-full !rounded-2xl flex items-center justify-center gap-2 h-12 shadow-lg shadow-primary/20"
+                    >
+                      <span className="material-symbols-outlined font-black text-lg">add_shopping_cart</span>
+                      <span className="text-[10px] uppercase font-black tracking-widest">Adicionar ao Carrinho</span>
+                    </Button>
                   </div>
                 </div>
-
-                <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800 flex flex-col gap-4">
-                  {/* Gender Selector for appropriate items (Complex, Calça, Tops UNLESS they are Red Shirts or Gorros or one-size items) */}
-                  {(isComplex || isCalca || isTop) && !isGorro && !isOneSize && !item.name.includes('par') && !item.name.includes('unidades') && (
-                    <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-xl w-fit">
-                      <button
-                        onClick={() => setSelectedGenders(prev => ({ ...prev, [item.id]: 'M' }))}
-                        className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${gender === 'M' ? 'bg-white dark:bg-slate-700 text-primary shadow-sm' : 'text-slate-400'}`}
-                      >
-                        Masculino
-                      </button>
-                      <button
-                        onClick={() => setSelectedGenders(prev => ({ ...prev, [item.id]: 'F' }))}
-                        className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${gender === 'F' ? 'bg-white dark:bg-slate-700 text-rose-500 shadow-sm' : 'text-slate-400'}`}
-                      >
-                        Feminino
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="space-y-3">
-                    {is3A && (
-                      <div className="space-y-3">
-                        {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
-                        {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Blusa')}
-                      </div>
-                    )}
-                    {is4A && (
-                      <div className="space-y-3">
-                        {renderSizeButtons(size2, smallNumericSizes, (s) => setSelectedSecSizes(p => ({ ...p, [item.id]: s })), 'Gandola')}
-                        {renderSizeButtons(size1, numericSizes, (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })), 'Calça')}
-                      </div>
-                    )}
-                    {!isComplex && !isOneSize && renderSizeButtons(
-                      size1,
-                      isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : standardSizes)),
-                      (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })),
-                      'Tamanho'
-                    )}
-                    {isOneSize && (
-                      <p className="text-[10px] text-slate-400 font-black uppercase italic ml-1 pt-1">Modelo de Tamanho Único</p>
-                    )}
-                  </div>
-
-                  <Button
-                    onClick={handleAdd}
-                    className="w-full !rounded-2xl flex items-center justify-center gap-2 h-12 shadow-lg shadow-primary/20"
-                  >
-                    <span className="material-symbols-outlined font-black text-lg">add_shopping_cart</span>
-                    <span className="text-[10px] uppercase font-black tracking-widest">Adicionar ao Carrinho</span>
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
+              );
+            });
+          })()}
           {inventory.length === 0 && (
             <p className="text-center text-slate-400 py-10 text-sm">Nenhum item em estoque.</p>
           )}
