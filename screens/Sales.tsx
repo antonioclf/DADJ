@@ -26,7 +26,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [selectedGenders, setSelectedGenders] = useState<Record<string, 'M' | 'F'>>({});
   const [saleSource, setSaleSource] = useState<'Estoque' | 'Loja'>('Loja');
   const [activeFilter, setActiveFilter] = useState('Todos');
-  const filters = ['Todos', '4º A', '3º A', '5º A/B'];
+  const filters = ['Todos', '4º A', '3º A', '5º A/B', 'Meias', 'Calçados'];
 
   const handleAddToCart = (item: InventoryItem, selectedSize?: string) => {
     const discountedPrice = item.price; // Provided price is already the final price
@@ -305,10 +305,11 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               const isRedShirt = nameLower.includes('camisa vermelha');
               const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira');
               const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom')) && !isRedShirt;
+              const isBoot = nameLower.includes('coturno');
               const isComplex = is3A || is4A;
 
               const gender = selectedGenders[item.id] || 'M';
-              const size1 = selectedSizes[item.id] || (isCalca ? '38' : (isTop ? '2' : (isGorro ? '56' : 'M')));
+              const size1 = selectedSizes[item.id] || (isCalca ? '38' : (isTop ? '2' : (isGorro ? '56' : (isBoot ? '40' : 'M'))));
               const size2 = selectedSecSizes[item.id] || (is3A || is4A ? (is3A ? '2' : '2') : '');
 
               const effectiveDiscount = group.inventoryItems[0]?.discount ?? item.discount ?? 0;
@@ -317,6 +318,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               const numericSizes = ['36', '38', '40', '42', '44', '46', '48', '50'];
               const capSizes = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
               const smallNumericSizes = ['0', '1', '2', '3', '4', '5'];
+              const bootSizes = Array.from({ length: 12 }, (_, i) => (i + 34).toString()); // 34-45
               const standardSizes = ['PP', 'P', 'M', 'G', 'GG', 'EG'];
 
               const renderSizeButtons = (current: string, options: string[], onSelect: (s: string) => void, label?: string) => (
@@ -417,9 +419,9 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                       )}
                       {!isComplex && !isOneSize && renderSizeButtons(
                         size1,
-                        isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : standardSizes)),
-                        (s) => setSelectedSizes(p => ({ ...p, [item.id]: s })),
-                        'Tamanho'
+                        isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : (isBoot ? bootSizes : standardSizes))),
+                        (s) => setSelectedSizes({ ...selectedSizes, [item.id]: s }),
+                        isComplex ? 'Gandola/Blusa' : 'Tamanho'
                       )}
                       {isOneSize && (
                         <p className="text-[10px] text-slate-400 font-black uppercase italic ml-1 pt-1">Modelo de Tamanho Único</p>

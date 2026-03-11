@@ -24,7 +24,7 @@ export interface TeamMember {
   active: boolean;
 }
 
-export type InventoryItemType = '4º A' | '3º A' | '5º A/B';
+export type InventoryItemType = '4º A' | '3º A' | '5º A/B' | 'Meias' | 'Calçados';
 
 export interface InventoryItem {
   id: string;
@@ -93,4 +93,12 @@ export const CATALOG_ITEMS = [
   { name: 'Maiô', type: '5º A/B' as InventoryItemType, price: 97.00, color: 'Padrão' },
   { name: 'Suquini', type: '5º A/B' as InventoryItemType, price: 100.00, color: 'Padrão' },
   { name: 'Segunda Pele Bordada', type: '5º A/B' as InventoryItemType, price: 83.90, color: 'Padrão' },
+
+  { name: 'Meião preto com logo do bombeiro (par)', type: 'Meias' as InventoryItemType, price: 20.79, color: 'Preto' },
+  { name: 'Meião preto (par)', type: 'Meias' as InventoryItemType, price: 16.50, color: 'Preto' },
+  { name: 'Meia social preta trifil (3 pares)', type: 'Meias' as InventoryItemType, price: 39.60, color: 'Preto' },
+  { name: 'Meia social preta (1 par)', type: 'Meias' as InventoryItemType, price: 12.70, color: 'Preto' },
+  { name: 'Meia branca com logo do bombeiro (par)', type: 'Meias' as InventoryItemType, price: 16.50, color: 'Branco' },
+
+  { name: 'Coturno', type: 'Calçados' as InventoryItemType, price: 297.00, color: 'Preto' },
 ];

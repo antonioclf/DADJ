@@ -11,7 +11,7 @@ interface PriceConsultationProps {
 const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack }) => {
     const [search, setSearch] = useState('');
     const [activeFilter, setActiveFilter] = useState('Todos');
-    const filters = ['Todos', '4º A', '3º A', '5º A/B'];
+    const filters = ['Todos', '4º A', '3º A', '5º A/B', 'Meias', 'Calçados'];
 
     const getPriority = (name: string) => {
         const n = name.toLowerCase();
@@ -24,7 +24,9 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
         if (n.includes('maiô')) return 7;
         if (n.includes('suquini')) return 8;
         if (n.includes('segunda pele')) return 9;
-        return 10;
+        if (n.includes('meia') || n.includes('meião')) return 10;
+        if (n.includes('coturno')) return 11;
+        return 12;
     };
 
     const mergedItems = CATALOG_ITEMS
