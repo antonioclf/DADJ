@@ -96,6 +96,7 @@ export const dataService = {
                 deliveredAt: item.delivered_at ? new Date(item.delivered_at).toLocaleString('pt-BR') : undefined,
                 paidAt: item.paid_at ? new Date(item.paid_at).toLocaleString('pt-BR') : undefined,
                 lastPaymentAt: item.last_payment_at ? new Date(item.last_payment_at).toLocaleString('pt-BR') : undefined,
+                source: item.source || 'Loja',
                 installmentHistory: (item.installment_payments || [])
                     .sort((a: any, b: any) => a.installment_number - b.installment_number)
                     .map((p: any) => ({
@@ -136,6 +137,7 @@ export const dataService = {
             status: sale.status, // Initialize item status from sale status
             total_installments: item.totalInstallments || 1,
             paid_installments: item.paidInstallments || 0,
+            source: item.source || 'Loja',
             delivered_at: sale.status === 'Entregue' ? new Date().toISOString() : null,
             paid_at: sale.status === 'Pago' ? new Date().toISOString() : null
         }));
@@ -197,6 +199,34 @@ export const dataService = {
     },
 
     async deleteSale(id: string): Promise<void> {
+        // 1. Get sale items to restore inventory
+        const { data: items, error: fetchError } = await supabase
+            .from('sale_items')
+            .select('inventory_id, quantity, source')
+            .eq('sale_id', id);
+
+        if (!fetchError && items) {
+            for (const item of items) {
+                if (item.source === 'Estoque' && item.inventory_id) {
+                    // Get current stock
+                    const { data: inv } = await supabase
+                        .from('inventory')
+                        .select('quantity')
+                        .eq('id', item.inventory_id)
+                        .single();
+
+                    if (inv) {
+                        // Restore quantity
+                        await supabase
+                            .from('inventory')
+                            .update({ quantity: inv.quantity + item.quantity })
+                            .eq('id', item.inventory_id);
+                    }
+                }
+            }
+        }
+
+        // 2. Delete the sale (cascades to sale_items)
         const { error } = await supabase
             .from('sales')
             .delete()
