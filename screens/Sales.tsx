@@ -25,6 +25,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [selectedSecSizes, setSelectedSecSizes] = useState<Record<string, string>>({});
   const [selectedGenders, setSelectedGenders] = useState<Record<string, 'M' | 'F'>>({});
   const [saleSource, setSaleSource] = useState<'Estoque' | 'Loja'>('Loja');
+  const [activeFilter, setActiveFilter] = useState('Todos');
+  const filters = ['Todos', '4º A', '3º A', '5º A/B'];
 
   const handleAddToCart = (item: InventoryItem, selectedSize?: string) => {
     const discountedPrice = item.price; // Provided price is already the final price
@@ -240,6 +242,20 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         title="Selecionar Fardamento"
       >
         <div className="space-y-4 pb-10">
+          <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar -mx-1 px-1">
+            {filters.map(filter => (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={`flex h-8 shrink-0 items-center justify-center rounded-xl px-4 text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === filter
+                  ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                  : 'bg-slate-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 border border-transparent'
+                  }`}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
           {(() => {
             // Group the actual inventory for quick lookup
             const inventoryGroups: Record<string, InventoryItem[]> = {};
@@ -251,7 +267,11 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
 
             // Map CATALOG_ITEMS to their inventory counterparts
             const catalogWithInventory = CATALOG_ITEMS
-              .filter(catItem => !(catItem as any).hideFromSales)
+              .filter(catItem => {
+                const isHidden = (catItem as any).hideFromSales;
+                const matchesFilter = activeFilter === 'Todos' || catItem.type === activeFilter;
+                return !isHidden && matchesFilter;
+              })
               .map(catItem => ({
                 base: { ...catItem, id: `cat-${catItem.name}-${catItem.color}` } as unknown as InventoryItem,
                 inventoryItems: inventoryGroups[`${catItem.name}-${catItem.color}`] || []

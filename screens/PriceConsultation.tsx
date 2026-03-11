@@ -10,6 +10,8 @@ interface PriceConsultationProps {
 
 const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack }) => {
     const [search, setSearch] = useState('');
+    const [activeFilter, setActiveFilter] = useState('Todos');
+    const filters = ['Todos', '4º A', '3º A', '5º A/B'];
 
     const getPriority = (name: string) => {
         const n = name.toLowerCase();
@@ -39,10 +41,12 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
         });
 
     const filteredItems = mergedItems
-        .filter(item =>
-            item.name.toLowerCase().includes(search.toLowerCase()) ||
-            item.type.toLowerCase().includes(search.toLowerCase())
-        )
+        .filter(item => {
+            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
+                item.type.toLowerCase().includes(search.toLowerCase());
+            const matchesFilter = activeFilter === 'Todos' || item.type === activeFilter;
+            return matchesSearch && matchesFilter;
+        })
         .sort((a, b) => {
             const pA = getPriority(a.name);
             const pB = getPriority(b.name);
@@ -67,13 +71,27 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
                 </div>
 
                 <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-                    <div className="p-6 border-b border-slate-50 dark:border-slate-800">
+                    <div className="p-6 border-b border-slate-50 dark:border-slate-800 space-y-4">
                         <Input
                             icon="search"
-                            placeholder="Pesquisar fardamento ou categoria..."
+                            placeholder="Pesquisar fardamento..."
                             value={search}
                             onChange={(e) => setSearch((e.target as HTMLInputElement).value)}
                         />
+                        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                            {filters.map(filter => (
+                                <button
+                                    key={filter}
+                                    onClick={() => setActiveFilter(filter)}
+                                    className={`flex h-9 shrink-0 items-center justify-center rounded-xl px-5 text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFilter === filter
+                                        ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                        : 'bg-white dark:bg-slate-800 text-gray-500 dark:text-gray-400 border border-slate-100 dark:border-slate-700'
+                                        }`}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="overflow-x-auto">
