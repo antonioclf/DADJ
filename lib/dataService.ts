@@ -47,6 +47,15 @@ export const dataService = {
         if (error) throw error;
     },
 
+    async deleteInventoryItems(ids: string[]): Promise<void> {
+        const { error } = await supabase
+            .from('inventory')
+            .delete()
+            .in('id', ids);
+
+        if (error) throw error;
+    },
+
     // Sales
     async getSales(): Promise<SaleRecord[]> {
         const { data, error } = await supabase
@@ -137,8 +146,10 @@ export const dataService = {
 
         if (itemsError) throw itemsError;
 
-        // 3. Update inventory levels (This should ideally be a transaction/RPC)
+        // 3. Update inventory levels only for "Estoque" source
         for (const item of sale.items) {
+            if (item.source !== 'Estoque') continue;
+
             const { data: invItem } = await supabase
                 .from('inventory')
                 .select('quantity')

@@ -24,6 +24,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
   const [selectedSecSizes, setSelectedSecSizes] = useState<Record<string, string>>({});
   const [selectedGenders, setSelectedGenders] = useState<Record<string, 'M' | 'F'>>({});
+  const [saleSource, setSaleSource] = useState<'Estoque' | 'Loja'>('Loja');
 
   const handleAddToCart = (item: InventoryItem, selectedSize?: string) => {
     const discountedPrice = item.price; // Provided price is already the final price
@@ -40,7 +41,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         size: size,
         quantity: 1,
         price: discountedPrice,
-        discount: item.discount
+        discount: item.discount,
+        source: saleSource
       }]);
     }
     setShowItemPicker(false);
@@ -117,6 +119,27 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               onChange={(e) => setPhone((e.target as HTMLInputElement).value)}
               type="tel"
             />
+
+            <div className="space-y-4">
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider pb-1 ml-1">Origem da Venda</p>
+              <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl w-full">
+                {[
+                  { id: 'Estoque', label: 'Estoque (Baixa Automática)', icon: 'inventory_2', color: 'text-primary', bg: 'bg-white dark:bg-slate-700' },
+                  { id: 'Loja', label: 'Compra Direta na Loja', icon: 'storefront', color: 'text-emerald-500', bg: 'bg-white dark:bg-slate-700' }
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setSaleSource(s.id as any)}
+                    className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl text-[9px] font-black uppercase transition-all ${saleSource === s.id ? `${s.bg} ${s.color} shadow-sm border border-slate-100 dark:border-slate-600` : 'text-slate-400 opacity-60'}`}
+                  >
+                    <span className="material-symbols-outlined text-[18px] font-black">
+                      {s.icon}
+                    </span>
+                    <span className="text-center leading-tight">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className="space-y-4">
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider pb-1 ml-1">Status do Pedido</p>

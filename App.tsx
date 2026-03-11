@@ -203,18 +203,15 @@ const AppContent: React.FC = () => {
     if (!confirm(message)) return;
 
     try {
-      if (idList.length > 1) {
-        // Simple sequential delete for now, or could use an IN query in dataService
-        for (const id of idList) {
-          await dataService.deleteInventoryItem(id);
-        }
-      } else {
-        await dataService.deleteInventoryItem(idList[0]);
-      }
+      await dataService.deleteInventoryItems(idList);
       setInventory(prev => prev.filter(i => !idList.includes(i.id)));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting items:', error);
-      alert('Erro ao excluir item(ns).');
+      let errorMsg = `Erro ao excluir item(ns): ${error.message || 'Erro desconhecido'}`;
+      if (error.code === '23503') {
+        errorMsg = 'Não foi possível excluir. Verifique se existem registros dependentes.';
+      }
+      alert(errorMsg);
     }
   };
 
