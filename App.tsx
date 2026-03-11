@@ -192,14 +192,29 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const handleDeleteItem = async (id: string) => {
-    if (!confirm('Deseja excluir este item?')) return;
+  const handleDeleteItem = async (ids: string | string[]) => {
+    const idList = Array.isArray(ids) ? ids : [ids];
+    if (idList.length === 0) return;
+
+    const message = idList.length > 1
+      ? `Deseja excluir todos os ${idList.length} itens deste produto?`
+      : 'Deseja excluir este item?';
+
+    if (!confirm(message)) return;
+
     try {
-      await dataService.deleteInventoryItem(id);
-      setInventory(prev => prev.filter(i => i.id !== id));
+      if (idList.length > 1) {
+        // Simple sequential delete for now, or could use an IN query in dataService
+        for (const id of idList) {
+          await dataService.deleteInventoryItem(id);
+        }
+      } else {
+        await dataService.deleteInventoryItem(idList[0]);
+      }
+      setInventory(prev => prev.filter(i => !idList.includes(i.id)));
     } catch (error) {
-      console.error('Error deleting item:', error);
-      alert('Erro ao excluir item.');
+      console.error('Error deleting items:', error);
+      alert('Erro ao excluir item(ns).');
     }
   };
 

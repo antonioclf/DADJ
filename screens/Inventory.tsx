@@ -9,7 +9,7 @@ import Modal from '../ui/Modal';
 interface InventoryProps {
   inventory: InventoryItem[];
   onUpdate: (item: InventoryItem) => void;
-  onDelete: (id: string) => void;
+  onDelete: (ids: string | string[]) => void;
 }
 
 // Standard items from App.tsx handling
@@ -69,7 +69,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filters = ['Todos', 'Fardamento', 'Camiseta', 'Baby Look', 'Moletom', 'Acessório'];
+  const filters = ['Todos', 'Fardamento', 'Camiseta', 'Acessório'];
 
   const groupedInventory = useMemo(() => {
     const groups: {
@@ -305,7 +305,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
                   ))}
 
                   <div className="flex justify-end gap-3 pt-2 border-t border-slate-50 dark:border-slate-800">
-                    <button onClick={() => group.items.forEach(i => onDelete(i.id))} className="text-[10px] font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-600 hover:bg-rose-500 hover:text-white transition-all">
+                    <button onClick={() => onDelete(group.items.map(i => i.id))} className="text-[10px] font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-600 hover:bg-rose-500 hover:text-white transition-all">
                       <span className="material-symbols-outlined text-sm">delete</span> EXCLUIR PRODUTO
                     </button>
                   </div>
