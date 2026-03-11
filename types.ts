@@ -24,7 +24,7 @@ export interface TeamMember {
   active: boolean;
 }
 
-export type InventoryItemType = '4º A' | '3º A' | '5º A/B' | 'Meias' | 'Calçados';
+export type InventoryItemType = '4º A' | '3º A' | '5º A/B' | 'Meias' | 'Calçados' | '1º e 2º A';
 
 export interface InventoryItem {
   id: string;
@@ -101,4 +101,7 @@ export const CATALOG_ITEMS = [
   { name: 'Meia branca com logo do bombeiro (par)', type: 'Meias' as InventoryItemType, price: 16.50, color: 'Branco' },
 
   { name: 'Coturno', type: 'Calçados' as InventoryItemType, price: 297.00, color: 'Preto' },
+
+  { name: 'Camisa 2º A', type: '1º e 2º A' as InventoryItemType, price: 0.00, color: 'Padrão' },
+  { name: 'Túnica 2º A', type: '1º e 2º A' as InventoryItemType, price: 0.00, color: 'Padrão' },
 ];

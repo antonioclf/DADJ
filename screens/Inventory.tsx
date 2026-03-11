@@ -16,8 +16,9 @@ const STANDARD_ITEMS = CATALOG_ITEMS;
 
 const NUMERIC_SIZES = ['36', '38', '40', '42', '44', '46', '48', '50'];
 const CAP_SIZES = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
-const SMALL_NUMERIC_SIZES = ['0', '1', '2', '3', '4', '5'];
+const SMALL_NUMERIC_SIZES = ['0', '1', '2', '3', '4', '5', '6', '7', '8'];
 const BOOT_SIZES = Array.from({ length: 12 }, (_, i) => (i + 34).toString()); // 34-45
+const DRESS_UNIFORM_SIZES = ['36', '38', '40', '42', '44', '46', '48', '50', '52', '54'];
 const STANDARD_SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
 
 const getAvailableSizes = (name: string) => {
@@ -27,6 +28,7 @@ const getAvailableSizes = (name: string) => {
   if (n.includes('gorro')) return CAP_SIZES;
   if (n.includes('coturno')) return BOOT_SIZES;
   if (n.includes('meia') || n.includes('meião')) return ['Único'];
+  if (n.includes('túnica') || (n.includes('camisa') && n.includes('2º a'))) return DRESS_UNIFORM_SIZES;
   if (n.includes('blusa') || n.includes('gandola') || n.includes('camisa') || n.includes('camiseta') || n.includes('moletom')) {
     if (n.includes('camisa vermelha')) return STANDARD_SIZES;
     return SMALL_NUMERIC_SIZES;
@@ -52,7 +54,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filters = ['Todos', '4º A', '3º A', '5º A/B', 'Meias', 'Calçados'];
+  const filters = ['Todos', '4º A', '3º A', '5º A/B', '1º e 2º A', 'Meias', 'Calçados'];
 
   const groupedInventory = useMemo(() => {
     const groups: {

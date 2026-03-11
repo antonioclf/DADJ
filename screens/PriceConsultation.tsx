@@ -11,22 +11,23 @@ interface PriceConsultationProps {
 const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack }) => {
     const [search, setSearch] = useState('');
     const [activeFilter, setActiveFilter] = useState('Todos');
-    const filters = ['Todos', '4º A', '3º A', '5º A/B', 'Meias', 'Calçados'];
+    const filters = ['Todos', '1º e 2º A', '4º A', '3º A', '5º A/B', 'Meias', 'Calçados'];
 
     const getPriority = (name: string) => {
         const n = name.toLowerCase();
-        if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 1;
-        if (n.includes('3º a')) return 2;
-        if (n.includes('5º b')) return 3;
-        if (n.includes('camisa vermelha')) return 4;
-        if (n.includes('short')) return 5;
-        if (n.includes('sunga')) return 6;
-        if (n.includes('maiô')) return 7;
-        if (n.includes('suquini')) return 8;
-        if (n.includes('segunda pele')) return 9;
-        if (n.includes('meia') || n.includes('meião')) return 10;
-        if (n.includes('coturno')) return 11;
-        return 12;
+        if (n.includes('1º a') || n.includes('2º a')) return 1;
+        if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 2;
+        if (n.includes('3º a')) return 3;
+        if (n.includes('5º b')) return 4;
+        if (n.includes('camisa vermelha')) return 5;
+        if (n.includes('short')) return 6;
+        if (n.includes('sunga')) return 7;
+        if (n.includes('maiô')) return 8;
+        if (n.includes('suquini')) return 9;
+        if (n.includes('segunda pele')) return 10;
+        if (n.includes('meia') || n.includes('meião')) return 11;
+        if (n.includes('coturno')) return 12;
+        return 13;
     };
 
     const mergedItems = CATALOG_ITEMS

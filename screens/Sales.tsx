@@ -26,7 +26,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [selectedGenders, setSelectedGenders] = useState<Record<string, 'M' | 'F'>>({});
   const [saleSource, setSaleSource] = useState<'Estoque' | 'Loja'>('Loja');
   const [activeFilter, setActiveFilter] = useState('Todos');
-  const filters = ['Todos', '4º A', '3º A', '5º A/B', 'Meias', 'Calçados'];
+  const filters = ['Todos', '1º e 2º A', '4º A', '3º A', '5º A/B', 'Meias', 'Calçados'];
 
   const formatPhone = (val: string) => {
     const raw = val.replace(/\D/g, '').slice(0, 11);
@@ -287,16 +287,19 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
             return catalogWithInventory.sort((a, b) => {
               const getPriority = (name: string) => {
                 const n = name.toLowerCase();
-                if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 1;
-                if (n.includes('3º a')) return 2;
-                if (n.includes('5º b')) return 3;
-                if (n.includes('camisa vermelha')) return 4;
-                if (n.includes('short')) return 5;
-                if (n.includes('sunga')) return 6;
-                if (n.includes('maiô')) return 7;
-                if (n.includes('suquini')) return 8;
-                if (n.includes('segunda pele')) return 9;
-                return 10;
+                if (n.includes('1º a') || n.includes('2º a')) return 1;
+                if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 2;
+                if (n.includes('3º a')) return 3;
+                if (n.includes('5º b')) return 4;
+                if (n.includes('camisa vermelha')) return 5;
+                if (n.includes('short')) return 6;
+                if (n.includes('sunga')) return 7;
+                if (n.includes('maiô')) return 8;
+                if (n.includes('suquini')) return 9;
+                if (n.includes('segunda pele')) return 10;
+                if (n.includes('meia') || n.includes('meião')) return 11;
+                if (n.includes('coturno')) return 12;
+                return 13;
               };
               const pA = getPriority(a.base.name);
               const pB = getPriority(b.base.name);
@@ -311,12 +314,13 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               const isGorro = nameLower.includes('gorro');
               const isRedShirt = nameLower.includes('camisa vermelha');
               const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira');
-              const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom')) && !isRedShirt;
+              const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom') || nameLower.includes('túnica')) && !isRedShirt;
+              const isDressUniform = nameLower.includes('túnica') || (nameLower.includes('camisa') && nameLower.includes('2º a'));
               const isBoot = nameLower.includes('coturno');
               const isComplex = is3A || is4A;
 
               const gender = selectedGenders[item.id] || 'M';
-              const size1 = selectedSizes[item.id] || (isCalca ? '38' : (isTop ? '2' : (isGorro ? '56' : (isBoot ? '40' : 'M'))));
+              const size1 = selectedSizes[item.id] || (isCalca || isDressUniform ? '38' : (isTop ? '2' : (isGorro ? '56' : (isBoot ? '40' : 'M'))));
               const size2 = selectedSecSizes[item.id] || (is3A || is4A ? (is3A ? '2' : '2') : '');
 
               const effectiveDiscount = group.inventoryItems[0]?.discount ?? item.discount ?? 0;
@@ -324,8 +328,9 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
 
               const numericSizes = ['36', '38', '40', '42', '44', '46', '48', '50'];
               const capSizes = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
-              const smallNumericSizes = ['0', '1', '2', '3', '4', '5'];
+              const smallNumericSizes = ['0', '1', '2', '3', '4', '5', '6', '7', '8'];
               const bootSizes = Array.from({ length: 12 }, (_, i) => (i + 34).toString()); // 34-45
+              const dressUniformSizes = ['36', '38', '40', '42', '44', '46', '48', '50', '52', '54'];
               const standardSizes = ['PP', 'P', 'M', 'G', 'GG', 'EG'];
 
               const renderSizeButtons = (current: string, options: string[], onSelect: (s: string) => void, label?: string) => (
@@ -426,7 +431,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                       )}
                       {!isComplex && !isOneSize && renderSizeButtons(
                         size1,
-                        isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : (isBoot ? bootSizes : standardSizes))),
+                        isDressUniform ? dressUniformSizes : (isCalca ? numericSizes : (isTop ? smallNumericSizes : (isGorro ? capSizes : (isBoot ? bootSizes : standardSizes)))),
                         (s) => setSelectedSizes({ ...selectedSizes, [item.id]: s }),
                         isComplex ? 'Gandola/Blusa' : 'Tamanho'
                       )}
