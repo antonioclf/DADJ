@@ -54,7 +54,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filters = ['Todos', '4º A', '3º A', '5º A/B', '1º e 2º A', 'Meias', 'Calçados'];
+  const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados'];
 
   const groupedInventory = useMemo(() => {
     const groups: {

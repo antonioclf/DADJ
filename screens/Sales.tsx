@@ -26,7 +26,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [selectedGenders, setSelectedGenders] = useState<Record<string, 'M' | 'F'>>({});
   const [saleSource, setSaleSource] = useState<'Estoque' | 'Loja'>('Loja');
   const [activeFilter, setActiveFilter] = useState('Todos');
-  const filters = ['Todos', '1º e 2º A', '4º A', '3º A', '5º A/B', 'Meias', 'Calçados'];
+  const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados'];
 
   const formatPhone = (val: string) => {
     const raw = val.replace(/\D/g, '').slice(0, 11);
@@ -287,9 +287,10 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
             return catalogWithInventory.sort((a, b) => {
               const getPriority = (name: string) => {
                 const n = name.toLowerCase();
+                if (n.includes('price list')) return 0;
                 if (n.includes('1º a') || n.includes('2º a')) return 1;
-                if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 2;
-                if (n.includes('3º a')) return 3;
+                if (n.includes('3º a')) return 2;
+                if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 3;
                 if (n.includes('5º b')) return 4;
                 if (n.includes('camisa vermelha')) return 5;
                 if (n.includes('short')) return 6;
