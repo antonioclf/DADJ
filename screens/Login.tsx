@@ -79,20 +79,27 @@ const Login: React.FC = () => {
                     </form>
 
                     <div className="pt-4 space-y-3">
-                        <div className="flex gap-3">
+                        <div className="grid grid-cols-3 gap-2">
                             <button
                                 onClick={() => (window as any).navigate?.('price_list' as any)}
-                                className="flex-1 flex flex-col items-center gap-2 p-4 rounded-3xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-primary/20 hover:bg-white dark:hover:bg-slate-700 transition-all group"
+                                className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-primary/20 hover:bg-white dark:hover:bg-slate-700 transition-all group"
                             >
-                                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">label</span>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Consultar Preços</span>
+                                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform text-lg">label</span>
+                                <span className="text-[8px] font-black uppercase tracking-tight text-slate-500 dark:text-slate-400 text-center">Preços</span>
+                            </button>
+                            <button
+                                onClick={() => (window as any).navigate?.('inventory_consultation' as any)}
+                                className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-emerald-500/20 hover:bg-white dark:hover:bg-slate-700 transition-all group"
+                            >
+                                <span className="material-symbols-outlined text-emerald-500 group-hover:scale-110 transition-transform text-lg">inventory_2</span>
+                                <span className="text-[8px] font-black uppercase tracking-tight text-slate-500 dark:text-slate-400 text-center">Estoque</span>
                             </button>
                             <button
                                 onClick={() => (window as any).navigate?.('payment_lookup' as any)}
-                                className="flex-1 flex flex-col items-center gap-2 p-4 rounded-3xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-amber-500/20 hover:bg-white dark:hover:bg-slate-700 transition-all group"
+                                className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 hover:border-amber-500/20 hover:bg-white dark:hover:bg-slate-700 transition-all group"
                             >
-                                <span className="material-symbols-outlined text-amber-500 group-hover:scale-110 transition-transform">find_in_page</span>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Pendências BM</span>
+                                <span className="material-symbols-outlined text-amber-500 group-hover:scale-110 transition-transform text-lg">find_in_page</span>
+                                <span className="text-[8px] font-black uppercase tracking-tight text-slate-500 dark:text-slate-400 text-center">Pendências</span>
                             </button>
                         </div>
                         <p className="text-[9px] text-slate-400 uppercase tracking-widest font-bold text-center">

@@ -7,7 +7,8 @@ export enum View {
   PROFILE = 'profile',
   TEAM = 'team',
   PRICE_LIST = 'price_list',
-  PAYMENT_LOOKUP = 'payment_lookup'
+  PAYMENT_LOOKUP = 'payment_lookup',
+  INVENTORY_CONSULTATION = 'inventory_consultation'
 }
 
 export type ReportType = 'Vendas' | 'Estoque' | 'Alunos' | 'Vendedores';

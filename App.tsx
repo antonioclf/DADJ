@@ -10,6 +10,7 @@ import Login from './screens/Login';
 import Layout from './Layout';
 import PriceConsultation from './screens/PriceConsultation';
 import PaymentConsultation from './screens/PaymentConsultation';
+import InventoryConsultation from './screens/InventoryConsultation';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { dataService } from './lib/dataService';
 import { supabase } from './lib/supabase';
@@ -109,8 +110,8 @@ const AppContent: React.FC = () => {
 
   // Load data from Supabase
   const loadData = useCallback(async () => {
-    // If we're on price list, we need inventory even without login
-    const needsInventory = currentView === View.PRICE_LIST;
+    // If we're on public consultation, we need inventory even without login
+    const needsInventory = currentView === View.PRICE_LIST || currentView === View.INVENTORY_CONSULTATION;
     if (!user && !needsInventory) return;
     setDataLoading(true);
     try {
@@ -246,7 +247,7 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const needsData = user || currentView === View.PRICE_LIST;
+  const needsData = user || currentView === View.PRICE_LIST || currentView === View.INVENTORY_CONSULTATION;
   if (authLoading || (dataLoading && inventory.length === 0 && needsData)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
@@ -261,6 +262,7 @@ const AppContent: React.FC = () => {
   if (!user) {
     if (currentView === View.PRICE_LIST) return <PriceConsultation inventory={inventory} onBack={() => navigate(View.HOME)} />;
     if (currentView === View.PAYMENT_LOOKUP) return <PaymentConsultation onBack={() => navigate(View.HOME)} />;
+    if (currentView === View.INVENTORY_CONSULTATION) return <InventoryConsultation inventory={inventory} onBack={() => navigate(View.HOME)} />;
     return <Login />;
   }
 
