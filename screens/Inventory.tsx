@@ -49,7 +49,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filters = ['Todos', 'Fardamento', 'Camiseta', 'Acessório'];
+  const filters = ['Todos', '4º A', '3º A', '5º A/B'];
 
   const groupedInventory = useMemo(() => {
     const groups: {
@@ -171,7 +171,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
         type: standard.type,
         price: standard.price,
         color: standard.color,
-        gender: standard.type === 'Baby Look' ? 'Feminino' : 'Masculino',
+        gender: 'Masculino',
         sizes: newSizes
       });
     }
