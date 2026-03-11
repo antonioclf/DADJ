@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { InventoryItem } from '../types';
+import { InventoryItem, CATALOG_ITEMS } from '../types';
 import Input from '../ui/Input';
 
 interface PriceConsultationProps {
@@ -25,7 +25,18 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
         return 10;
     };
 
-    const filteredItems = inventory
+    const mergedItems = CATALOG_ITEMS.map(catItem => {
+        const invMatch = inventory.find(i => i.name === catItem.name && i.color === catItem.color);
+        return {
+            id: `price-${catItem.name}`,
+            name: catItem.name,
+            type: catItem.type,
+            price: invMatch?.price ?? catItem.price,
+            discount: invMatch?.discount ?? 0
+        };
+    });
+
+    const filteredItems = mergedItems
         .filter(item =>
             item.name.toLowerCase().includes(search.toLowerCase()) ||
             item.type.toLowerCase().includes(search.toLowerCase())

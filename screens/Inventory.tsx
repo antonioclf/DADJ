@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useRef } from 'react';
-import { InventoryItem, InventoryItemType } from '../types';
+import { InventoryItem, InventoryItemType, CATALOG_ITEMS } from '../types';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Header from '../ui/Header';
@@ -12,26 +12,7 @@ interface InventoryProps {
   onDelete: (ids: string | string[]) => void;
 }
 
-// Standard items from App.tsx handling
-const STANDARD_ITEMS = [
-  { name: 'Calça 4º A', type: 'Fardamento' as InventoryItemType, price: 209.00, color: 'Padrão' },
-  { name: 'Joelheira 4º A (par)', type: 'Fardamento' as InventoryItemType, price: 47.15, color: 'Preto' },
-  { name: 'Gorro rígido 4º A', type: 'Fardamento' as InventoryItemType, price: 44.00, color: 'Padrão' },
-  { name: 'Gorro flexível 4º A', type: 'Fardamento' as InventoryItemType, price: 37.70, color: 'Padrão' },
-  { name: 'Tarjeta (3 unidades)', type: 'Fardamento' as InventoryItemType, price: 29.40, color: 'Padrão' },
-  { name: 'Camisa Vermelha Bordada', type: 'Fardamento' as InventoryItemType, price: 52.40, color: 'Vermelho' },
-  { name: 'Camisa Vermelha sem Bordado', type: 'Fardamento' as InventoryItemType, price: 47.15, color: 'Vermelho' },
-  { name: 'Short', type: 'Fardamento' as InventoryItemType, price: 31.40, color: 'Padrão' },
-  { name: 'Sunga', type: 'Fardamento' as InventoryItemType, price: 52.40, color: 'Padrão' },
-  { name: 'Maiô', type: 'Fardamento' as InventoryItemType, price: 97.00, color: 'Padrão' },
-  { name: 'Suquini', type: 'Fardamento' as InventoryItemType, price: 100.00, color: 'Padrão' },
-  { name: 'Segunda Pele Bordada', type: 'Fardamento' as InventoryItemType, price: 83.90, color: 'Padrão' },
-  { name: 'Camisa 3º A', type: 'Fardamento' as InventoryItemType, price: 119.90, color: 'Padrão' },
-  { name: 'Calça 3º A', type: 'Fardamento' as InventoryItemType, price: 145.00, color: 'Padrão' },
-  { name: 'Gandola 4º A', type: 'Fardamento' as InventoryItemType, price: 180.00, color: 'Padrão' },
-  { name: 'Gandola 3º A', type: 'Fardamento' as InventoryItemType, price: 160.00, color: 'Padrão' },
-  { name: 'Camiseta de Educação Física', type: 'Camiseta' as InventoryItemType, price: 45.00, color: 'Branca' },
-];
+const STANDARD_ITEMS = CATALOG_ITEMS;
 
 const NUMERIC_SIZES = ['36', '38', '40', '42', '44', '46', '48', '50'];
 const CAP_SIZES = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63

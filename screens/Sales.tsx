@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { InventoryItem, SaleRecord, OrderItem, TeamMember } from '../types';
+import { InventoryItem, SaleRecord, OrderItem, TeamMember, CATALOG_ITEMS } from '../types';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Header from '../ui/Header';
@@ -241,14 +241,21 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
       >
         <div className="space-y-4 pb-10">
           {(() => {
-            const groups: Record<string, { base: InventoryItem, items: InventoryItem[] }> = {};
+            // Group the actual inventory for quick lookup
+            const inventoryGroups: Record<string, InventoryItem[]> = {};
             inventory.forEach(item => {
               const key = `${item.name}-${item.color}`;
-              if (!groups[key]) groups[key] = { base: item, items: [] };
-              groups[key].items.push(item);
+              if (!inventoryGroups[key]) inventoryGroups[key] = [];
+              inventoryGroups[key].push(item);
             });
 
-            return Object.values(groups).sort((a, b) => {
+            // Map CATALOG_ITEMS to their inventory counterparts
+            const catalogWithInventory = CATALOG_ITEMS.map(catItem => ({
+              base: { ...catItem, id: `cat-${catItem.name}-${catItem.color}` } as unknown as InventoryItem,
+              inventoryItems: inventoryGroups[`${catItem.name}-${catItem.color}`] || []
+            }));
+
+            return catalogWithInventory.sort((a, b) => {
               const getPriority = (name: string) => {
                 const n = name.toLowerCase();
                 if (n.includes('4º a') || n.includes('tarjeta') || n.includes('joelheira') || n.includes('gorro')) return 1;
@@ -308,16 +315,16 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
 
               const handleAdd = () => {
                 let finalSize = size1;
-                if (isOneSize) finalSize = item.size;
+                if (isOneSize) finalSize = item.size || 'Único';
                 else if (is3A) finalSize = `C:${size1}${gender} | B:${size2}${gender}`;
                 else if (is4A) finalSize = `G:${size2}${gender} | C:${size1}${gender}`;
                 else if (isCalca || isTop) finalSize = `${size1}${gender}`;
 
                 // Search for the specific inventory item ID to ensure stock tracking works
                 const targetGender = gender === 'F' ? 'Feminino' : 'Masculino';
-                const searchSize = (isOneSize || isComplex) ? item.size : size1;
+                const searchSize = (isOneSize || isComplex) ? (group.inventoryItems[0]?.size || 'M') : size1;
 
-                const specificItem = group.items.find(i =>
+                const specificItem = group.inventoryItems.find(i =>
                   i.size === searchSize &&
                   (i.gender === targetGender || i.gender === 'Unissex')
                 );

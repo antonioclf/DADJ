@@ -70,3 +70,23 @@ export interface SaleRecord {
   deliveredAt?: string;
   paidAt?: string;
 }
+
+export const CATALOG_ITEMS = [
+  { name: 'Calça 4º A', type: 'Fardamento' as InventoryItemType, price: 209.00, color: 'Padrão' },
+  { name: 'Joelheira 4º A (par)', type: 'Fardamento' as InventoryItemType, price: 47.15, color: 'Preto' },
+  { name: 'Gorro rígido 4º A', type: 'Fardamento' as InventoryItemType, price: 44.00, color: 'Padrão' },
+  { name: 'Gorro flexível 4º A', type: 'Fardamento' as InventoryItemType, price: 37.70, color: 'Padrão' },
+  { name: 'Tarjeta (3 unidades)', type: 'Fardamento' as InventoryItemType, price: 29.40, color: 'Padrão' },
+  { name: 'Camisa Vermelha Bordada', type: 'Fardamento' as InventoryItemType, price: 52.40, color: 'Vermelho' },
+  { name: 'Camisa Vermelha sem Bordado', type: 'Fardamento' as InventoryItemType, price: 47.15, color: 'Vermelho' },
+  { name: 'Short', type: 'Fardamento' as InventoryItemType, price: 31.40, color: 'Padrão' },
+  { name: 'Sunga', type: 'Fardamento' as InventoryItemType, price: 52.40, color: 'Padrão' },
+  { name: 'Maiô', type: 'Fardamento' as InventoryItemType, price: 97.00, color: 'Padrão' },
+  { name: 'Suquini', type: 'Fardamento' as InventoryItemType, price: 100.00, color: 'Padrão' },
+  { name: 'Segunda Pele Bordada', type: 'Fardamento' as InventoryItemType, price: 83.90, color: 'Padrão' },
+  { name: 'Camisa 3º A', type: 'Fardamento' as InventoryItemType, price: 119.90, color: 'Padrão' },
+  { name: 'Calça 3º A', type: 'Fardamento' as InventoryItemType, price: 145.00, color: 'Padrão' },
+  { name: 'Gandola 4º A', type: 'Fardamento' as InventoryItemType, price: 180.00, color: 'Padrão' },
+  { name: 'Gandola 3º A', type: 'Fardamento' as InventoryItemType, price: 160.00, color: 'Padrão' },
+  { name: 'Camiseta de Educação Física', type: 'Camiseta' as InventoryItemType, price: 45.00, color: 'Branca' },
+];
