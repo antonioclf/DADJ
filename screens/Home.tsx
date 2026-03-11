@@ -41,7 +41,7 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
       {/* Quick Stats Banner */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-white dark:bg-slate-900 p-4 rounded-3xl shadow-sm border border-slate-50 dark:border-slate-800">
-          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Stock Total</p>
+          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Estoque Total</p>
           <div className="flex items-baseline gap-1">
             <span className="text-2xl font-black dark:text-white">{totalItems}</span>
             <span className="text-[10px] text-slate-400 font-bold">Unidades</span>
