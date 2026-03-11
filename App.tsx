@@ -57,8 +57,9 @@ const AppContent: React.FC = () => {
           quantity: item.quantity,
           type: item.type,
           price: item.price,
-          discount: item.discount
-        })), { onConflict: 'name,size,color' });
+          discount: item.discount,
+          gender: 'Unissex'
+        })), { onConflict: 'name,size,color,gender' });
 
       if (error) throw error;
 
@@ -185,9 +186,9 @@ const AppContent: React.FC = () => {
         if (exists) return prev.map(i => i.id === updated.id ? updated : i);
         return [...prev, updated];
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating inventory:', error);
-      alert('Erro ao atualizar estoque.');
+      alert(`Erro ao atualizar estoque: ${error.message || 'Erro desconhecido'}`);
     }
   };
 

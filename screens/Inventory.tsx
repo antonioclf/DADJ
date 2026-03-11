@@ -40,6 +40,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('Todos');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingGroup, setEditingGroup] = useState<{
     name: string;
     color: string;
@@ -128,26 +129,35 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
     setIsModalOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editingGroup && editingGroup.name) {
-      Object.entries(editingGroup.sizes).forEach(([size, data]: [string, any]) => {
-        if (data.id || data.quantity >= 0) {
-          onUpdate({
-            id: data.id || `temp-${size}-${editingGroup.gender}-${Date.now()}`,
-            name: editingGroup.name,
-            size,
-            color: editingGroup.color,
-            gender: editingGroup.gender,
-            quantity: data.quantity,
-            type: editingGroup.type,
-            price: editingGroup.price,
-            discount: editingGroup.discount || 0,
-            image: editingGroup.image || ''
-          });
-        }
-      });
-      setIsModalOpen(false);
-      setEditingGroup(null);
+      setIsSaving(true);
+      try {
+        const updates = Object.entries(editingGroup.sizes)
+          .filter(([_, data]: [string, any]) => data.id || data.quantity >= 0)
+          .map(([size, data]: [string, any]) =>
+            onUpdate({
+              id: data.id || `temp-${size}-${editingGroup.gender}-${Date.now()}`,
+              name: editingGroup.name,
+              size,
+              color: editingGroup.color,
+              gender: editingGroup.gender,
+              quantity: data.quantity,
+              type: editingGroup.type,
+              price: editingGroup.price,
+              discount: editingGroup.discount || 0,
+              image: editingGroup.image || ''
+            })
+          );
+
+        await Promise.all(updates);
+        setIsModalOpen(false);
+        setEditingGroup(null);
+      } catch (err) {
+        console.error("Erro ao salvar estoque:", err);
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -213,7 +223,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
         <div className="space-y-4">
           {groupedInventory.map(group => {
             const totalQty = group.items.reduce((sum, i) => sum + i.quantity, 0);
-            const genders = Array.from(new Set(group.items.map(i => i.gender || 'Unissex')));
+            const genders = Array.from(new Set(group.items.map(i => i.gender || 'Unissex'))) as ('Masculino' | 'Feminino' | 'Unissex')[];
 
             return (
               <div key={`${group.name}-${group.color}`} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
@@ -265,8 +275,8 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
                         })}
                       </div>
                       <div className="flex justify-end pt-1">
-                        <button onClick={() => handleEditGroup(group, gender)} className="text-[9px] font-bold flex items-center gap-1 opacity-60 hover:opacity-100 text-primary transition-all">
-                          <span className="material-symbols-outlined text-xs">edit</span> EDITAR {gender.toUpperCase()}
+                        <button onClick={() => handleEditGroup(group, gender)} className="text-[9px] font-bold flex items-center gap-x-1 opacity-60 hover:opacity-100 text-primary transition-all">
+                          <span className="material-symbols-outlined text-[10px]">edit</span> EDITAR {gender.toUpperCase()}
                         </button>
                       </div>
                     </div>
@@ -413,8 +423,13 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
             </div>
           </div>
 
-          <Button onClick={handleSave} className="w-full mt-4">
-            Salvar no Estoque
+          <Button onClick={handleSave} className="w-full mt-4" disabled={isSaving}>
+            {isSaving ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+                Salvando...
+              </div>
+            ) : 'Salvar no Estoque'}
           </Button>
         </div>
       </Modal>
