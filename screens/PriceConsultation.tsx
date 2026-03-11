@@ -80,7 +80,7 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
                             value={search}
                             onChange={(e) => setSearch((e.target as HTMLInputElement).value)}
                         />
-                        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                        <div className="flex gap-2 overflow-x-auto pb-4">
                             {filters.map(filter => (
                                 <button
                                     key={filter}

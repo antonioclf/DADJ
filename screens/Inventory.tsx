@@ -203,7 +203,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
           onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
         />
 
-        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+        <div className="flex gap-2 overflow-x-auto pb-4">
           {filters.map(filter => (
             <button
               key={filter}

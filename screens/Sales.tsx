@@ -242,7 +242,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         title="Selecionar Fardamento"
       >
         <div className="space-y-4 pb-10">
-          <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar -mx-1 px-1">
+          <div className="flex gap-2 overflow-x-auto pb-4 -mx-1 px-1">
             {filters.map(filter => (
               <button
                 key={filter}
@@ -324,7 +324,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               const renderSizeButtons = (current: string, options: string[], onSelect: (s: string) => void, label?: string) => (
                 <div className="flex-1 min-w-0">
                   {label && <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{label}:</p>}
-                  <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
+                  <div className="flex gap-1 overflow-x-auto pb-1.5">
                     {options.map(size => (
                       <button
                         key={size}

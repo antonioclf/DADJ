@@ -48,13 +48,29 @@
         }
 
         ::-webkit-scrollbar {
-            width: 0px;
+            height: 4px;
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
             background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
         }
 
         .no-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
     </style>
     <script type="importmap">
