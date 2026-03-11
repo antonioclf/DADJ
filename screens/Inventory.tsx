@@ -292,7 +292,13 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
                           );
                         })}
                       </div>
-                      <div className="flex justify-end pt-1">
+                      <div className="flex justify-end gap-3 pt-1">
+                        <button
+                          onClick={() => onDelete(group.items.filter(i => (i.gender || 'Unissex') === gender).map(i => i.id))}
+                          className="text-[9px] font-bold flex items-center gap-x-1 opacity-50 hover:opacity-100 text-rose-500 transition-all hover:scale-105 active:scale-95"
+                        >
+                          <span className="material-symbols-outlined text-[10px]">delete</span> EXCLUIR {gender.toUpperCase()}
+                        </button>
                         <button onClick={() => handleEditGroup(group, gender)} className="text-[9px] font-bold flex items-center gap-x-1 opacity-60 hover:opacity-100 text-primary transition-all">
                           <span className="material-symbols-outlined text-[10px]">edit</span> EDITAR {gender.toUpperCase()}
                         </button>
@@ -300,11 +306,6 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
                     </div>
                   ))}
 
-                  <div className="flex justify-end gap-3 pt-2 border-t border-slate-50 dark:border-slate-800">
-                    <button onClick={() => onDelete(group.items.map(i => i.id))} className="text-[10px] font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-600 hover:bg-rose-500 hover:text-white transition-all">
-                      <span className="material-symbols-outlined text-sm">delete</span> EXCLUIR PRODUTO
-                    </button>
-                  </div>
                 </div>
               </div>
             );
@@ -390,16 +391,20 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
               onChange={e => setEditingGroup(prev => prev ? { ...prev, color: (e.target as HTMLInputElement).value } : null)}
             />
 
-            <Input
-              label="Gênero"
-              as="select"
-              value={editingGroup?.gender || 'Unissex'}
-              onChange={e => setEditingGroup(prev => prev ? { ...prev, gender: (e.target as HTMLSelectElement).value as any } : null)}
-            >
-              <option value="Masculino">Masculino</option>
-              <option value="Feminino">Feminino</option>
-              <option value="Unissex">Unissex</option>
-            </Input>
+            <div className="col-span-2 space-y-4">
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider pb-1 ml-1">Gênero</p>
+              <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl w-full">
+                {['Masculino', 'Feminino', 'Unissex'].map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => setEditingGroup(prev => prev ? { ...prev, gender: g as any } : null)}
+                    className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase transition-all ${editingGroup?.gender === g ? 'bg-white dark:bg-slate-700 text-primary shadow-sm border border-slate-100 dark:border-slate-600' : 'text-slate-400 opacity-60'}`}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <Input
               label="Preço (R$)"
