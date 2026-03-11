@@ -30,7 +30,7 @@ const STANDARD_ITEMS = [
   { name: 'Calça 3º A', type: 'Fardamento' as InventoryItemType, price: 145.00, color: 'Padrão' }
 ];
 
-const NUMERIC_SIZES = Array.from({ length: 15 }, (_, i) => (i + 36).toString()); // 36-50
+const NUMERIC_SIZES = ['36', '38', '40', '42', '44', '46', '48', '50'];
 const CAP_SIZES = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
 const SMALL_NUMERIC_SIZES = ['1', '2', '3', '4', '5'];
 const STANDARD_SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XG'];

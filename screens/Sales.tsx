@@ -273,7 +273,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
             const size1 = selectedSizes[item.id] || (isCalca ? '38' : (isTop ? '2' : (isGorro ? '56' : 'M')));
             const size2 = selectedSecSizes[item.id] || (is3A || is4A ? (is3A ? '2' : '2') : '');
 
-            const numericSizes = Array.from({ length: 15 }, (_, i) => (i + 36).toString()); // 36-50
+            const numericSizes = ['36', '38', '40', '42', '44', '46', '48', '50'];
             const capSizes = Array.from({ length: 10 }, (_, i) => (i + 54).toString()); // 54-63
             const smallNumericSizes = ['1', '2', '3', '4', '5'];
             const standardSizes = ['PP', 'P', 'M', 'G', 'GG', 'EG'];
