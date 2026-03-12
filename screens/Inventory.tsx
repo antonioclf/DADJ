@@ -21,12 +21,14 @@ const BOOT_SIZES = Array.from({ length: 12 }, (_, i) => (i + 34).toString()); //
 const DRESS_UNIFORM_SIZES = ['36', '38', '40', '42', '44', '46', '48', '50', '52', '54'];
 const STANDARD_SIZES = ['PP', 'P', 'M', 'G', 'GG', 'XG'];
 
-const getAvailableSizes = (name: string) => {
+const getAvailableSizes = (name: string, type?: string) => {
   const n = name.toLowerCase();
+  const t = type?.toLowerCase();
+
+  if (t === 'calçados' || n.includes('coturno')) return BOOT_SIZES;
   if (n.includes('tarjeta') || n.includes('joelheira') || n.includes('par') || n.includes('unidades')) return ['Único'];
   if (n.includes('calça')) return NUMERIC_SIZES;
   if (n.includes('gorro')) return CAP_SIZES;
-  if (n.includes('coturno')) return BOOT_SIZES;
   if (n.includes('meia') || n.includes('meião')) return ['Único'];
   if (n.includes('túnica') || (n.includes('camisa') && n.includes('2º a'))) return DRESS_UNIFORM_SIZES;
   if (n.includes('blusa') || n.includes('gandola') || n.includes('camisa') || n.includes('camiseta') || n.includes('moletom')) {
@@ -94,11 +96,12 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
   }, [inventory, searchTerm, activeFilter]);
 
   const handleOpenAdd = () => {
-    const sizes = getAvailableSizes('').reduce((acc, size) => ({ ...acc, [size]: { quantity: 0 } }), {});
+    const defaultType = '4º A' as InventoryItemType;
+    const sizes = getAvailableSizes('', defaultType).reduce((acc, size) => ({ ...acc, [size]: { quantity: 0 } }), {});
     setEditingGroup({
       name: '',
       color: 'Padrão',
-      type: 'Fardamento',
+      type: defaultType,
       gender: 'Unissex',
       price: 0,
       discount: 0,
@@ -109,7 +112,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
   };
 
   const handleEditGroup = (group: any, gender: string) => {
-    const categorySizes = getAvailableSizes(group.name);
+    const categorySizes = getAvailableSizes(group.name, group.type);
     const sizeMap = categorySizes.reduce((acc, size) => {
       const existing = group.items.find((i: any) => i.size === size && (i.gender || 'Unissex') === gender);
       return {
@@ -167,7 +170,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
     const standard = STANDARD_ITEMS.find(s => s.name === name);
     if (standard && editingGroup) {
       const newSizes: { [key: string]: { quantity: number } } = {};
-      const categorySizes = getAvailableSizes(standard.name);
+      const categorySizes = getAvailableSizes(standard.name, standard.type);
       categorySizes.forEach(s => newSizes[s] = { quantity: 0 });
 
       setEditingGroup({
@@ -270,7 +273,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
                         <span className="text-[10px] font-black text-slate-400 tracking-widest uppercase">{gender}</span>
                       </div>
                       <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                        {getAvailableSizes(group.name).map(size => {
+                        {getAvailableSizes(group.name, group.type).map(size => {
                           const matchingItems = group.items.filter(i => i.size === size && (i.gender || 'Unissex') === gender);
                           const qty = matchingItems.reduce((sum, i) => sum + i.quantity, 0);
                           return (
@@ -372,7 +375,22 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
               label="Categoria"
               as="select"
               value={editingGroup?.type || 'Camiseta'}
-              onChange={e => setEditingGroup(prev => prev ? { ...prev, type: (e.target as HTMLSelectElement).value as any } : null)}
+              onChange={e => {
+                const newType = (e.target as HTMLSelectElement).value as any;
+                setEditingGroup(prev => {
+                  if (!prev) return null;
+                  const newSizes: { [key: string]: { quantity: number } } = {};
+                  const categorySizes = getAvailableSizes(prev.name, newType);
+                  categorySizes.forEach(s => {
+                    newSizes[s] = prev.sizes[s] || { quantity: 0 };
+                  });
+                  return {
+                    ...prev,
+                    type: newType,
+                    sizes: newSizes
+                  };
+                });
+              }}
             >
               {filters.filter(f => f !== 'Todos').map(f => <option key={f} value={f}>{f}</option>)}
             </Input>
@@ -414,7 +432,7 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
             <div className="col-span-2 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Quantidades por Tamanho</label>
               <div className="grid grid-cols-4 gap-3">
-                {getAvailableSizes(editingGroup?.name || '').map(size => (
+                {getAvailableSizes(editingGroup?.name || '', editingGroup?.type).map(size => (
                   <div key={size} className="flex flex-col gap-1">
                     <span className="text-[9px] font-black text-slate-500 text-center uppercase">{size}</span>
                     <input
