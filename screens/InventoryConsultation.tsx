@@ -31,20 +31,24 @@ const InventoryConsultation: React.FC<InventoryConsultationProps> = ({ inventory
     };
 
     const groupedInventory = useMemo(() => {
-        const groups: Record<string, { type: string, sizes: Record<string, number> }> = {};
+        const groups: Record<string, { type: string, genders: Record<string, Record<string, number>> }> = {};
 
         inventory.forEach(item => {
             if (!groups[item.name]) {
-                groups[item.name] = { type: item.type, sizes: {} };
+                groups[item.name] = { type: item.type, genders: {} };
             }
-            groups[item.name].sizes[item.size] = (groups[item.name].sizes[item.size] || 0) + item.quantity;
+            const gender = item.gender || 'Unissex';
+            if (!groups[item.name].genders[gender]) {
+                groups[item.name].genders[gender] = {};
+            }
+            groups[item.name].genders[gender][item.size] = (groups[item.name].genders[gender][item.size] || 0) + item.quantity;
         });
 
         return Object.entries(groups)
             .map(([name, data]) => ({
                 name,
                 type: data.type,
-                sizes: data.sizes
+                genders: data.genders
             }))
             .filter(item => {
                 const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -103,33 +107,47 @@ const InventoryConsultation: React.FC<InventoryConsultationProps> = ({ inventory
                     <div className="divide-y divide-slate-50 dark:divide-slate-800">
                         {groupedInventory.map(item => (
                             <div key={item.name} className="p-6 hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-colors">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                                     <div className="space-y-1">
                                         <h3 className="text-sm font-black dark:text-white uppercase tracking-tight">{item.name}</h3>
                                         <span className="inline-block text-[8px] font-black bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase tracking-tighter">
                                             {item.type}
                                         </span>
                                     </div>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {Object.entries(item.sizes)
-                                            .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
-                                            .map(([size, qty]) => {
-                                                const count = qty as number;
-                                                return (
-                                                    <div
-                                                        key={size}
-                                                        className={`flex flex-col items-center min-w-[40px] p-2 rounded-xl border transition-all ${count > 0
-                                                            ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm'
-                                                            : 'bg-slate-50 dark:bg-slate-900 border-transparent opacity-40 grayscale'
-                                                            }`}
-                                                    >
-                                                        <span className="text-[10px] font-black dark:text-white">{size}</span>
-                                                        <span className={`text-[8px] font-bold ${count > 10 ? 'text-emerald-500' : count > 0 ? 'text-amber-500' : 'text-rose-500'}`}>
-                                                            {count > 0 ? `${count} un` : 'Esgotado'}
-                                                        </span>
-                                                    </div>
-                                                );
-                                            })}
+                                    <div className="flex flex-col gap-4">
+                                        {Object.entries(item.genders)
+                                            .sort(([a], [b]) => a === 'Masculino' ? -1 : a === 'Feminino' && b === 'Unissex' ? -1 : a === b ? 0 : 1)
+                                            .map(([gender, sizes]) => (
+                                            <div key={gender} className="space-y-1.5 flex flex-col md:items-end">
+                                                <div className="flex items-center gap-1.5 md:justify-end">
+                                                    <span className={`material-symbols-outlined text-[10px] ${gender === 'Feminino' ? 'text-rose-400' : gender === 'Masculino' ? 'text-blue-400' : 'text-slate-400'}`}>
+                                                        {gender === 'Feminino' ? 'female' : gender === 'Masculino' ? 'male' : 'wc'}
+                                                    </span>
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{gender}</span>
+                                                </div>
+                                                <div className="flex flex-wrap gap-1.5 md:justify-end">
+                                                    {Object.entries(sizes)
+                                                        .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+                                                        .map(([size, qty]) => {
+                                                            const count = qty as number;
+                                                            return (
+                                                                <div
+                                                                    key={size}
+                                                                    className={`flex flex-col items-center min-w-[40px] p-2 rounded-xl border transition-all ${count > 0
+                                                                        ? 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-sm'
+                                                                        : 'bg-slate-50 dark:bg-slate-900 border-transparent opacity-40 grayscale'
+                                                                        }`}
+                                                                >
+                                                                    <span className="text-[10px] font-black dark:text-white">{size}</span>
+                                                                    <span className={`text-[8px] font-bold ${count > 10 ? 'text-emerald-500' : count > 0 ? 'text-amber-500' : 'text-rose-500'}`}>
+                                                                        {count > 0 ? `${count} un` : 'Esgotado'}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>

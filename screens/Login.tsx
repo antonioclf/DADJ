@@ -33,7 +33,9 @@ const Login: React.FC = () => {
                     <div className="inline-flex items-center justify-center size-24 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl shadow-primary/20 mb-4 overflow-hidden p-2">
                         <img src="/logo.png" alt="Logo DADJ" className="w-full h-full object-contain" />
                     </div>
-                    <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">DIRETÓRIO ACADÊMICO DOIS DE JULHO</h1>
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none">
+                        DIRETÓRIO ACADÊMICO<br />DOIS DE JULHO
+                    </h1>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em]">Sistema de Gestão - CBMMG/ABM</p>
                 </div>
 

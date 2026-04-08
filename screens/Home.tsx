@@ -29,7 +29,9 @@ const Home: React.FC<HomeProps> = ({ navigate, inventory, sales }) => {
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-lg font-black tracking-tight text-primary dark:text-white uppercase leading-none">DIRETÓRIO ACADÊMICO DOIS DE JULHO</h1>
+            <h1 className="text-lg font-black tracking-tight text-primary dark:text-white uppercase leading-tight">
+              DIRETÓRIO ACADÊMICO<br />DOIS DE JULHO
+            </h1>
             <p className="text-[9px] font-bold text-slate-400 tracking-[0.3em] uppercase mt-1">Sistema de Gestão - CBMMG/ABM</p>
           </div>
         </div>
