@@ -34,6 +34,12 @@ const InventoryConsultation: React.FC<InventoryConsultationProps> = ({ inventory
         const groups: Record<string, { type: string, genders: Record<string, Record<string, number>> }> = {};
 
         inventory.forEach(item => {
+            const isPants = item.name.toLowerCase().includes('calça');
+            const numSize = parseInt(item.size, 10);
+            if (isPants && !isNaN(numSize) && numSize % 2 !== 0) {
+                return;
+            }
+
             if (!groups[item.name]) {
                 groups[item.name] = { type: item.type, genders: {} };
             }
