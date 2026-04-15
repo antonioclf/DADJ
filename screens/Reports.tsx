@@ -309,6 +309,38 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     }
   };
 
+  const handleUpdatePaidCountBulk = async (sale: SaleRecord, newCount: number) => {
+    try {
+      await Promise.all(sale.items.map(item => dataService.updateItemInstallments(item.id, newCount)));
+      await onRefresh();
+    } catch (error) {
+      console.error('Error updating sale installments:', error);
+      alert('Erro ao atualizar parcelas do pedido.');
+    }
+  };
+
+  const handleUpdateTotalInstallmentsBulk = async (sale: SaleRecord, newTotal: number) => {
+    try {
+      await Promise.all(sale.items.map(item => 
+        supabase.from('sale_items').update({ total_installments: newTotal }).eq('id', item.id)
+      ));
+      await onRefresh();
+    } catch (error) {
+      console.error('Error updating total installments bulk:', error);
+      alert('Erro ao atualizar total de parcelas do pedido.');
+    }
+  };
+
+  const handleUpdateStatusBulk = async (sale: SaleRecord, status: string) => {
+    try {
+      await Promise.all(sale.items.map(item => dataService.updateItemStatus(item.id, status)));
+      await onRefresh();
+    } catch (error) {
+      console.error('Error updating status bulk:', error);
+      alert('Erro ao atualizar status do pedido.');
+    }
+  };
+
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen">
       <Header title="Fluxo de Caixa" subtitle="Relatórios" />
@@ -502,36 +534,18 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
 
                   {isExpanded && (
                     <div className="mx-4 p-4 bg-slate-50/50 dark:bg-slate-800/30 border-x border-b border-slate-100 dark:border-slate-800 rounded-b-[1.5rem] -mt-4 pt-6 space-y-3 animate-in slide-in-from-top-2 duration-200">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Itens do Pedido (Parcelamento)</p>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Situação dos Itens</p>
                       {sale.items.map(item => {
-                        const isFullyPaid = item.paidInstallments >= item.totalInstallments;
                         return (
                           <div key={item.id} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-50 dark:border-slate-800 shadow-sm space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
                                 <p className="text-[10px] font-black dark:text-white uppercase tracking-tight">{item.quantity}x {item.name}</p>
-                                <p className="text-[9px] text-slate-400 font-bold">Total: R$ {(item.price * item.quantity).toFixed(2)}</p>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-[10px] font-black text-primary">Saldo: R$ {(item.price * item.quantity * (1 - item.paidInstallments / item.totalInstallments)).toFixed(2)}</p>
-                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">A pagar</p>
+                                <p className="text-[9px] text-slate-400 font-bold">Total do Item: R$ {(item.price * item.quantity).toFixed(2)}</p>
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl">
-                              <div className="space-y-1">
-                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Parcelas Totais:</span>
-                                <select
-                                  value={item.totalInstallments}
-                                  onChange={(e) => handleUpdateTotalInstallments(item.id, parseInt(e.target.value))}
-                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-[10px] font-black dark:text-white focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                                >
-                                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
-                                    <option key={n} value={n}>{n}x</option>
-                                  ))}
-                                </select>
-                              </div>
-
+                            <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded-2xl">
                               <div className="flex-1 space-y-1">
                                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Status Item:</span>
                                 <div className="flex gap-1 p-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
@@ -551,23 +565,74 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                                   ))}
                                 </div>
                               </div>
+                            </div>
 
-                              <div className="flex flex-col items-end gap-1">
-                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mr-1">Parcelas Pagas:</span>
+                            <div className="flex items-center justify-between px-1">
+                              <p className={`text-[8px] font-black uppercase tracking-widest ${item.status === 'Pago' ? 'text-emerald-500' :
+                                item.status === 'Entregue' ? 'text-blue-500' :
+                                  'text-slate-400'
+                                }`}>
+                                Status: {item.status}
+                                {item.status === 'Entregue' && item.deliveredAt && ` (${item.deliveredAt.split(',')[0]})`}
+                                {item.status === 'Pago' && item.paidAt && ` (${item.paidAt.split(',')[0]})`}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* Sale Level Payment Situation */}
+                      {(() => {
+                        const referenceItem = sale.items[0];
+                        if (!referenceItem) return null;
+                        
+                        const totalInstallments = referenceItem.totalInstallments || 1;
+                        const paidInstallments = referenceItem.paidInstallments || 0;
+                        const isFullyPaid = paidInstallments >= totalInstallments;
+                        
+                        return (
+                          <div className="mt-4 p-4 bg-primary/5 dark:bg-primary/10 rounded-[1.5rem] border border-primary/20 space-y-3 shadow-sm">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <p className="text-[10px] font-black text-primary dark:text-primary-light uppercase tracking-widest ml-1">Pagamento do Pedido Total</p>
+                                <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-1 ml-1">Total: R$ {sale.total.toFixed(2)}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-[10px] font-black text-primary hover:text-primary-dark transition-all">Saldo a Pagar: R$ {(sale.total * (1 - paidInstallments / totalInstallments)).toFixed(2)}</p>
+                                <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">referente ao pedido</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between bg-white/60 dark:bg-slate-900/60 p-3 rounded-2xl gap-3">
+                              <div className="space-y-1 w-1/3">
+                                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Parcelas Totais:</span>
+                                <select
+                                  value={totalInstallments}
+                                  onChange={(e) => handleUpdateTotalInstallmentsBulk(sale, parseInt(e.target.value))}
+                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 text-[10px] font-black dark:text-white focus:ring-2 focus:ring-primary/20 outline-none transition-all block"
+                                >
+                                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
+                                    <option key={n} value={n}>{n}x</option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              <div className="flex flex-col items-end gap-1 flex-1">
+                                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest mr-1">Parcelas Pagas:</span>
                                 <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-xl shadow-inner border border-slate-100 dark:border-slate-800">
                                   <button
-                                    disabled={item.paidInstallments <= 0}
-                                    onClick={() => handleUpdatePaidCount(item.id, item.paidInstallments - 1)}
-                                    className={`size-8 rounded-lg flex items-center justify-center transition-all ${item.paidInstallments <= 0 ? 'opacity-30 text-slate-300' : 'bg-rose-50 dark:bg-rose-950/30 text-rose-500 hover:scale-110 active:scale-95'}`}
+                                    disabled={paidInstallments <= 0}
+                                    onClick={() => handleUpdatePaidCountBulk(sale, paidInstallments - 1)}
+                                    className={`size-8 rounded-lg flex items-center justify-center transition-all ${paidInstallments <= 0 ? 'opacity-30 text-slate-300' : 'bg-rose-50 dark:bg-rose-950/30 text-rose-500 hover:scale-110 active:scale-95'}`}
                                   >
                                     <span className="material-symbols-outlined text-sm">remove</span>
                                   </button>
                                   <div className="px-4 py-1">
-                                    <p className="text-[11px] font-black dark:text-white">{item.paidInstallments} / {item.totalInstallments}</p>
+                                    <p className="text-[11px] font-black dark:text-white">{paidInstallments} / {totalInstallments}</p>
                                   </div>
                                   <button
                                     disabled={isFullyPaid}
-                                    onClick={() => handleUpdatePaidCount(item.id, item.paidInstallments + 1)}
+                                    onClick={() => handleUpdatePaidCountBulk(sale, paidInstallments + 1)}
                                     className={`size-8 rounded-lg flex items-center justify-center transition-all ${isFullyPaid ? 'opacity-30 text-slate-300' : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-500 hover:scale-110 active:scale-95'}`}
                                   >
                                     <span className="material-symbols-outlined text-sm">add</span>
@@ -576,47 +641,38 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-between px-1">
+                            <div className="flex items-center justify-between px-1 pt-1">
                               <div className="space-y-1">
-                                <p className={`text-[8px] font-black uppercase tracking-widest ${item.status === 'Pago' ? 'text-emerald-500' :
-                                  item.status === 'Entregue' ? 'text-blue-500' :
-                                    'text-slate-400'
-                                  }`}>
-                                  Status: {item.status}
-                                  {item.status === 'Entregue' && item.deliveredAt && ` (${item.deliveredAt.split(',')[0]})`}
-                                  {item.status === 'Pago' && item.paidAt && ` (${item.paidAt.split(',')[0]})`}
-                                </p>
-
-                                {item.installmentHistory && item.installmentHistory.length > 0 && (
-                                  <div className="space-y-0.5 ml-2 border-l-2 border-slate-100 dark:border-slate-800 pl-2">
-                                    {item.installmentHistory.map((payment, idx) => (
-                                      <p key={idx} className="text-[7px] font-bold text-slate-400 italic">
+                                {referenceItem.installmentHistory && referenceItem.installmentHistory.length > 0 && (
+                                  <div className="space-y-0.5 ml-2 border-l-2 border-primary/30 pl-2">
+                                    {referenceItem.installmentHistory.map((payment, idx) => (
+                                      <p key={idx} className="text-[7px] font-bold text-slate-600 dark:text-slate-400 italic">
                                         Parcela {payment.installmentNumber}: {payment.paidAt.split(',')[0]}
                                       </p>
                                     ))}
                                   </div>
                                 )}
                               </div>
-
-                              {isFullyPaid && item.status !== 'Pago' && (
+                              
+                              {isFullyPaid && sale.items.some(i => i.status !== 'Pago') && (
                                 <button
-                                  onClick={() => handleUpdateStatus(item.id, 'Pago')}
-                                  className="text-[8px] font-black text-emerald-500 uppercase tracking-widest hover:underline"
+                                  onClick={() => handleUpdateStatusBulk(sale, 'Pago')}
+                                  className="text-[8px] font-black text-emerald-500 uppercase tracking-widest hover:underline bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-md"
                                 >
-                                  Marcar como Pago
+                                  Marcar Itens como Pago
                                 </button>
                               )}
                             </div>
 
-                            <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div className="w-full bg-primary/20 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
                               <div
                                 className={`h-full transition-all duration-500 ${isFullyPaid ? 'bg-emerald-500' : 'bg-primary'}`}
-                                style={{ width: `${(item.paidInstallments / item.totalInstallments) * 100}%` }}
+                                style={{ width: `${(paidInstallments / totalInstallments) * 100}%` }}
                               />
                             </div>
                           </div>
                         );
-                      })}
+                      })()}
 
                       {(sale.deliveredAt || sale.paidAt) && (
                         <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-50 dark:border-slate-800 shadow-sm space-y-2 mt-2">
