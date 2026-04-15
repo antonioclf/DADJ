@@ -332,7 +332,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               const isCalca = nameLower.includes('calça');
               const isGorro = nameLower.includes('gorro') || nameLower.includes('chapéu') || nameLower.includes('boina');
               const isRedShirt = nameLower.includes('camisa vermelha');
-              const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira') || nameLower.includes('divisa') || nameLower.includes('passadeira') || nameLower.includes('platina') || nameLower.includes('tensor') || nameLower.includes('machadinha') || nameLower.includes('florão') || nameLower.includes('machadão');
+              const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira') || nameLower.includes('divisa') || nameLower.includes('passadeira') || nameLower.includes('platina') || nameLower.includes('machadinha') || nameLower.includes('florão') || nameLower.includes('machadão');
               const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom') || nameLower.includes('túnica')) && !isRedShirt;
               const isDressUniform = nameLower.includes('túnica') || (nameLower.includes('camisa') && nameLower.includes('2º a'));
               const isBoot = nameLower.includes('coturno');
