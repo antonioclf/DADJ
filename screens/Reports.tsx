@@ -693,7 +693,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                             )}
                             {sale.items.some(i => i.lastPaymentAt) && (
                               <p className="text-[10px] font-bold text-slate-500">
-                                <span className="text-amber-500">●</span> Última Parcela em <span className="text-slate-900 dark:text-white">{sale.items.sort((a, b) => (b.lastPaymentAt || '').localeCompare(a.lastPaymentAt || ''))[0].lastPaymentAt?.split(',')[0]}</span>
+                                <span className="text-amber-500">●</span> Última Parcela em <span className="text-slate-900 dark:text-white">{[...sale.items].sort((a, b) => (b.lastPaymentAt || '').localeCompare(a.lastPaymentAt || ''))[0].lastPaymentAt?.split(',')[0]}</span>
                               </p>
                             )}
                           </div>
