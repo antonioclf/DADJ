@@ -127,26 +127,35 @@ export const dataService = {
         if (saleError) throw saleError;
 
         // 2. Insert sale items with status matching the sale status
-        const saleItems = sale.items.map(item => ({
-            sale_id: saleData.id,
-            inventory_id: item.inventoryId,
-            name: item.name,
-            size: item.size,
-            quantity: item.quantity,
-            price: item.price,
-            status: sale.status, // Initialize item status from sale status
-            total_installments: item.totalInstallments || 1,
-            paid_installments: item.paidInstallments || 0,
-            source: item.source || 'Loja',
-            delivered_at: sale.status === 'Entregue' ? new Date().toISOString() : null,
-            paid_at: sale.status === 'Pago' ? new Date().toISOString() : null
-        }));
+        const saleItems = sale.items.map(item => {
+            // Validate UUID for inventory_id
+            const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(item.inventoryId);
+            
+            return {
+                sale_id: saleData.id,
+                inventory_id: isValidUUID ? item.inventoryId : null,
+                name: item.name,
+                size: item.size,
+                quantity: item.quantity,
+                price: item.price,
+                status: sale.status, // Initialize item status from sale status
+                total_installments: item.totalInstallments || 1,
+                paid_installments: item.paidInstallments || 0,
+                source: item.source || 'Loja',
+                delivered_at: sale.status === 'Entregue' ? new Date().toISOString() : null,
+                paid_at: sale.status === 'Pago' ? new Date().toISOString() : null
+            };
+        });
 
         const { error: itemsError } = await supabase
             .from('sale_items')
             .insert(saleItems);
 
-        if (itemsError) throw itemsError;
+        if (itemsError) {
+            // Rollback sale insertion to prevent orphan sales without items
+            await supabase.from('sales').delete().eq('id', saleData.id);
+            throw itemsError;
+        }
 
         // 3. Update inventory levels only for "Estoque" source
         for (const item of sale.items) {

@@ -10,7 +10,7 @@ interface SalesProps {
   onBack: () => void;
   inventory: InventoryItem[];
   team: TeamMember[];
-  onAddSale: (sale: SaleRecord) => void;
+  onAddSale: (sale: SaleRecord) => Promise<void> | void;
 }
 
 const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => {
@@ -27,6 +27,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [saleSource, setSaleSource] = useState<'Estoque' | 'Loja'>('Loja');
   const [activeFilter, setActiveFilter] = useState('Todos');
   const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados'];
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formatPhone = (val: string) => {
     const raw = val.replace(/\D/g, '').slice(0, 11);
@@ -67,7 +68,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
 
   const total = cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     if (!buyer || cart.length === 0) {
       alert("Por favor, preencha o nome do aluno e adicione itens.");
       return;
@@ -85,9 +86,12 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
       seller: seller
     };
 
-    onAddSale(newSale);
-    alert("Venda registrada com sucesso!");
-    onBack();
+    setIsSubmitting(true);
+    try {
+      await onAddSale(newSale);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -236,9 +240,10 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
           <Button
             variant="secondary"
             onClick={handleFinalize}
-            className="bg-white !text-primary px-6 py-3 rounded-2xl font-bold text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg"
+            disabled={isSubmitting}
+            className="bg-white !text-primary px-6 py-3 rounded-2xl font-bold text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-50"
           >
-            Finalizar
+            {isSubmitting ? 'Aguarde...' : 'Finalizar'}
           </Button>
         </div>
       </div>

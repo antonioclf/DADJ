@@ -220,6 +220,8 @@ const AppContent: React.FC = () => {
     try {
       await dataService.addSale(sale);
       await loadData();
+      alert("Venda registrada com sucesso!");
+      navigate(View.HOME);
     } catch (error) {
       console.error('Error adding sale:', error);
       alert('Erro ao registrar venda.');
