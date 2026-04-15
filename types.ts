@@ -73,13 +73,17 @@ export interface SaleRecord {
 }
 
 export const CATALOG_ITEMS = [
-  { name: '4º A Completo', type: '4º A' as InventoryItemType, price: 408.45, color: 'Padrão', discount: 11 },
-  { name: 'Calça 4º A', type: '4º A' as InventoryItemType, price: 209.00, color: 'Padrão' },
+  { name: '4º A Completo', type: '4º A' as InventoryItemType, price: 430.00, color: 'Padrão', discount: 6.5 },
+  { name: 'Calça 4º A', type: '4º A' as InventoryItemType, price: 205.00, color: 'Padrão', discount: 5 },
   { name: 'Gandola 4º A', type: '4º A' as InventoryItemType, price: 180.00, color: 'Padrão', hideFromSales: true },
-  { name: 'Joelheira 4º A (par)', type: '4º A' as InventoryItemType, price: 47.15, color: 'Preto', discount: 13 },
-  { name: 'Gorro rígido 4º A', type: '4º A' as InventoryItemType, price: 44.00, color: 'Padrão', discount: 11 },
-  { name: 'Gorro flexível 4º A', type: '4º A' as InventoryItemType, price: 37.70, color: 'Padrão', discount: 5 },
-  { name: 'Tarjeta (3 unidades)', type: '4º A' as InventoryItemType, price: 29.40, color: 'Padrão', discount: 2 },
+  { name: 'Joelheira 4º A (par)', type: '4º A' as InventoryItemType, price: 50.00, color: 'Preto', discount: 9 },
+  { name: 'Gorro rígido 4º A', type: '4º A' as InventoryItemType, price: 47.15, color: 'Padrão', discount: 5.5 },
+  { name: 'Gorro flexível 4º A', type: '4º A' as InventoryItemType, price: 37.70, color: 'Padrão', discount: 5.5 },
+  { name: 'Gorro rígido Oficial Superior', type: '4º A' as InventoryItemType, price: 57.65, color: 'Padrão', discount: 4 },
+  { name: 'Gorro flexível Oficial Superior', type: '4º A' as InventoryItemType, price: 48.20, color: 'Padrão', discount: 3.5 },
+  { name: 'Tarjeta (3 unidades)', type: '4º A' as InventoryItemType, price: 29.40, color: 'Padrão', discount: 3 },
+  { name: 'Par de Divisas', type: '4º A' as InventoryItemType, price: 11.00, color: 'Padrão', discount: 8 },
+  { name: 'Passadeira Cad/CHO/Asp', type: '4º A' as InventoryItemType, price: 47.25, color: 'Padrão', discount: 5.5 },
 
   { name: '3º A Completo', type: '3º A' as InventoryItemType, price: 264.90, color: 'Padrão' },
   { name: 'Camisa 3º A', type: '3º A' as InventoryItemType, price: 119.90, color: 'Padrão' },

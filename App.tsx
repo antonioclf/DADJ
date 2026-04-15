@@ -25,14 +25,46 @@ const AppContent: React.FC = () => {
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [teamError, setTeamError] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Atualização forçada dos preços do 4º A no banco de dados existente
+    const updateDB = async () => {
+      try {
+        await supabase.from('inventory').update({ price: 430.00, discount: 6.5 }).eq('name', '4º A Completo');
+        await supabase.from('inventory').update({ price: 205.00, discount: 5 }).eq('name', 'Calça 4º A');
+        await supabase.from('inventory').update({ price: 50.00, discount: 9 }).eq('name', 'Joelheira 4º A (par)');
+        await supabase.from('inventory').update({ price: 29.40, discount: 3 }).eq('name', 'Tarjeta (3 unidades)');
+        await supabase.from('inventory').update({ price: 37.70, discount: 5.5 }).eq('name', 'Gorro flexível 4º A');
+        await supabase.from('inventory').update({ price: 47.15, discount: 5.5 }).eq('name', 'Gorro rígido 4º A');
+        
+        // Inserir novos itens se não existirem
+        const newItems = [
+          { name: 'Par de Divisas', size: 'Único', color: 'Padrão', quantity: 0, type: '4º A', price: 11.00, discount: 8, gender: 'Unissex' },
+          { name: 'Gorro flexível Oficial Superior', size: 'M', color: 'Padrão', quantity: 0, type: '4º A', price: 48.20, discount: 3.5, gender: 'Unissex' },
+          { name: 'Gorro rígido Oficial Superior', size: 'M', color: 'Padrão', quantity: 0, type: '4º A', price: 57.65, discount: 4, gender: 'Unissex' },
+          { name: 'Passadeira Cad/CHO/Asp', size: 'Único', color: 'Padrão', quantity: 0, type: '4º A', price: 47.25, discount: 5.5, gender: 'Unissex' },
+        ];
+        
+        for (const it of newItems) {
+            const { data } = await supabase.from('inventory').select('id').eq('name', it.name).maybeSingle();
+            if (!data) await supabase.from('inventory').insert(it);
+        }
+      } catch (e) {}
+    };
+    updateDB();
+  }, []);
+
   const handleSeedInventory = useCallback(async () => {
     const fardamentoItems = [
-      { name: '4º A Completo', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 408.45, discount: 11 },
-      { name: 'Calça 4º A', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 209.00, discount: 3 },
-      { name: 'Joelheira 4º A (par)', size: 'Único', color: 'Preto', quantity: 999, type: '4º A', price: 47.15, discount: 14 },
-      { name: 'Gorro rígido 4º A', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 44.00, discount: 12 },
-      { name: 'Gorro flexível 4º A', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 37.70, discount: 5 },
-      { name: 'Tarjeta (3 unidades)', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 29.40, discount: 2 },
+      { name: '4º A Completo', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 430.00, discount: 6.5 },
+      { name: 'Calça 4º A', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 205.00, discount: 5 },
+      { name: 'Joelheira 4º A (par)', size: 'Único', color: 'Preto', quantity: 999, type: '4º A', price: 50.00, discount: 9 },
+      { name: 'Gorro rígido 4º A', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 47.15, discount: 5.5 },
+      { name: 'Gorro flexível 4º A', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 37.70, discount: 5.5 },
+      { name: 'Gorro rígido Oficial Superior', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 57.65, discount: 4 },
+      { name: 'Gorro flexível Oficial Superior', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 48.20, discount: 3.5 },
+      { name: 'Tarjeta (3 unidades)', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 29.40, discount: 3 },
+      { name: 'Par de Divisas', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 11.00, discount: 8 },
+      { name: 'Passadeira Cad/CHO/Asp', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 47.25, discount: 5.5 },
       { name: '5º B Bordado', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 199.40, discount: 20 },
       { name: '5º B sem Bordado', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 194.15, discount: 9 },
       { name: 'Camisa Vermelha Bordada', size: 'M', color: 'Vermelho', quantity: 999, type: '5º A/B', price: 52.40, discount: 5 },
