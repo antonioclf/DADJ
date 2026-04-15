@@ -26,6 +26,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [selectedGenders, setSelectedGenders] = useState<Record<string, 'M' | 'F'>>({});
   const [saleSource, setSaleSource] = useState<'Estoque' | 'Loja'>('Loja');
   const [activeFilter, setActiveFilter] = useState('Todos');
+  const [searchQuery, setSearchQuery] = useState('');
   const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados'];
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -254,6 +255,17 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         title="Selecionar Fardamento"
       >
         <div className="space-y-4 pb-10">
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <input
+              type="text"
+              placeholder="Pesquisar fardamento..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl pl-10 pr-4 py-3 text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-inner"
+            />
+          </div>
+          
           <div className="flex gap-2 overflow-x-auto pb-4 -mx-1 px-1">
             {filters.map(filter => (
               <button
@@ -282,7 +294,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               .filter(catItem => {
                 const isHidden = (catItem as any).hideFromSales;
                 const matchesFilter = activeFilter === 'Todos' || catItem.type === activeFilter;
-                return !isHidden && matchesFilter;
+                const matchesSearch = catItem.name.toLowerCase().includes(searchQuery.toLowerCase());
+                return !isHidden && matchesFilter && matchesSearch;
               })
               .map(catItem => ({
                 base: { ...catItem, id: `cat-${catItem.name}-${catItem.color}` } as unknown as InventoryItem,
@@ -319,7 +332,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               const isCalca = nameLower.includes('calça');
               const isGorro = nameLower.includes('gorro');
               const isRedShirt = nameLower.includes('camisa vermelha');
-              const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira') || nameLower.includes('divisa') || nameLower.includes('passadeira');
+              const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira') || nameLower.includes('divisa') || nameLower.includes('passadeira') || nameLower.includes('platina');
               const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom') || nameLower.includes('túnica')) && !isRedShirt;
               const isDressUniform = nameLower.includes('túnica') || (nameLower.includes('camisa') && nameLower.includes('2º a'));
               const isBoot = nameLower.includes('coturno');
