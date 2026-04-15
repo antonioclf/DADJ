@@ -35,6 +35,18 @@ const AppContent: React.FC = () => {
         await supabase.from('inventory').update({ price: 29.40, discount: 3 }).eq('name', 'Tarjeta (3 unidades)');
         await supabase.from('inventory').update({ price: 37.70, discount: 5.5 }).eq('name', 'Gorro flexível 4º A');
         await supabase.from('inventory').update({ price: 47.15, discount: 5.5 }).eq('name', 'Gorro rígido 4º A');
+        await supabase.from('inventory').update({ price: 50.00, discount: 9 }).eq('name', 'Camisa Vermelha Bordada');
+        await supabase.from('inventory').update({ price: 45.00, discount: 10 }).eq('name', 'Camisa Vermelha sem Bordado');
+        await supabase.from('inventory').update({ price: 32.00, discount: 8.5 }).eq('name', 'Short');
+        await supabase.from('inventory').update({ price: 55.00, discount: 8 }).eq('name', 'Sunga');
+        await supabase.from('inventory').update({ price: 97.00, discount: 0 }).eq('name', 'Maiô');
+        await supabase.from('inventory').update({ price: 99.00, discount: 0 }).eq('name', 'Suquini');
+        await supabase.from('inventory').update({ price: 260.00, discount: 2 }).eq('name', '3º A Completo');
+        await supabase.from('inventory').update({ price: 142.00, discount: 2 }).eq('name', 'Calça 3º A');
+        await supabase.from('inventory').update({ price: 118.00, discount: 1.5 }).eq('name', 'Camisa 3º A');
+        await supabase.from('inventory').update({ price: 82.00, discount: 3.5 }).eq('name', 'Segunda Pele Bordada');
+        await supabase.from('inventory').update({ price: 225.00, discount: 10 }).eq('name', '5º B Bordado');
+        await supabase.from('inventory').update({ price: 220.00, discount: 8.5 }).eq('name', '5º B sem Bordado');
         
         // Inserir novos itens se não existirem
         const newItems = [
@@ -49,6 +61,8 @@ const AppContent: React.FC = () => {
           { name: 'Passadeira Maj - par', size: 'Único', color: 'Padrão', quantity: 0, type: '4º A', price: 66.15, discount: 5.5, gender: 'Unissex' },
           { name: 'Passadeira Ten Cel - par', size: 'Único', color: 'Padrão', quantity: 0, type: '4º A', price: 71.00, discount: 5.5, gender: 'Unissex' },
           { name: 'Passadeira Cel - par', size: 'Único', color: 'Padrão', quantity: 0, type: '4º A', price: 71.00, discount: 5.5, gender: 'Unissex' },
+          { name: 'Cinto vermelho', size: 'M', color: 'Vermelho', quantity: 0, type: '4º A', price: 41.90, discount: 2.5, gender: 'Unissex' },
+          { name: 'Chapéu de selva', size: 'M', color: 'Padrão', quantity: 0, type: '4º A', price: 79.90, discount: 0, gender: 'Unissex' },
           { name: 'Platina Cad/CHO/Asp - par', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 61.50, discount: 5.5, gender: 'Unissex' },
           { name: 'Platina SubTen - par', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 61.50, discount: 5.5, gender: 'Unissex' },
           { name: 'Platina 2º Ten - par', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 66.15, discount: 5.5, gender: 'Unissex' },
@@ -57,6 +71,14 @@ const AppContent: React.FC = () => {
           { name: 'Platina Maj - par', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 80.00, discount: 6, gender: 'Unissex' },
           { name: 'Platina Ten Cel - par', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 85.00, discount: 5.5, gender: 'Unissex' },
           { name: 'Platina Cel - par', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 85.00, discount: 5.5, gender: 'Unissex' },
+          { name: 'Segunda pele sem bordar', size: 'M', color: 'Padrão', quantity: 0, type: '5º A/B', price: 74.90, discount: 0, gender: 'Unissex' },
+          { name: 'Tensor preto', size: 'Único', color: 'Preto', quantity: 0, type: '5º A/B', price: 41.90, discount: 7, gender: 'Unissex' },
+          { name: 'Top preto', size: 'M', color: 'Preto', quantity: 0, type: '5º A/B', price: 52.40, discount: 4.5, gender: 'Unissex' },
+          { name: 'Machadinha - par', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 14.70, discount: 2, gender: 'Unissex' },
+          { name: 'Boina defenser', size: 'M', color: 'Padrão', quantity: 0, type: '3º A', price: 187.00, discount: 0, gender: 'Unissex' },
+          { name: 'Boina lyon/pralana', size: 'M', color: 'Padrão', quantity: 0, type: '3º A', price: 143.00, discount: 0, gender: 'Unissex' },
+          { name: 'Florão CFO/CHO', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 82.00, discount: 0, gender: 'Unissex' },
+          { name: 'Machadão', size: 'Único', color: 'Padrão', quantity: 0, type: '1º e 2º A', price: 19.00, discount: 5, gender: 'Unissex' },
         ];
         
         for (const it of newItems) {
@@ -70,9 +92,13 @@ const AppContent: React.FC = () => {
 
   const handleSeedInventory = useCallback(async () => {
     const fardamentoItems = [
-      { name: '3º A Completo', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 264.90, discount: 0 },
-      { name: 'Camisa 3º A', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 119.90, discount: 0 },
-      { name: 'Calça 3º A', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 145.00, discount: 0 },
+      { name: '3º A Completo', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 260.00, discount: 2 },
+      { name: 'Camisa 3º A', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 118.00, discount: 1.5 },
+      { name: 'Calça 3º A', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 142.00, discount: 2 },
+      { name: 'Machadinha - par', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 14.70, discount: 2 },
+      { name: 'Boina defenser', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 187.00, discount: 0 },
+      { name: 'Boina lyon/pralana', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 143.00, discount: 0 },
+      { name: 'Florão CFO/CHO', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 82.00, discount: 0 },
       { name: 'Platina Cad/CHO/Asp - par', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 61.50, discount: 5.5 },
       { name: 'Platina SubTen - par', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 61.50, discount: 5.5 },
       { name: 'Platina 2º Ten - par', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 66.15, discount: 5.5 },
@@ -99,18 +125,23 @@ const AppContent: React.FC = () => {
       { name: 'Passadeira Maj - par', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 66.15, discount: 5.5 },
       { name: 'Passadeira Ten Cel - par', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 71.00, discount: 5.5 },
       { name: 'Passadeira Cel - par', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 71.00, discount: 5.5 },
-      { name: '5º B Bordado', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 199.40, discount: 20 },
-      { name: '5º B sem Bordado', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 194.15, discount: 9 },
-      { name: 'Camisa Vermelha Bordada', size: 'M', color: 'Vermelho', quantity: 999, type: '5º A/B', price: 52.40, discount: 5 },
-      { name: 'Camisa Vermelha sem Bordado', size: 'M', color: 'Vermelho', quantity: 999, type: '5º A/B', price: 47.15, discount: 5 },
-      { name: 'Short', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 31.40, discount: 10 },
-      { name: 'Sunga', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 52.40, discount: 12 },
+      { name: 'Cinto vermelho', size: 'M', color: 'Vermelho', quantity: 999, type: '4º A', price: 41.90, discount: 2.5 },
+      { name: 'Chapéu de selva', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 79.90, discount: 0 },
+      { name: '5º B Bordado', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 225.00, discount: 10 },
+      { name: '5º B sem Bordado', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 220.00, discount: 8.5 },
+      { name: 'Camisa Vermelha Bordada', size: 'M', color: 'Vermelho', quantity: 999, type: '5º A/B', price: 50.00, discount: 9 },
+      { name: 'Camisa Vermelha sem Bordado', size: 'M', color: 'Vermelho', quantity: 999, type: '5º A/B', price: 45.00, discount: 10 },
+      { name: 'Short', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 32.00, discount: 8.5 },
+      { name: 'Sunga', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 55.00, discount: 8 },
       { name: 'Maiô', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 97.00 },
-      { name: 'Suquini', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 100.00 },
-      { name: 'Segunda Pele Bordada', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 83.90, discount: 1 },
-      { name: '3º A Completo', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 264.90 },
-      { name: 'Camisa 3º A', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 119.90 },
-      { name: 'Calça 3º A', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 145.00 }
+      { name: 'Suquini', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 99.00 },
+      { name: 'Segunda Pele Bordada', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 82.00, discount: 3.5 },
+      { name: 'Segunda pele sem bordar', size: 'M', color: 'Padrão', quantity: 999, type: '5º A/B', price: 74.90, discount: 0 },
+      { name: 'Tensor preto', size: 'Único', color: 'Preto', quantity: 999, type: '5º A/B', price: 41.90, discount: 7 },
+      { name: 'Top preto', size: 'M', color: 'Preto', quantity: 999, type: '5º A/B', price: 52.40, discount: 4.5 },
+      { name: 'Camisa 2º A', size: 'M', color: 'Padrão', quantity: 999, type: '1º e 2º A', price: 0.00, discount: 0 },
+      { name: 'Túnica 2º A', size: 'M', color: 'Padrão', quantity: 999, type: '1º e 2º A', price: 0.00, discount: 0 },
+      { name: 'Machadão', size: 'Único', color: 'Padrão', quantity: 999, type: '1º e 2º A', price: 19.00, discount: 5 }
     ];
 
     try {

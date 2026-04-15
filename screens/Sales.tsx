@@ -293,7 +293,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
             const catalogWithInventory = CATALOG_ITEMS
               .filter(catItem => {
                 const isHidden = (catItem as any).hideFromSales;
-                const matchesFilter = activeFilter === 'Todos' || catItem.type === activeFilter;
+                const matchesFilter = activeFilter === 'Todos' || catItem.type === activeFilter || (catItem.name === 'Cinto vermelho' && activeFilter === '3º A');
                 const matchesSearch = catItem.name.toLowerCase().includes(searchQuery.toLowerCase());
                 return !isHidden && matchesFilter && matchesSearch;
               })
@@ -330,9 +330,9 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               const is3A = nameLower.includes('3º a') && !nameLower.includes('calça') && !nameLower.includes('camisa');
               const is4A = nameLower.includes('4º a completo');
               const isCalca = nameLower.includes('calça');
-              const isGorro = nameLower.includes('gorro');
+              const isGorro = nameLower.includes('gorro') || nameLower.includes('chapéu') || nameLower.includes('boina');
               const isRedShirt = nameLower.includes('camisa vermelha');
-              const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira') || nameLower.includes('divisa') || nameLower.includes('passadeira') || nameLower.includes('platina');
+              const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira') || nameLower.includes('divisa') || nameLower.includes('passadeira') || nameLower.includes('platina') || nameLower.includes('tensor') || nameLower.includes('machadinha') || nameLower.includes('florão') || nameLower.includes('machadão');
               const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom') || nameLower.includes('túnica')) && !isRedShirt;
               const isDressUniform = nameLower.includes('túnica') || (nameLower.includes('camisa') && nameLower.includes('2º a'));
               const isBoot = nameLower.includes('coturno');
