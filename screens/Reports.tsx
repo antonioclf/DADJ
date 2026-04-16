@@ -121,8 +121,50 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     setEndDate(end.toISOString().split('T')[0]);
   };
 
-  const handleExportPDF = () => {
+  const generatePDFDoc = () => {
     const doc = new jsPDF();
+
+    // Calculate separated stats
+    let lojaTotal = 0;
+    let lojaPaid = 0;
+    let estoqueTotal = 0;
+    let estoquePaid = 0;
+
+    const tableDataEstoque: any[] = [];
+    const tableDataLoja: any[] = [];
+
+    filteredSales.forEach(sale => {
+      sale.items.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        const paidPortion = itemTotal * (item.paidInstallments / (item.totalInstallments || 1));
+        
+        if (item.status === 'Pedido na loja') {
+          lojaTotal += itemTotal;
+          lojaPaid += paidPortion;
+        } else {
+          estoqueTotal += itemTotal;
+          estoquePaid += paidPortion;
+        }
+
+        const row = [
+          sale.date.split(',')[0],
+          sale.customerName,
+          formatPhone(sale.customerPhone) || 'N/A',
+          sale.seller,
+          item.name,
+          item.quantity,
+          `R$ ${item.price.toFixed(2)}`,
+          `R$ ${itemTotal.toFixed(2)}`,
+          `${item.status}${item.totalInstallments > 1 ? ` [${item.paidInstallments}/${item.totalInstallments}]` : ''}${item.status === 'Entregue' && item.deliveredAt ? ` (${item.deliveredAt.split(',')[0]})` : item.status === 'Pago' && item.paidAt ? ` (${item.paidAt.split(',')[0]})` : ''}`
+        ];
+
+        if (item.status === 'Pedido na loja') {
+          tableDataLoja.push(row);
+        } else {
+          tableDataEstoque.push(row);
+        }
+      });
+    });
 
     // Header
     doc.setFontSize(20);
@@ -143,42 +185,54 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
       startY: 50,
       head: [['Métrica', 'Valor']],
       body: [
-        ['Total Bruto', `R$ ${stats.total.toFixed(2)}`],
-        ['Total Recebido', `R$ ${stats.paid.toFixed(2)}`],
-        ['Total Pendente', `R$ ${stats.pending.toFixed(2)}`],
-        ['Quantidade de Vendas', stats.count.toString()],
+        ['Total Bruto (Geral)', `R$ ${stats.total.toFixed(2)}`],
+        ['   └─ Total Estoque', `R$ ${estoqueTotal.toFixed(2)}`],
+        ['   └─ Total Loja', `R$ ${lojaTotal.toFixed(2)}`],
+        ['Total Recebido (Geral)', `R$ ${stats.paid.toFixed(2)}`],
+        ['   └─ Recebido Estoque', `R$ ${estoquePaid.toFixed(2)}`],
+        ['   └─ Recebido Loja', `R$ ${lojaPaid.toFixed(2)}`],
+        ['Total Pendente (Geral)', `R$ ${stats.pending.toFixed(2)}`],
+        ['Quantidade de Vendas Gerais', stats.count.toString()],
       ],
       theme: 'striped',
       headStyles: { fillColor: [37, 99, 235] }
     });
 
-    // Sales Details
-    doc.setFontSize(14);
-    doc.text('Detalhamento de Vendas', 14, (doc as any).lastAutoTable.finalY + 15);
+    // Sales Details - Estoque
+    if (tableDataEstoque.length > 0) {
+      doc.setFontSize(14);
+      doc.text('Itens Vendidos Pelo Estoque (DA)', 14, (doc as any).lastAutoTable.finalY + 15);
 
-    const tableData = filteredSales.flatMap(sale =>
-      sale.items.map(item => [
-        sale.date.split(',')[0],
-        sale.customerName,
-        formatPhone(sale.customerPhone) || 'N/A',
-        sale.seller,
-        item.name,
-        item.quantity,
-        `R$ ${item.price.toFixed(2)}`,
-        `R$ ${(item.price * item.quantity).toFixed(2)}`,
-        `${item.status}${item.totalInstallments > 1 ? ` [${item.paidInstallments}/${item.totalInstallments}]` : ''}${item.status === 'Entregue' && item.deliveredAt ? ` (${item.deliveredAt.split(',')[0]})` : item.status === 'Pago' && item.paidAt ? ` (${item.paidAt.split(',')[0]})` : ''}`
-      ])
-    );
+      autoTable(doc, {
+        startY: (doc as any).lastAutoTable.finalY + 20,
+        head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+        body: tableDataEstoque,
+        theme: 'grid',
+        headStyles: { fillColor: [37, 99, 235] },
+        styles: { fontSize: 8 }
+      });
+    }
 
-    autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 20,
-      head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { fillColor: [37, 99, 235] },
-      styles: { fontSize: 8 }
-    });
+    // Sales Details - Loja
+    if (tableDataLoja.length > 0) {
+      doc.setFontSize(14);
+      doc.text('Itens de Compra Direta (Loja)', 14, (doc as any).lastAutoTable.finalY + 15);
 
+      autoTable(doc, {
+        startY: (doc as any).lastAutoTable.finalY + 20,
+        head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+        body: tableDataLoja,
+        theme: 'grid',
+        headStyles: { fillColor: [99, 102, 241] }, // Indigo header to distinguish
+        styles: { fontSize: 8 }
+      });
+    }
+
+    return { doc, periodText };
+  };
+
+  const handleExportPDF = () => {
+    const { doc } = generatePDFDoc();
     doc.save(`relatorio_vendas_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
@@ -187,55 +241,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     if (!email) return;
 
     try {
-      const doc = new jsPDF();
-
-      // Header
-      doc.setFontSize(20);
-      doc.text('Relatório de Vendas - DA Dois de Julho', 14, 22);
-
-      const periodText = startDate || endDate
-        ? `Período: ${startDate ? new Date(startDate).toLocaleDateString() : 'Início'} até ${endDate ? new Date(endDate).toLocaleDateString() : 'Hoje'}`
-        : 'Período: Completo';
-      doc.setFontSize(10);
-      doc.text(periodText, 14, 30);
-      doc.text(`Gerado em: ${new Date().toLocaleString()}`, 14, 35);
-
-      autoTable(doc, {
-        startY: 50,
-        head: [['Métrica', 'Valor']],
-        body: [
-          ['Total Bruto', `R$ ${stats.total.toFixed(2)}`],
-          ['Total Recebido', `R$ ${stats.paid.toFixed(2)}`],
-          ['Total Pendente', `R$ ${stats.pending.toFixed(2)}`],
-          ['Quantidade de Vendas', stats.count.toString()],
-        ],
-        theme: 'striped',
-        headStyles: { fillColor: [37, 99, 235] }
-      });
-
-      const tableData = filteredSales.flatMap(sale =>
-        sale.items.map(item => [
-          sale.date.split(',')[0],
-          sale.customerName,
-          formatPhone(sale.customerPhone) || 'N/A',
-          sale.seller,
-          item.name,
-          item.quantity,
-          `R$ ${item.price.toFixed(2)}`,
-          `R$ ${(item.price * item.quantity).toFixed(2)}`,
-          `${item.status}${item.totalInstallments > 1 ? ` [${item.paidInstallments}/${item.totalInstallments}]` : ''}${item.status === 'Entregue' && item.deliveredAt ? ` (${item.deliveredAt.split(',')[0]})` : item.status === 'Pago' && item.paidAt ? ` (${item.paidAt.split(',')[0]})` : ''}`
-        ])
-      );
-
-      autoTable(doc, {
-        startY: (doc as any).lastAutoTable.finalY + 20,
-        head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
-        body: tableData,
-        theme: 'grid',
-        headStyles: { fillColor: [37, 99, 235] },
-        styles: { fontSize: 8 }
-      });
-
+      const { doc, periodText } = generatePDFDoc();
       const pdfBase64 = doc.output('datauristring').split(',')[1];
 
       const { data, error: invokeError } = await supabase.functions.invoke('send-report', {
