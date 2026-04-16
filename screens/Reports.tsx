@@ -138,7 +138,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
         const itemTotal = item.price * item.quantity;
         const paidPortion = itemTotal * (item.paidInstallments / (item.totalInstallments || 1));
         
-        if (item.status === 'Pedido na loja') {
+        if (item.source === 'Loja') {
           lojaTotal += itemTotal;
           lojaPaid += paidPortion;
         } else {
@@ -158,7 +158,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
           `${item.status}${item.totalInstallments > 1 ? ` [${item.paidInstallments}/${item.totalInstallments}]` : ''}${item.status === 'Entregue' && item.deliveredAt ? ` (${item.deliveredAt.split(',')[0]})` : item.status === 'Pago' && item.paidAt ? ` (${item.paidAt.split(',')[0]})` : ''}`
         ];
 
-        if (item.status === 'Pedido na loja') {
+        if (item.source === 'Loja') {
           tableDataLoja.push(row);
         } else {
           tableDataEstoque.push(row);
@@ -199,34 +199,30 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     });
 
     // Sales Details - Estoque
-    if (tableDataEstoque.length > 0) {
-      doc.setFontSize(14);
-      doc.text('Itens Vendidos Pelo Estoque (DA)', 14, (doc as any).lastAutoTable.finalY + 15);
+    doc.setFontSize(14);
+    doc.text('Itens Vendidos Pelo Estoque (DA)', 14, (doc as any).lastAutoTable.finalY + 15);
 
-      autoTable(doc, {
-        startY: (doc as any).lastAutoTable.finalY + 20,
-        head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
-        body: tableDataEstoque,
-        theme: 'grid',
-        headStyles: { fillColor: [37, 99, 235] },
-        styles: { fontSize: 8 }
-      });
-    }
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 20,
+      head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+      body: tableDataEstoque.length > 0 ? tableDataEstoque : [['-', '-', '-', '-', 'Livre/Nenhum item', '-', '-', '-', '-']],
+      theme: 'grid',
+      headStyles: { fillColor: [37, 99, 235] },
+      styles: { fontSize: 8 }
+    });
 
     // Sales Details - Loja
-    if (tableDataLoja.length > 0) {
-      doc.setFontSize(14);
-      doc.text('Itens de Compra Direta (Loja)', 14, (doc as any).lastAutoTable.finalY + 15);
+    doc.setFontSize(14);
+    doc.text('Itens de Compra Direta (Loja)', 14, (doc as any).lastAutoTable.finalY + 15);
 
-      autoTable(doc, {
-        startY: (doc as any).lastAutoTable.finalY + 20,
-        head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
-        body: tableDataLoja,
-        theme: 'grid',
-        headStyles: { fillColor: [99, 102, 241] }, // Indigo header to distinguish
-        styles: { fontSize: 8 }
-      });
-    }
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 20,
+      head: [['Data', 'Cliente', 'Tel', 'Vend.', 'Item', 'Qtd', 'Un.', 'Total', 'Status']],
+      body: tableDataLoja.length > 0 ? tableDataLoja : [['-', '-', '-', '-', 'Livre/Nenhum item', '-', '-', '-', '-']],
+      theme: 'grid',
+      headStyles: { fillColor: [99, 102, 241] }, // Indigo header to distinguish
+      styles: { fontSize: 8 }
+    });
 
     return { doc, periodText };
   };
