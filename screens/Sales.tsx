@@ -27,7 +27,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [saleSource, setSaleSource] = useState<'Estoque' | 'Loja'>('Loja');
   const [activeFilter, setActiveFilter] = useState('Todos');
   const [searchQuery, setSearchQuery] = useState('');
-  const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados'];
+  const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados', 'Acessórios'];
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formatPhone = (val: string) => {
