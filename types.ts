@@ -25,7 +25,7 @@ export interface TeamMember {
   active: boolean;
 }
 
-export type InventoryItemType = '4º A' | '3º A' | '5º A/B' | 'Meias' | 'Calçados' | '1º e 2º A';
+export type InventoryItemType = '4º A' | '3º A' | '5º A/B' | 'Meias' | 'Calçados' | '1º e 2º A' | 'Acessórios';
 
 export interface InventoryItem {
   id: string;
@@ -100,7 +100,7 @@ export const CATALOG_ITEMS = [
   { name: 'Machadinha - par', type: '3º A' as InventoryItemType, price: 14.70, color: 'Padrão', discount: 2 },
   { name: 'Boina Defenser', type: '3º A' as InventoryItemType, price: 187.00, color: 'Padrão' },
   { name: 'Boina Lyon/Pralana', type: '3º A' as InventoryItemType, price: 143.00, color: 'Padrão' },
-  { name: 'Florão CFO/CHO', type: '3º A' as InventoryItemType, price: 82.00, color: 'Padrão' },
+  { name: 'Florão para boina CFO/CHO', type: '3º A' as InventoryItemType, price: 58.40, color: 'Padrão' },
   { name: 'Platina Cad/CHO/Asp - par', type: '3º A' as InventoryItemType, price: 61.50, color: 'Padrão', discount: 5.5 },
   { name: 'Platina SubTen - par', type: '3º A' as InventoryItemType, price: 61.50, color: 'Padrão', discount: 5.5 },
   { name: 'Platina 2º Ten - par', type: '3º A' as InventoryItemType, price: 66.15, color: 'Padrão', discount: 5.5 },
@@ -134,4 +134,9 @@ export const CATALOG_ITEMS = [
   { name: 'Camisa 2º A', type: '1º e 2º A' as InventoryItemType, price: 0.00, color: 'Padrão' },
   { name: 'Túnica 2º A', type: '1º e 2º A' as InventoryItemType, price: 0.00, color: 'Padrão' },
   { name: 'Machadão', type: '1º e 2º A' as InventoryItemType, price: 19.00, color: 'Padrão', discount: 5 },
+  { name: 'Florão para quepe CFO/CHO', type: '1º e 2º A' as InventoryItemType, price: 85.40, color: 'Padrão' },
+
+  { name: 'Luva preta de couro', type: 'Acessórios' as InventoryItemType, price: 99.90, color: 'Preto' },
+  { name: 'Cantil', type: 'Acessórios' as InventoryItemType, price: 27.90, color: 'Padrão' },
+  { name: 'Capa de cantil', type: 'Acessórios' as InventoryItemType, price: 39.90, color: 'Padrão' },
 ];

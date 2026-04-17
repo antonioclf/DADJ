@@ -47,6 +47,7 @@ const AppContent: React.FC = () => {
         await supabase.from('inventory').update({ price: 82.00, discount: 3.5 }).eq('name', 'Segunda Pele Bordada');
         await supabase.from('inventory').update({ price: 225.00, discount: 10 }).eq('name', '5º B Bordado');
         await supabase.from('inventory').update({ price: 220.00, discount: 8.5 }).eq('name', '5º B sem Bordado');
+        await supabase.from('inventory').update({ name: 'Florão para boina CFO/CHO', price: 58.40 }).eq('name', 'Florão CFO/CHO');
         
         // Inserir novos itens se não existirem
         const newItems = [
@@ -77,8 +78,12 @@ const AppContent: React.FC = () => {
           { name: 'Machadinha - par', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 14.70, discount: 2, gender: 'Unissex' },
           { name: 'Boina Defenser', size: 'M', color: 'Padrão', quantity: 0, type: '3º A', price: 187.00, discount: 0, gender: 'Unissex' },
           { name: 'Boina Lyon/Pralana', size: 'M', color: 'Padrão', quantity: 0, type: '3º A', price: 143.00, discount: 0, gender: 'Unissex' },
-          { name: 'Florão CFO/CHO', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 82.00, discount: 0, gender: 'Unissex' },
+          { name: 'Florão para boina CFO/CHO', size: 'Único', color: 'Padrão', quantity: 0, type: '3º A', price: 58.40, discount: 0, gender: 'Unissex' },
           { name: 'Machadão', size: 'Único', color: 'Padrão', quantity: 0, type: '1º e 2º A', price: 19.00, discount: 5, gender: 'Unissex' },
+          { name: 'Florão para quepe CFO/CHO', size: 'Único', color: 'Padrão', quantity: 0, type: '1º e 2º A', price: 85.40, discount: 0, gender: 'Unissex' },
+          { name: 'Luva preta de couro', size: 'M', color: 'Preto', quantity: 0, type: 'Acessórios', price: 99.90, discount: 0, gender: 'Unissex' },
+          { name: 'Cantil', size: 'Único', color: 'Padrão', quantity: 0, type: 'Acessórios', price: 27.90, discount: 0, gender: 'Unissex' },
+          { name: 'Capa de cantil', size: 'Único', color: 'Padrão', quantity: 0, type: 'Acessórios', price: 39.90, discount: 0, gender: 'Unissex' },
         ];
         
         for (const it of newItems) {
@@ -98,7 +103,7 @@ const AppContent: React.FC = () => {
       { name: 'Machadinha - par', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 14.70, discount: 2 },
       { name: 'Boina Defenser', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 187.00, discount: 0 },
       { name: 'Boina Lyon/Pralana', size: 'M', color: 'Padrão', quantity: 999, type: '3º A', price: 143.00, discount: 0 },
-      { name: 'Florão CFO/CHO', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 82.00, discount: 0 },
+      { name: 'Florão para boina CFO/CHO', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 58.40, discount: 0 },
       { name: 'Platina Cad/CHO/Asp - par', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 61.50, discount: 5.5 },
       { name: 'Platina SubTen - par', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 61.50, discount: 5.5 },
       { name: 'Platina 2º Ten - par', size: 'Único', color: 'Padrão', quantity: 999, type: '3º A', price: 66.15, discount: 5.5 },
@@ -141,7 +146,11 @@ const AppContent: React.FC = () => {
       { name: 'Top preto', size: 'M', color: 'Preto', quantity: 999, type: '5º A/B', price: 52.40, discount: 4.5 },
       { name: 'Camisa 2º A', size: 'M', color: 'Padrão', quantity: 999, type: '1º e 2º A', price: 0.00, discount: 0 },
       { name: 'Túnica 2º A', size: 'M', color: 'Padrão', quantity: 999, type: '1º e 2º A', price: 0.00, discount: 0 },
-      { name: 'Machadão', size: 'Único', color: 'Padrão', quantity: 999, type: '1º e 2º A', price: 19.00, discount: 5 }
+      { name: 'Machadão', size: 'Único', color: 'Padrão', quantity: 999, type: '1º e 2º A', price: 19.00, discount: 5 },
+      { name: 'Florão para quepe CFO/CHO', size: 'Único', color: 'Padrão', quantity: 999, type: '1º e 2º A', price: 85.40, discount: 0 },
+      { name: 'Luva preta de couro', size: 'M', color: 'Preto', quantity: 999, type: 'Acessórios', price: 99.90, discount: 0 },
+      { name: 'Cantil', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 27.90, discount: 0 },
+      { name: 'Capa de cantil', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 39.90, discount: 0 }
     ];
 
     try {
