@@ -306,6 +306,68 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     }
   };
 
+  const handleExportIndividualPDF = (sale: SaleRecord) => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.text('Recibo de Venda - DA Dois de Julho', 14, 22);
+
+    doc.setFontSize(10);
+    doc.text(`Data da Venda: ${sale.date.split(',')[0]}`, 14, 30);
+    doc.text(`Cliente: ${sale.customerName}${sale.customerBM ? ` (BM: ${sale.customerBM})` : ''}`, 14, 35);
+    let currentY = 40;
+    if (sale.customerPhone) {
+      doc.text(`Telefone: ${formatPhone(sale.customerPhone)}`, 14, currentY);
+      currentY += 5;
+    }
+    doc.text(`Vendedor: ${sale.seller}`, 14, currentY);
+    currentY += 15;
+
+    // Items table
+    const tableData = sale.items.map(item => [
+      item.name,
+      item.size || '-',
+      item.quantity.toString(),
+      `R$ ${item.price.toFixed(2)}`,
+      `R$ ${(item.price * item.quantity).toFixed(2)}`,
+      item.status
+    ]);
+
+    autoTable(doc, {
+      startY: currentY,
+      head: [['Item', 'Tam.', 'Qtd', 'Un.', 'Total', 'Status']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [37, 99, 235] },
+    });
+
+    // Financial calculations
+    const total = sale.total;
+    const paid = sale.items.reduce((acc, item) => acc + (item.price * item.quantity * (item.paidInstallments / (item.totalInstallments || 1))), 0);
+    const pending = total - paid;
+
+    const finalY = (doc as any).lastAutoTable.finalY + 15;
+
+    doc.setFontSize(14);
+    doc.text('Resumo Financeiro', 14, finalY);
+
+    autoTable(doc, {
+      startY: finalY + 5,
+      head: [['Métrica', 'Valor']],
+      body: [
+        ['Total do Pedido', `R$ ${total.toFixed(2)}`],
+        ['Total Pago', `R$ ${paid.toFixed(2)}`],
+        ['Saldo Pendente', `R$ ${pending.toFixed(2)}`],
+        ['Situação', sale.items.every(i => i.paidInstallments >= i.totalInstallments) ? 'Pago Totalmente' : 'Pendente']
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [37, 99, 235] }
+    });
+
+    doc.save(`recibo_${sale.customerName.replace(/\s+/g, '_')}_${sale.date.split(',')[0].replace(/\//g, '-')}.pdf`);
+  };
+
   const handleUpdatePaidCount = async (itemId: string, newCount: number) => {
     try {
       await dataService.updateItemInstallments(itemId, newCount);
@@ -550,6 +612,16 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                           {salePaid ? 'Pago' : salePartial ? 'Parcial' : sale.status}
                         </p>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleExportIndividualPDF(sale);
+                        }}
+                        className="p-2 text-primary hover:bg-primary/10 dark:hover:bg-primary/20 rounded-xl transition-all"
+                        title="Gerar PDF (Recibo Local)"
+                      >
+                        <span className="material-symbols-outlined text-lg">receipt_long</span>
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
