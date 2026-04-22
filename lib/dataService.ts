@@ -207,6 +207,22 @@ export const dataService = {
         if (error) throw error;
     },
 
+    async updateSaleInfo(saleId: string, updates: { customerName?: string; customerPhone?: string; customerBM?: string; seller?: string }): Promise<void> {
+        const payload: any = {};
+        if (updates.customerName !== undefined) payload.customer_name = updates.customerName;
+        if (updates.customerPhone !== undefined) payload.customer_phone = updates.customerPhone;
+        if (updates.customerBM !== undefined) payload.customer_bm = updates.customerBM;
+        if (updates.seller !== undefined) payload.seller = updates.seller;
+
+        if (Object.keys(payload).length > 0) {
+            const { error } = await supabase
+                .from('sales')
+                .update(payload)
+                .eq('id', saleId);
+            if (error) throw error;
+        }
+    },
+
     async deleteSale(id: string): Promise<void> {
         // 1. Get sale items to restore inventory
         const { data: items, error: fetchError } = await supabase

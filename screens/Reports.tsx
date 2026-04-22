@@ -4,6 +4,8 @@ import { GoogleGenAI } from "@google/genai";
 import { SaleRecord } from '../types';
 import Button from '../ui/Button';
 import Header from '../ui/Header';
+import Input from '../ui/Input';
+import Modal from '../ui/Modal';
 import { dataService } from '../lib/dataService';
 import { supabase } from '../lib/supabase';
 import { jsPDF } from 'jspdf';
@@ -21,6 +23,34 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
   const [expandedSale, setExpandedSale] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [editingSale, setEditingSale] = useState<SaleRecord | null>(null);
+  const [editForm, setEditForm] = useState({ customerName: '', customerPhone: '', customerBM: '', seller: '' });
+  const [isUpdatingSale, setIsUpdatingSale] = useState(false);
+
+  const handleEditClick = (sale: SaleRecord) => {
+    setEditingSale(sale);
+    setEditForm({
+      customerName: sale.customerName || '',
+      customerPhone: sale.customerPhone || '',
+      customerBM: sale.customerBM || '',
+      seller: sale.seller || ''
+    });
+  };
+
+  const handleSaveSaleEdit = async () => {
+    if (!editingSale) return;
+    setIsUpdatingSale(true);
+    try {
+      await dataService.updateSaleInfo(editingSale.id, editForm);
+      await onRefresh();
+      setEditingSale(null);
+    } catch (error) {
+      console.error('Error updating sale info:', error);
+      alert('Erro ao atualizar informações da venda.');
+    } finally {
+      setIsUpdatingSale(false);
+    }
+  };
 
   const formatPhone = (val?: string) => {
     if (!val) return '';
@@ -523,6 +553,16 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          handleEditClick(sale);
+                        }}
+                        className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-xl transition-all"
+                        title="Editar Informações Básicas"
+                      >
+                        <span className="material-symbols-outlined text-lg">edit</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
                           if (window.confirm("Deseja realmente excluir esta venda?")) {
                             onDeleteSale(sale.id);
                           }
@@ -712,6 +752,41 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={!!editingSale}
+        onClose={() => setEditingSale(null)}
+        title="Editar Informações da Venda"
+      >
+        <div className="space-y-4 pb-4">
+          <Input
+            label="Nome do Aluno (Comprador)"
+            value={editForm.customerName}
+            onChange={(e) => setEditForm({ ...editForm, customerName: (e.target as HTMLInputElement).value })}
+          />
+          <Input
+            label="Número BM do Comprador"
+            value={editForm.customerBM}
+            onChange={(e) => setEditForm({ ...editForm, customerBM: (e.target as HTMLInputElement).value })}
+          />
+          <Input
+            label="Telefone / WhatsApp"
+            value={editForm.customerPhone}
+            onChange={(e) => setEditForm({ ...editForm, customerPhone: (e.target as HTMLInputElement).value })}
+          />
+          <Input
+            label="Vendedor"
+            value={editForm.seller}
+            onChange={(e) => setEditForm({ ...editForm, seller: (e.target as HTMLInputElement).value })}
+          />
+          <div className="pt-4 flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setEditingSale(null)}>Cancelar</Button>
+            <Button onClick={handleSaveSaleEdit} disabled={isUpdatingSale}>
+              {isUpdatingSale ? 'Salvando...' : 'Salvar Alterações'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
