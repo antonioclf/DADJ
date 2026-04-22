@@ -298,7 +298,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                 return !isHidden && matchesFilter && matchesSearch;
               })
               .map(catItem => ({
-                base: { ...catItem, id: `cat-${catItem.name}-${catItem.color}` } as unknown as InventoryItem,
+                base: { ...catItem, id: `cat-${catItem.name}-${catItem.type}-${catItem.color}` } as unknown as InventoryItem,
                 inventoryItems: inventoryGroups[`${catItem.name}-${catItem.color}`] || []
               }));
 

@@ -36,7 +36,7 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
         .map(catItem => {
             const invMatch = inventory.find(i => i.name === catItem.name && i.color === catItem.color);
             return {
-                id: `price-${catItem.name}`,
+                id: `price-${catItem.name}-${catItem.type}`,
                 name: catItem.name,
                 type: catItem.type,
                 price: invMatch?.price ?? catItem.price,

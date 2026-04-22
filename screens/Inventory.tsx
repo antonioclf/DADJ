@@ -349,9 +349,9 @@ const Inventory: React.FC<InventoryProps> = ({ inventory, onUpdate, onDelete }) 
                 <span className="text-[8px] font-bold text-primary px-2 py-0.5 bg-primary/5 rounded-full uppercase">Seleção Rápida</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {STANDARD_ITEMS.map(item => (
+                {STANDARD_ITEMS.map((item, index) => (
                   <button
-                    key={item.name}
+                    key={`${item.name}-${index}`}
                     onClick={() => handleSelectStandard(item.name)}
                     className={`flex h-12 items-center px-4 rounded-2xl text-[10px] font-bold transition-all border text-left leading-tight ${editingGroup?.name === item.name
                       ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20'
