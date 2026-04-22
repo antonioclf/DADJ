@@ -142,4 +142,5 @@ export const CATALOG_ITEMS = [
   { name: 'Luva preta de couro', type: 'Acessórios' as InventoryItemType, price: 99.90, color: 'Preto' },
   { name: 'Cantil', type: 'Acessórios' as InventoryItemType, price: 27.90, color: 'Padrão' },
   { name: 'Capa de cantil', type: 'Acessórios' as InventoryItemType, price: 39.90, color: 'Padrão' },
+  { name: 'Velame', type: 'Acessórios' as InventoryItemType, price: 55.00, color: 'Padrão' },
 ];
