@@ -83,7 +83,7 @@ export const CATALOG_ITEMS = [
   { name: 'Gorro flexível Oficial Superior', type: '4º A' as InventoryItemType, price: 48.20, color: 'Padrão', discount: 3.5 },
   { name: 'Tarjeta (3 unidades)', type: '4º A' as InventoryItemType, price: 29.40, color: 'Padrão', discount: 3 },
   { name: 'Par de Divisas', type: '4º A' as InventoryItemType, price: 11.00, color: 'Padrão', discount: 8 },
-  { name: 'Passadeira Cad/CHO/Asp', type: '4º A' as InventoryItemType, price: 47.25, color: 'Padrão', discount: 5.5 },
+  { name: 'Passadeira Cad/CHO/Asp - par', type: '4º A' as InventoryItemType, price: 47.25, color: 'Padrão', discount: 5.5 },
   { name: 'Passadeira SubTen - par', type: '4º A' as InventoryItemType, price: 47.25, color: 'Padrão', discount: 5.5 },
   { name: 'Passadeira 2º Ten - par', type: '4º A' as InventoryItemType, price: 52.00, color: 'Padrão', discount: 5.5 },
   { name: 'Passadeira 1º Ten - par', type: '4º A' as InventoryItemType, price: 56.70, color: 'Padrão', discount: 5.5 },

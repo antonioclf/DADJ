@@ -327,12 +327,12 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
             }).map(group => {
               const item = group.base;
               const nameLower = item.name.toLowerCase();
-              const is3A = nameLower.includes('3º a') && !nameLower.includes('calça') && !nameLower.includes('camisa');
-              const is4A = nameLower.includes('4º a completo');
+              const is3A = (nameLower.includes('3º a') || nameLower.includes('3ºa') || nameLower.includes('3 a')) && !nameLower.includes('calça') && !nameLower.includes('camisa');
+              const is4A = nameLower.includes('4º a completo') || nameLower.includes('4ºa completo') || nameLower.includes('4 a completo');
               const isCalca = nameLower.includes('calça');
               const isGorro = nameLower.includes('gorro') || nameLower.includes('chapéu') || nameLower.includes('boina');
               const isRedShirt = nameLower.includes('camisa vermelha');
-              const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira') || nameLower.includes('divisa') || nameLower.includes('passadeira') || nameLower.includes('platina') || nameLower.includes('machadinha') || nameLower.includes('florão') || nameLower.includes('machadão') || nameLower.includes('boné') || nameLower.includes('plaqueta');
+              const isOneSize = nameLower.includes('tarjeta') || nameLower.includes('joelheira') || nameLower.includes('divisa') || nameLower.includes('passadeira') || nameLower.includes('platina') || nameLower.includes('machadinha') || nameLower.includes('florão') || nameLower.includes('machadão') || nameLower.includes('boné') || nameLower.includes('plaqueta') || nameLower.includes('cinto') || nameLower.includes('cantil');
               const isTop = (nameLower.includes('blusa') || nameLower.includes('gandola') || nameLower.includes('camisa') || nameLower.includes('camiseta') || nameLower.includes('moletom') || nameLower.includes('túnica')) && !isRedShirt;
               const isDressUniform = nameLower.includes('túnica') || (nameLower.includes('camisa') && nameLower.includes('2º a'));
               const isBoot = nameLower.includes('coturno');

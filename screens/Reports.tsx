@@ -402,10 +402,9 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
       headStyles: { fillColor: [71, 85, 105] }, // Slate color for delivery
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY + 20;
-    doc.setFontSize(10);
-    doc.text('__________________________________________', 14, finalY);
-    doc.text('Assinatura do Recebedor', 14, finalY + 5);
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFontSize(8);
+    doc.text('Documento gerado para controle interno de entrega.', 14, finalY);
 
     doc.save(`guia_entrega_${sale.customerName.replace(/\s+/g, '_')}_${sale.date.split(',')[0].replace(/\//g, '-')}.pdf`);
   };
