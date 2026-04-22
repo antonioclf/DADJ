@@ -368,6 +368,48 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
     doc.save(`recibo_${sale.customerName.replace(/\s+/g, '_')}_${sale.date.split(',')[0].replace(/\//g, '-')}.pdf`);
   };
 
+  const handleExportDeliveryPDF = (sale: SaleRecord) => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.text('Guia de Entrega - DA Dois de Julho', 14, 22);
+
+    doc.setFontSize(10);
+    doc.text(`Data: ${sale.date.split(',')[0]}`, 14, 30);
+    doc.text(`Cliente: ${sale.customerName}${sale.customerBM ? ` (BM: ${sale.customerBM})` : ''}`, 14, 35);
+    let currentY = 40;
+    if (sale.customerPhone) {
+      doc.text(`Telefone: ${formatPhone(sale.customerPhone)}`, 14, currentY);
+      currentY += 5;
+    }
+    doc.text(`Vendedor: ${sale.seller}`, 14, currentY);
+    currentY += 15;
+
+    // Items table (No prices)
+    const tableData = sale.items.map(item => [
+      item.name,
+      item.size || '-',
+      item.quantity.toString(),
+      item.status
+    ]);
+
+    autoTable(doc, {
+      startY: currentY,
+      head: [['Item', 'Tam.', 'Qtd', 'Status']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [71, 85, 105] }, // Slate color for delivery
+    });
+
+    const finalY = (doc as any).lastAutoTable.finalY + 20;
+    doc.setFontSize(10);
+    doc.text('__________________________________________', 14, finalY);
+    doc.text('Assinatura do Recebedor', 14, finalY + 5);
+
+    doc.save(`guia_entrega_${sale.customerName.replace(/\s+/g, '_')}_${sale.date.split(',')[0].replace(/\//g, '-')}.pdf`);
+  };
+
   const handleUpdatePaidCount = async (itemId: string, newCount: number) => {
     try {
       await dataService.updateItemInstallments(itemId, newCount);
@@ -621,6 +663,16 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                         title="Gerar PDF (Recibo Local)"
                       >
                         <span className="material-symbols-outlined text-lg">receipt_long</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleExportDeliveryPDF(sale);
+                        }}
+                        className="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all"
+                        title="Gerar Guia de Entrega (Sem Valores)"
+                      >
+                        <span className="material-symbols-outlined text-lg">bedtime</span>
                       </button>
                       <button
                         onClick={(e) => {
