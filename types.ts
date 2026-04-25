@@ -101,7 +101,7 @@ export const CATALOG_ITEMS = [
   { name: 'Boina Defenser', type: '3º A' as InventoryItemType, price: 187.00, color: 'Padrão' },
   { name: 'Boina Lyon/Pralana', type: '3º A' as InventoryItemType, price: 143.00, color: 'Padrão' },
   { name: 'Florão para boina CFO/CHO', type: '3º A' as InventoryItemType, price: 58.40, color: 'Padrão' },
-  { name: 'Plaqueta', type: '3º A' as InventoryItemType, price: 0.00, color: 'Padrão' },
+  { name: 'Plaqueta', type: '3º A' as InventoryItemType, price: 50.00, color: 'Padrão' },
   { name: 'Platina Cad/CHO/Asp - par', type: '3º A' as InventoryItemType, price: 61.50, color: 'Padrão', discount: 5.5 },
   { name: 'Platina SubTen - par', type: '3º A' as InventoryItemType, price: 61.50, color: 'Padrão', discount: 5.5 },
   { name: 'Platina 2º Ten - par', type: '3º A' as InventoryItemType, price: 66.15, color: 'Padrão', discount: 5.5 },
@@ -123,7 +123,7 @@ export const CATALOG_ITEMS = [
   { name: 'Segunda pele sem bordar', type: '5º A/B' as InventoryItemType, price: 74.90, color: 'Padrão' },
   { name: 'Tensor preto', type: '5º A/B' as InventoryItemType, price: 41.90, color: 'Preto', discount: 7 },
   { name: 'Top preto', type: '5º A/B' as InventoryItemType, price: 52.40, color: 'Preto', discount: 4.5 },
-  { name: 'Boné Vermelho', type: '5º A/B' as InventoryItemType, price: 0.00, color: 'Vermelho' },
+  { name: 'Boné Vermelho', type: '5º A/B' as InventoryItemType, price: 49.90, color: 'Vermelho' },
 
   { name: 'Meião preto com logo do bombeiro (par)', type: 'Meias' as InventoryItemType, price: 20.79, color: 'Preto' },
   { name: 'Meião preto (par)', type: 'Meias' as InventoryItemType, price: 16.50, color: 'Preto' },
@@ -137,7 +137,7 @@ export const CATALOG_ITEMS = [
   { name: 'Túnica 2º A', type: '1º e 2º A' as InventoryItemType, price: 0.00, color: 'Padrão' },
   { name: 'Machadão', type: '1º e 2º A' as InventoryItemType, price: 19.00, color: 'Padrão', discount: 5 },
   { name: 'Florão para quepe CFO/CHO', type: '1º e 2º A' as InventoryItemType, price: 85.40, color: 'Padrão' },
-  { name: 'Plaqueta', type: '1º e 2º A' as InventoryItemType, price: 0.00, color: 'Padrão' },
+  { name: 'Plaqueta', type: '1º e 2º A' as InventoryItemType, price: 50.00, color: 'Padrão' },
 
   { name: 'Luva preta de couro', type: 'Acessórios' as InventoryItemType, price: 99.90, color: 'Preto' },
   { name: 'Cantil', type: 'Acessórios' as InventoryItemType, price: 27.90, color: 'Padrão' },
