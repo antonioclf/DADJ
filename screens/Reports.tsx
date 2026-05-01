@@ -1,11 +1,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { SaleRecord } from '../types';
+import { SaleRecord, InventoryItem, OrderItem } from '../types';
 import Button from '../ui/Button';
 import Header from '../ui/Header';
 import Input from '../ui/Input';
 import Modal from '../ui/Modal';
+import ItemPickerModal from '../ui/ItemPickerModal';
 import { dataService } from '../lib/dataService';
 import { supabase } from '../lib/supabase';
 import { jsPDF } from 'jspdf';
@@ -13,11 +14,12 @@ import autoTable from 'jspdf-autotable';
 
 interface ReportsProps {
   sales: SaleRecord[];
+  inventory: InventoryItem[];
   onDeleteSale: (id: string) => void;
   onRefresh: () => Promise<void>;
 }
 
-const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => {
+const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRefresh }) => {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [expandedSale, setExpandedSale] = useState<string | null>(null);
@@ -49,6 +51,55 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
       alert('Erro ao atualizar informações da venda.');
     } finally {
       setIsUpdatingSale(false);
+    }
+  };
+
+  const [addingToSaleId, setAddingToSaleId] = useState<string | null>(null);
+
+  const handleAddToCart = async (item: InventoryItem, size: string) => {
+    if (!addingToSaleId) return;
+
+    const targetSale = sales.find(s => s.id === addingToSaleId);
+    if (!targetSale) return;
+
+    const qtyStr = window.prompt(`Quantidade para ${item.name} (Tamanho: ${size}):`, "1");
+    if (!qtyStr) {
+      setAddingToSaleId(null);
+      return;
+    }
+    const quantity = parseInt(qtyStr, 10);
+    if (isNaN(quantity) || quantity <= 0) {
+      alert("Quantidade inválida.");
+      setAddingToSaleId(null);
+      return;
+    }
+
+    const isEstoque = window.confirm(`A origem deste item é do Estoque (com baixa automática)?\n\nOK = Estoque\nCancelar = Loja (Compra Direta)`);
+    const source = isEstoque ? 'Estoque' : 'Loja';
+
+    const orderItem: OrderItem = {
+      id: Date.now().toString(),
+      inventoryId: item.id,
+      name: item.name,
+      size: size,
+      quantity: quantity,
+      price: item.price,
+      discount: item.discount,
+      source: source,
+      status: targetSale.status,
+      totalInstallments: 1,
+      paidInstallments: 0
+    };
+
+    try {
+      await dataService.addItemToSale(targetSale.id, orderItem, targetSale.total);
+      await onRefresh();
+      alert("Item adicionado com sucesso!");
+    } catch (error) {
+      console.error("Error adding item to sale:", error);
+      alert("Erro ao adicionar item.");
+    } finally {
+      setAddingToSaleId(null);
     }
   };
 
@@ -746,6 +797,15 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
                         );
                       })}
 
+                      <Button
+                        variant="secondary"
+                        onClick={() => setAddingToSaleId(sale.id)}
+                        className="w-full mt-2 !bg-primary/5 hover:!bg-primary/10 !text-primary border border-primary/20 flex items-center justify-center gap-2 py-3"
+                      >
+                        <span className="material-symbols-outlined text-sm">add_circle</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Adicionar Item a Esta Venda</span>
+                      </Button>
+
                       {/* Sale Level Payment Situation */}
                       {(() => {
                         const referenceItem = sale.items[0];
@@ -910,6 +970,13 @@ const Reports: React.FC<ReportsProps> = ({ sales, onDeleteSale, onRefresh }) => 
           </div>
         </div>
       </Modal>
+
+      <ItemPickerModal
+        isOpen={!!addingToSaleId}
+        onClose={() => setAddingToSaleId(null)}
+        inventory={inventory}
+        onAddToCart={handleAddToCart}
+      />
     </div>
   );
 };

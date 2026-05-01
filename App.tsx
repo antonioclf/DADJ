@@ -403,7 +403,7 @@ const AppContent: React.FC = () => {
       case View.INVENTORY:
         return <Inventory inventory={inventory} onUpdate={handleUpdateInventory} onDelete={handleDeleteItem} />;
       case View.REPORTS:
-        return <Reports sales={sales} onDeleteSale={handleDeleteSale} onRefresh={loadData} />;
+        return <Reports sales={sales} inventory={inventory} onDeleteSale={handleDeleteSale} onRefresh={loadData} />;
       case View.TEAM:
         return <Team
           onBack={() => navigate(View.HOME)}

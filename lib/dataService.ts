@@ -176,6 +176,54 @@ export const dataService = {
         }
     },
 
+    async addItemToSale(saleId: string, item: OrderItem, currentSaleTotal: number): Promise<void> {
+        const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(item.inventoryId);
+        
+        const saleItem = {
+            sale_id: saleId,
+            inventory_id: isValidUUID ? item.inventoryId : null,
+            name: item.name,
+            size: item.size,
+            quantity: item.quantity,
+            price: item.price,
+            status: item.status, 
+            total_installments: item.totalInstallments || 1,
+            paid_installments: item.paidInstallments || 0,
+            source: item.source || 'Loja',
+            delivered_at: item.status === 'Entregue' ? new Date().toISOString() : null,
+            paid_at: item.status === 'Pago' ? new Date().toISOString() : null
+        };
+
+        const { error: itemsError } = await supabase
+            .from('sale_items')
+            .insert(saleItem);
+
+        if (itemsError) throw itemsError;
+
+        // Update sale total
+        const newTotal = currentSaleTotal + (item.price * item.quantity);
+        await supabase
+            .from('sales')
+            .update({ total: newTotal })
+            .eq('id', saleId);
+
+        // Update inventory levels only for "Estoque" source
+        if (item.source === 'Estoque' && isValidUUID) {
+            const { data: invItem } = await supabase
+                .from('inventory')
+                .select('quantity')
+                .eq('id', item.inventoryId)
+                .single();
+
+            if (invItem) {
+                await supabase
+                    .from('inventory')
+                    .update({ quantity: Math.max(0, invItem.quantity - item.quantity) })
+                    .eq('id', item.inventoryId);
+            }
+        }
+    },
+
     // Team
     async getTeam(): Promise<TeamMember[]> {
         const { data, error } = await supabase
