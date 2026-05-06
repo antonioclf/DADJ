@@ -76,7 +76,6 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
 
     const isEstoque = window.confirm(`A origem deste item é do Estoque (com baixa automática)?\n\nOK = Estoque\nCancelar = Loja (Compra Direta)`);
     const source = isEstoque ? 'Estoque' : 'Loja';
-    const finalPrice = source === 'Loja' && item.storePrice !== undefined ? item.storePrice : item.price;
 
     const orderItem: OrderItem = {
       id: Date.now().toString(),
@@ -84,7 +83,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
       name: item.name,
       size: size,
       quantity: quantity,
-      price: finalPrice,
+      price: item.price,
       discount: item.discount,
       source: source,
       status: targetSale.status,
@@ -769,7 +768,14 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
                           <div key={item.id} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-50 dark:border-slate-800 shadow-sm space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
-                                <p className="text-[10px] font-black dark:text-white uppercase tracking-tight">{item.quantity}x {item.name}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-[10px] font-black dark:text-white uppercase tracking-tight">{item.quantity}x {item.name}</p>
+                                  {item.source && (
+                                    <span className={`text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md ${item.source === 'Estoque' ? 'bg-primary/10 text-primary' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                                      {item.source}
+                                    </span>
+                                  )}
+                                </div>
                                 <p className="text-[9px] text-slate-400 font-bold">Total do Item: R$ {(item.price * item.quantity).toFixed(2)}</p>
                               </div>
                               <button

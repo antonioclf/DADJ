@@ -36,7 +36,6 @@ export interface InventoryItem {
   quantity: number;
   type: InventoryItemType;
   price: number;
-  storePrice?: number;
   discount?: number;
   image?: string; // Base64 or URL
 }
@@ -74,8 +73,8 @@ export interface SaleRecord {
 }
 
 export const CATALOG_ITEMS = [
-  { name: '4º A Completo', type: '4º A' as InventoryItemType, price: 389.00, storePrice: 430.00, color: 'Padrão', discount: 6.5 },
-  { name: 'Calça 4º A', type: '4º A' as InventoryItemType, price: 199.00, storePrice: 205.00, color: 'Padrão', discount: 5 },
+  { name: '4º A Completo', type: '4º A' as InventoryItemType, price: 430.00, color: 'Padrão', discount: 6.5 },
+  { name: 'Calça 4º A', type: '4º A' as InventoryItemType, price: 205.00, color: 'Padrão', discount: 5 },
   { name: 'Gandola 4º A', type: '4º A' as InventoryItemType, price: 180.00, color: 'Padrão', hideFromSales: true },
   { name: 'Joelheira 4º A (par)', type: '4º A' as InventoryItemType, price: 50.00, color: 'Preto', discount: 9 },
   { name: 'Gorro rígido 4º A', type: '4º A' as InventoryItemType, price: 47.15, color: 'Padrão', discount: 5.5 },

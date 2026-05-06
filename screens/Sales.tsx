@@ -38,7 +38,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   };
 
   const handleAddToCart = (item: InventoryItem, selectedSize?: string) => {
-    const discountedPrice = saleSource === 'Loja' && item.storePrice !== undefined ? item.storePrice : item.price;
+    const discountedPrice = item.price; // Provided price is already the final price
     const size = selectedSize || item.size;
 
     const existing = cart.find(i => i.inventoryId === item.id && i.size === size);
