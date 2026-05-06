@@ -76,6 +76,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
 
     const isEstoque = window.confirm(`A origem deste item é do Estoque (com baixa automática)?\n\nOK = Estoque\nCancelar = Loja (Compra Direta)`);
     const source = isEstoque ? 'Estoque' : 'Loja';
+    const finalPrice = source === 'Loja' && item.storePrice !== undefined ? item.storePrice : item.price;
 
     const orderItem: OrderItem = {
       id: Date.now().toString(),
@@ -83,7 +84,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
       name: item.name,
       size: size,
       quantity: quantity,
-      price: item.price,
+      price: finalPrice,
       discount: item.discount,
       source: source,
       status: targetSale.status,

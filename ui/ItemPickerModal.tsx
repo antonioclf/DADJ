@@ -161,6 +161,7 @@ const ItemPickerModal: React.FC<ItemPickerModalProps> = ({ isOpen, onClose, inve
               onAddToCart({
                 ...item,
                 price: effectivePrice,
+                storePrice: item.storePrice,
                 discount: effectiveDiscount,
                 id: specificItem?.id || item.id
               }, finalSize);
