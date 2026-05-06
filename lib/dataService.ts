@@ -224,6 +224,57 @@ export const dataService = {
         }
     },
 
+    async removeItemFromSale(saleId: string, itemId: string): Promise<void> {
+        // 1. Get the item to know its price, quantity and source
+        const { data: item, error: fetchError } = await supabase
+            .from('sale_items')
+            .select('*')
+            .eq('id', itemId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        // 2. Restore inventory if it was from Estoque
+        if (item.source === 'Estoque' && item.inventory_id) {
+            const { data: inv } = await supabase
+                .from('inventory')
+                .select('quantity')
+                .eq('id', item.inventory_id)
+                .single();
+
+            if (inv) {
+                await supabase
+                    .from('inventory')
+                    .update({ quantity: inv.quantity + item.quantity })
+                    .eq('id', item.inventory_id);
+            }
+        }
+
+        // 3. Delete the item
+        const { error: deleteError } = await supabase
+            .from('sale_items')
+            .delete()
+            .eq('id', itemId);
+
+        if (deleteError) throw deleteError;
+
+        // 4. Update the sale total
+        const { data: sale } = await supabase
+            .from('sales')
+            .select('total')
+            .eq('id', saleId)
+            .single();
+
+        if (sale) {
+            const itemTotal = item.price * item.quantity;
+            const newTotal = Math.max(0, sale.total - itemTotal);
+            await supabase
+                .from('sales')
+                .update({ total: newTotal })
+                .eq('id', saleId);
+        }
+    },
+
     // Team
     async getTeam(): Promise<TeamMember[]> {
         const { data, error } = await supabase

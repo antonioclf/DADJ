@@ -103,6 +103,18 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     }
   };
 
+  const handleRemoveItem = async (saleId: string, item: OrderItem) => {
+    if (window.confirm(`Tem certeza que deseja remover o item "${item.quantity}x ${item.name}" desta venda?`)) {
+      try {
+        await dataService.removeItemFromSale(saleId, item.id);
+        await onRefresh();
+      } catch (error) {
+        console.error("Error removing item:", error);
+        alert("Erro ao remover item.");
+      }
+    }
+  };
+
   const formatPhone = (val?: string) => {
     if (!val) return '';
     const raw = val.replace(/\D/g, '').slice(0, 11);
@@ -759,6 +771,13 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
                                 <p className="text-[10px] font-black dark:text-white uppercase tracking-tight">{item.quantity}x {item.name}</p>
                                 <p className="text-[9px] text-slate-400 font-bold">Total do Item: R$ {(item.price * item.quantity).toFixed(2)}</p>
                               </div>
+                              <button
+                                onClick={() => handleRemoveItem(sale.id, item)}
+                                className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all"
+                                title="Remover Item"
+                              >
+                                <span className="material-symbols-outlined text-lg">delete</span>
+                              </button>
                             </div>
 
                             <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded-2xl">
