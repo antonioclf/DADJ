@@ -28,6 +28,23 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
   const [editingSale, setEditingSale] = useState<SaleRecord | null>(null);
   const [editForm, setEditForm] = useState({ customerName: '', customerPhone: '', customerBM: '', seller: '' });
   const [isUpdatingSale, setIsUpdatingSale] = useState(false);
+  const [selectedSalesIds, setSelectedSalesIds] = useState<string[]>([]);
+
+  const toggleSaleSelection = (id: string) => {
+    setSelectedSalesIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    const allFilteredIds = filteredSales.map(s => s.id);
+    const areAllSelected = allFilteredIds.every(id => selectedSalesIds.includes(id));
+    if (areAllSelected) {
+      setSelectedSalesIds(prev => prev.filter(id => !allFilteredIds.includes(id)));
+    } else {
+      setSelectedSalesIds(prev => Array.from(new Set([...prev, ...allFilteredIds])));
+    }
+  };
 
   const handleEditClick = (sale: SaleRecord) => {
     setEditingSale(sale);
@@ -325,6 +342,74 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     doc.save(`relatorio_vendas_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
+  const handleExportEnxovalPDF = () => {
+    if (selectedSalesIds.length === 0) {
+      alert("Nenhuma venda selecionada.");
+      return;
+    }
+
+    const selectedSalesList = sales.filter(s => selectedSalesIds.includes(s.id));
+    
+    // Agrupa itens por nome e tamanho
+    const aggregation: Record<string, Record<string, number>> = {};
+    
+    selectedSalesList.forEach(sale => {
+      sale.items.forEach(item => {
+        const name = item.name;
+        const size = item.size || 'Único';
+        const qty = item.quantity || 0;
+        
+        if (!aggregation[name]) {
+          aggregation[name] = {};
+        }
+        if (!aggregation[name][size]) {
+          aggregation[name][size] = 0;
+        }
+        aggregation[name][size] += qty;
+      });
+    });
+    
+    // Converte agrupamento em linhas da tabela
+    const tableData: any[] = [];
+    Object.keys(aggregation).sort().forEach(name => {
+      Object.keys(aggregation[name]).sort().forEach(size => {
+        tableData.push([
+          name,
+          size,
+          aggregation[name][size]
+        ]);
+      });
+    });
+
+    const doc = new jsPDF();
+
+    // Cabeçalho do PDF
+    doc.setFontSize(20);
+    doc.text('Relatório de Enxoval - DA Dois de Julho', 14, 22);
+
+    doc.setFontSize(10);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 30);
+    doc.text(`Total de vendas selecionadas: ${selectedSalesList.length}`, 14, 35);
+    
+    // Lista de alunos incluídos
+    const studentNames = selectedSalesList.map(s => s.customerName).join(', ');
+    const splitStudents = doc.splitTextToSize(`Alunos incluídos: ${studentNames}`, 180);
+    doc.text(splitStudents, 14, 42);
+    
+    const startY = 42 + (splitStudents.length * 5) + 5;
+
+    autoTable(doc, {
+      startY: startY,
+      head: [['Item', 'Tamanho', 'Quantidade Total']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [244, 63, 94] }, // Cor Rose/Rosa estilosa para o Enxoval
+      styles: { fontSize: 10 }
+    });
+
+    doc.save(`enxoval_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   const handleEmailReport = async () => {
     const email = prompt("Digite o e-mail para envio do relatório:");
     if (!email) return;
@@ -548,7 +633,16 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
         <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-50 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filtrar por Período</h3>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap justify-end">
+              <Button
+                variant="ghost"
+                onClick={handleExportEnxovalPDF}
+                disabled={selectedSalesIds.length === 0}
+                className="text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full !h-auto flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/20 text-rose-500 hover:bg-rose-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <span className="material-symbols-outlined text-sm">checkroom</span>
+                Enxoval ({selectedSalesIds.length})
+              </Button>
               <Button
                 variant="ghost"
                 onClick={handleEmailReport}
@@ -666,9 +760,17 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
         {/* History */}
         <div className="pt-4 space-y-4 pb-32">
           <div className="flex items-center justify-between">
-            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Histórico Recente</h2>
+          <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Histórico Recente</h2>
+          <div className="flex gap-4">
+            <button
+              onClick={toggleSelectAll}
+              className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline"
+            >
+              {selectedSalesIds.length === filteredSales.length && filteredSales.length > 0 ? 'Desmarcar Todos' : 'Selecionar Todos'}
+            </button>
             <button className="text-primary text-[10px] font-black uppercase tracking-widest">Ver Tudo</button>
           </div>
+        </div>
 
           <div className="space-y-3">
             {filteredSales.map(sale => {
@@ -680,9 +782,23 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
                 <div key={sale.id} className="flex flex-col gap-2">
                   <div
                     onClick={() => setExpandedSale(isExpanded ? null : sale.id)}
-                    className="bg-white dark:bg-slate-900 p-5 rounded-[1.5rem] flex items-center justify-between shadow-sm border border-slate-50 dark:border-slate-800 cursor-pointer hover:border-primary/20 transition-all"
+                    className={`bg-white dark:bg-slate-900 p-5 rounded-[1.5rem] flex items-center justify-between shadow-sm border ${selectedSalesIds.includes(sale.id) ? 'border-rose-300 dark:border-rose-900/50 ring-2 ring-rose-500/10 bg-rose-50/10 dark:bg-rose-950/5' : 'border-slate-50 dark:border-slate-800'} cursor-pointer hover:border-primary/20 transition-all`}
                   >
                     <div className="flex items-center gap-3">
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSaleSelection(sale.id);
+                        }}
+                        className="flex items-center justify-center pr-1"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSalesIds.includes(sale.id)}
+                          onChange={() => {}} // Ação tratada no contêiner com stopPropagation
+                          className="w-4 h-4 rounded-md border-slate-300 dark:border-slate-700 text-rose-500 focus:ring-rose-500/20 cursor-pointer accent-rose-500 transition-all"
+                        />
+                      </div>
                       <div className="size-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
                         <span className="material-symbols-outlined">{isExpanded ? 'expand_less' : 'person'}</span>
                       </div>
