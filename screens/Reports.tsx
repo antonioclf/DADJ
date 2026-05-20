@@ -355,7 +355,14 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     
     selectedSalesList.forEach(sale => {
       sale.items.forEach(item => {
-        const name = item.name;
+        const lowerName = item.name.toLowerCase();
+        const isPersonalized = lowerName.includes('bordad') || lowerName.includes('tarjeta') || lowerName.includes('plaqueta');
+        
+        // Se for item personalizado (bordado, tarjeta ou plaqueta), separa pelo nome do cliente
+        const name = isPersonalized 
+          ? `${item.name} (Aluno: ${sale.customerName})`
+          : item.name;
+
         const size = item.size || 'Único';
         const qty = item.quantity || 0;
         
