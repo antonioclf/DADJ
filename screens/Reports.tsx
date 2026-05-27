@@ -424,8 +424,8 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
 
     autoTable(doc, {
       startY: 50,
-      head: [['Aluno (Comprador)', 'Tipo Sanguíneo']],
-      body: selectedSalesList.map(s => [s.customerName, s.customerBloodType || 'Não informado']),
+      head: [['Aluno (Comprador)']],
+      body: selectedSalesList.map(s => [s.customerName]),
       theme: 'striped',
       headStyles: { fillColor: [37, 99, 235] }, // Azul clássico para identificação
       styles: { fontSize: 9 }
