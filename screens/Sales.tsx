@@ -40,19 +40,32 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   };
 
   const handleAddToCart = (item: InventoryItem, selectedSize?: string) => {
-    const discountedPrice = item.price; // Provided price is already the final price
     const size = selectedSize || item.size;
+    
+    const qtyStr = window.prompt(`Quantidade para ${item.name} (Tamanho: ${size}):`, "1");
+    if (!qtyStr) {
+      setShowItemPicker(false);
+      return;
+    }
+    const quantity = parseInt(qtyStr, 10);
+    if (isNaN(quantity) || quantity <= 0) {
+      alert("Quantidade inválida.");
+      setShowItemPicker(false);
+      return;
+    }
+
+    const discountedPrice = item.price; // Provided price is already the final price
 
     const existing = cart.find(i => i.inventoryId === item.id && i.size === size);
     if (existing) {
-      setCart(cart.map(i => (i.inventoryId === item.id && i.size === size) ? { ...i, quantity: i.quantity + 1 } : i));
+      setCart(cart.map(i => (i.inventoryId === item.id && i.size === size) ? { ...i, quantity: i.quantity + quantity } : i));
     } else {
       setCart([...cart, {
         id: Date.now().toString() + Math.random(),
         inventoryId: item.id,
         name: item.name,
         size: size,
-        quantity: 1,
+        quantity: quantity,
         price: discountedPrice,
         discount: item.discount,
         source: saleSource
