@@ -96,8 +96,8 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     const isEstoque = window.confirm(`A origem deste item é do Estoque (com baixa automática)?\n\nOK = Estoque\nCancelar = Loja (Compra Direta)`);
     const source = isEstoque ? 'Estoque' : 'Loja';
 
-    const isPix = targetSale.paymentMethod === 'Pix';
-    const finalPrice = isPix ? Math.round(item.price * 0.9638 * 100) / 100 : item.price;
+    const isCard = targetSale.paymentMethod === 'Cartão de Crédito' || !targetSale.paymentMethod;
+    const finalPrice = isCard ? Math.round(item.price * 1.0362 * 100) / 100 : item.price;
 
     const orderItem: OrderItem = {
       id: Date.now().toString(),
@@ -498,50 +498,15 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     doc.text(`Forma de Pagamento: ${sale.paymentMethod || 'Cartão de Crédito'}`, 14, currentY);
     currentY += 15;
 
-    let tableData: any[] = [];
-    let total = 0;
-    let paid = 0;
-
-    if (isPix) {
-      // PIX: Reconstruct and show original values in items table, and apply discount at the summary
-      tableData = sale.items.map(item => {
-        const originalPrice = Math.round((item.price / 0.9638) * 100) / 100;
-        const itemTotal = originalPrice * item.quantity;
-        return [
-          item.name,
-          item.size || '-',
-          item.quantity.toString(),
-          `R$ ${originalPrice.toFixed(2)}`,
-          `R$ ${itemTotal.toFixed(2)}`,
-          item.status
-        ];
-      });
-
-      total = sale.total; // Already discounted total in DB
-      paid = sale.items.reduce((acc, item) => acc + (item.price * item.quantity * (item.paidInstallments / (item.totalInstallments || 1))), 0);
-    } else {
-      // CREDIT CARD (or legacy): Add 3.62% to each item and total
-      tableData = sale.items.map(item => {
-        const creditPrice = Math.round(item.price * 1.0362 * 100) / 100;
-        const itemTotal = creditPrice * item.quantity;
-        return [
-          item.name,
-          item.size || '-',
-          item.quantity.toString(),
-          `R$ ${creditPrice.toFixed(2)}`,
-          `R$ ${itemTotal.toFixed(2)}`,
-          item.status
-        ];
-      });
-
-      total = Math.round(sale.total * 1.0362 * 100) / 100;
-      paid = sale.items.reduce((acc, item) => {
-        const creditPrice = Math.round(item.price * 1.0362 * 100) / 100;
-        return acc + (creditPrice * item.quantity * (item.paidInstallments / (item.totalInstallments || 1)));
-      }, 0);
-    }
-
-    const pending = Math.max(0, total - paid);
+    // Items table
+    const tableData = sale.items.map(item => [
+      item.name,
+      item.size || '-',
+      item.quantity.toString(),
+      `R$ ${item.price.toFixed(2)}`,
+      `R$ ${(item.price * item.quantity).toFixed(2)}`,
+      item.status
+    ]);
 
     autoTable(doc, {
       startY: currentY,
@@ -551,20 +516,18 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
       headStyles: { fillColor: isPix ? [16, 185, 129] : [37, 99, 235] }, // Green for Pix, Blue for Card
     });
 
+    // Financial calculations
+    const total = sale.total;
+    const paid = sale.items.reduce((acc, item) => acc + (item.price * item.quantity * (item.paidInstallments / (item.totalInstallments || 1))), 0);
+    const pending = Math.max(0, total - paid);
+
     const finalY = (doc as any).lastAutoTable.finalY + 15;
 
     doc.setFontSize(14);
     doc.text('Resumo Financeiro', 14, finalY);
 
-    const financialBody = isPix ? [
-      ['Subtotal Original', `R$ ${(sale.total / 0.9638).toFixed(2)}`],
-      ['Desconto Pix (3.62%)', `- R$ ${(sale.total / 0.9638 * 0.0362).toFixed(2)}`],
+    const financialBody = [
       ['Total do Pedido', `R$ ${total.toFixed(2)}`],
-      ['Total Pago', `R$ ${paid.toFixed(2)}`],
-      ['Saldo Pendente', `R$ ${pending.toFixed(2)}`],
-      ['Situação', sale.items.every(i => i.paidInstallments >= i.totalInstallments) ? 'Pago Totalmente' : 'Pendente']
-    ] : [
-      ['Total do Pedido (+3.62%)', `R$ ${total.toFixed(2)}`],
       ['Total Pago', `R$ ${paid.toFixed(2)}`],
       ['Saldo Pendente', `R$ ${pending.toFixed(2)}`],
       ['Situação', sale.items.every(i => i.paidInstallments >= i.totalInstallments) ? 'Pago Totalmente' : 'Pendente']
@@ -583,9 +546,9 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     doc.setFontSize(8);
     doc.setFont('helvetica', 'oblique');
     if (isPix) {
-      doc.text('* Desconto de 3.62% concedido sobre o valor total para pagamento via Pix.', 14, lastTableY);
+      doc.text('* Pagamento via Pix (valores base do fardamento).', 14, lastTableY);
     } else {
-      doc.text('* Valores impressos possuem acréscimo de 3.62% referente a tarifas de cartão de crédito.', 14, lastTableY);
+      doc.text('* Valores com acréscimo de 3.62% referente a tarifas de cartão de crédito.', 14, lastTableY);
     }
 
     doc.save(`recibo_${sale.customerName.replace(/\s+/g, '_')}_${sale.date.split(', ')[0].replace(/\//g, '-')}.pdf`);

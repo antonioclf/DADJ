@@ -70,7 +70,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   };
 
   const baseTotal = cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
-  const finalTotal = paymentMethod === 'Pix' ? baseTotal * 0.9638 : baseTotal;
+  const finalTotal = paymentMethod === 'Cartão de Crédito' ? baseTotal * 1.0362 : baseTotal;
 
   const handleFinalize = async () => {
     if (!buyer || cart.length === 0) {
@@ -78,21 +78,21 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
       return;
     }
 
-    const isPix = paymentMethod === 'Pix';
+    const isCard = paymentMethod === 'Cartão de Crédito';
     
-    // For Pix, we save item prices and total with the 3.62% discount applied
+    // For Credit Card, we save item prices and total with the 3.62% increase applied
     const adjustedItems = cart.map(item => {
-      if (isPix) {
+      if (isCard) {
         return {
           ...item,
-          price: Math.round(item.price * 0.9638 * 100) / 100
+          price: Math.round(item.price * 1.0362 * 100) / 100
         };
       }
       return item;
     });
 
-    const adjustedTotal = isPix 
-      ? Math.round(baseTotal * 0.9638 * 100) / 100
+    const adjustedTotal = isCard 
+      ? Math.round(baseTotal * 1.0362 * 100) / 100
       : baseTotal;
 
     const newSale: SaleRecord = {
@@ -296,19 +296,19 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
         {/* Price Breakdown */}
         <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-primary/5 space-y-3">
           <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
-            <span>Subtotal</span>
+            <span>Subtotal (Base Pix)</span>
             <span>R$ {baseTotal.toFixed(2)}</span>
           </div>
-          {paymentMethod === 'Pix' && (
-            <div className="flex justify-between items-center text-xs font-black text-emerald-500 uppercase tracking-widest">
-              <span>Desconto Pix (-3.62%)</span>
-              <span>- R$ {(baseTotal * 0.0362).toFixed(2)}</span>
+          {paymentMethod === 'Cartão de Crédito' && (
+            <div className="flex justify-between items-center text-xs font-black text-primary uppercase tracking-widest">
+              <span>Acréscimo Cartão (+3.62%)</span>
+              <span>+ R$ {(baseTotal * 0.0362).toFixed(2)}</span>
             </div>
           )}
-          {paymentMethod === 'Cartão de Crédito' && (
-            <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest italic opacity-80">
-              <span>Acréscimo no Recibo (+3.62%)</span>
-              <span>+ R$ {(baseTotal * 0.0362).toFixed(2)}</span>
+          {paymentMethod === 'Pix' && (
+            <div className="flex justify-between items-center text-[10px] font-black text-emerald-500 uppercase tracking-widest italic opacity-80">
+              <span>Pagamento via Pix</span>
+              <span>Valor base já com desconto</span>
             </div>
           )}
           <hr className="border-slate-100 dark:border-slate-800" />
