@@ -26,7 +26,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [editingSale, setEditingSale] = useState<SaleRecord | null>(null);
-  const [editForm, setEditForm] = useState({ customerName: '', customerPhone: '', customerBM: '', seller: '' });
+  const [editForm, setEditForm] = useState({ customerName: '', customerPhone: '', customerBM: '', customerBloodType: '', seller: '', paymentMethod: 'Cartão de Crédito' as 'Cartão de Crédito' | 'Pix' });
   const [isUpdatingSale, setIsUpdatingSale] = useState(false);
   const [selectedSalesIds, setSelectedSalesIds] = useState<string[]>([]);
 
@@ -52,7 +52,9 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
       customerName: sale.customerName || '',
       customerPhone: sale.customerPhone || '',
       customerBM: sale.customerBM || '',
-      seller: sale.seller || ''
+      customerBloodType: sale.customerBloodType || '',
+      seller: sale.seller || '',
+      paymentMethod: sale.paymentMethod || 'Cartão de Crédito'
     });
   };
 
@@ -94,13 +96,16 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     const isEstoque = window.confirm(`A origem deste item é do Estoque (com baixa automática)?\n\nOK = Estoque\nCancelar = Loja (Compra Direta)`);
     const source = isEstoque ? 'Estoque' : 'Loja';
 
+    const isPix = targetSale.paymentMethod === 'Pix';
+    const finalPrice = isPix ? Math.round(item.price * 0.9638 * 100) / 100 : item.price;
+
     const orderItem: OrderItem = {
       id: Date.now().toString(),
       inventoryId: item.id,
       name: item.name,
       size: size,
       quantity: quantity,
-      price: item.price,
+      price: finalPrice,
       discount: item.discount,
       source: source,
       status: targetSale.status,
@@ -398,20 +403,31 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 30);
     doc.text(`Total de vendas selecionadas: ${selectedSalesList.length}`, 14, 35);
     
-    // Lista de alunos incluídos
-    const studentNames = selectedSalesList.map(s => s.customerName).join(', ');
-    const splitStudents = doc.splitTextToSize(`Alunos incluídos: ${studentNames}`, 180);
-    doc.text(splitStudents, 14, 42);
-    
-    const startY = 42 + (splitStudents.length * 5) + 5;
+    // Tabela de Alunos e Tipos Sanguíneos
+    doc.setFontSize(12);
+    doc.text('Identificação dos Alunos', 14, 45);
 
     autoTable(doc, {
-      startY: startY,
+      startY: 50,
+      head: [['Aluno (Comprador)', 'Tipo Sanguíneo']],
+      body: selectedSalesList.map(s => [s.customerName, s.customerBloodType || 'Não informado']),
+      theme: 'striped',
+      headStyles: { fillColor: [37, 99, 235] }, // Azul clássico para identificação
+      styles: { fontSize: 9 }
+    });
+
+    const nextY = (doc as any).lastAutoTable.finalY + 15;
+    
+    doc.setFontSize(12);
+    doc.text('Consolidação das Roupas', 14, nextY - 5);
+
+    autoTable(doc, {
+      startY: nextY,
       head: [['Item', 'Tamanho', 'Quantidade Total']],
       body: tableData,
       theme: 'grid',
       headStyles: { fillColor: [244, 63, 94] }, // Cor Rose/Rosa estilosa para o Enxoval
-      styles: { fontSize: 10 }
+      styles: { fontSize: 9 }
     });
 
     doc.save(`enxoval_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -463,13 +479,14 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
 
   const handleExportIndividualPDF = (sale: SaleRecord) => {
     const doc = new jsPDF();
+    const isPix = sale.paymentMethod === 'Pix';
     
     // Header
     doc.setFontSize(20);
     doc.text('Recibo de Venda - DA Dois de Julho', 14, 22);
 
     doc.setFontSize(10);
-    doc.text(`Data da Venda: ${sale.date.split(',')[0]}`, 14, 30);
+    doc.text(`Data da Venda: ${sale.date.split(', ')[0]}`, 14, 30);
     doc.text(`Cliente: ${sale.customerName}${sale.customerBM ? ` (BM: ${sale.customerBM})` : ''}`, 14, 35);
     let currentY = 40;
     if (sale.customerPhone) {
@@ -477,50 +494,101 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
       currentY += 5;
     }
     doc.text(`Vendedor: ${sale.seller}`, 14, currentY);
+    currentY += 5;
+    doc.text(`Forma de Pagamento: ${sale.paymentMethod || 'Cartão de Crédito'}`, 14, currentY);
     currentY += 15;
 
-    // Items table
-    const tableData = sale.items.map(item => [
-      item.name,
-      item.size || '-',
-      item.quantity.toString(),
-      `R$ ${item.price.toFixed(2)}`,
-      `R$ ${(item.price * item.quantity).toFixed(2)}`,
-      item.status
-    ]);
+    let tableData: any[] = [];
+    let total = 0;
+    let paid = 0;
+
+    if (isPix) {
+      // PIX: Reconstruct and show original values in items table, and apply discount at the summary
+      tableData = sale.items.map(item => {
+        const originalPrice = Math.round((item.price / 0.9638) * 100) / 100;
+        const itemTotal = originalPrice * item.quantity;
+        return [
+          item.name,
+          item.size || '-',
+          item.quantity.toString(),
+          `R$ ${originalPrice.toFixed(2)}`,
+          `R$ ${itemTotal.toFixed(2)}`,
+          item.status
+        ];
+      });
+
+      total = sale.total; // Already discounted total in DB
+      paid = sale.items.reduce((acc, item) => acc + (item.price * item.quantity * (item.paidInstallments / (item.totalInstallments || 1))), 0);
+    } else {
+      // CREDIT CARD (or legacy): Add 3.62% to each item and total
+      tableData = sale.items.map(item => {
+        const creditPrice = Math.round(item.price * 1.0362 * 100) / 100;
+        const itemTotal = creditPrice * item.quantity;
+        return [
+          item.name,
+          item.size || '-',
+          item.quantity.toString(),
+          `R$ ${creditPrice.toFixed(2)}`,
+          `R$ ${itemTotal.toFixed(2)}`,
+          item.status
+        ];
+      });
+
+      total = Math.round(sale.total * 1.0362 * 100) / 100;
+      paid = sale.items.reduce((acc, item) => {
+        const creditPrice = Math.round(item.price * 1.0362 * 100) / 100;
+        return acc + (creditPrice * item.quantity * (item.paidInstallments / (item.totalInstallments || 1)));
+      }, 0);
+    }
+
+    const pending = Math.max(0, total - paid);
 
     autoTable(doc, {
       startY: currentY,
       head: [['Item', 'Tam.', 'Qtd', 'Un.', 'Total', 'Status']],
       body: tableData,
       theme: 'grid',
-      headStyles: { fillColor: [37, 99, 235] },
+      headStyles: { fillColor: isPix ? [16, 185, 129] : [37, 99, 235] }, // Green for Pix, Blue for Card
     });
-
-    // Financial calculations
-    const total = sale.total;
-    const paid = sale.items.reduce((acc, item) => acc + (item.price * item.quantity * (item.paidInstallments / (item.totalInstallments || 1))), 0);
-    const pending = total - paid;
 
     const finalY = (doc as any).lastAutoTable.finalY + 15;
 
     doc.setFontSize(14);
     doc.text('Resumo Financeiro', 14, finalY);
 
+    const financialBody = isPix ? [
+      ['Subtotal Original', `R$ ${(sale.total / 0.9638).toFixed(2)}`],
+      ['Desconto Pix (3.62%)', `- R$ ${(sale.total / 0.9638 * 0.0362).toFixed(2)}`],
+      ['Total do Pedido', `R$ ${total.toFixed(2)}`],
+      ['Total Pago', `R$ ${paid.toFixed(2)}`],
+      ['Saldo Pendente', `R$ ${pending.toFixed(2)}`],
+      ['Situação', sale.items.every(i => i.paidInstallments >= i.totalInstallments) ? 'Pago Totalmente' : 'Pendente']
+    ] : [
+      ['Total do Pedido (+3.62%)', `R$ ${total.toFixed(2)}`],
+      ['Total Pago', `R$ ${paid.toFixed(2)}`],
+      ['Saldo Pendente', `R$ ${pending.toFixed(2)}`],
+      ['Situação', sale.items.every(i => i.paidInstallments >= i.totalInstallments) ? 'Pago Totalmente' : 'Pendente']
+    ];
+
     autoTable(doc, {
       startY: finalY + 5,
       head: [['Métrica', 'Valor']],
-      body: [
-        ['Total do Pedido', `R$ ${total.toFixed(2)}`],
-        ['Total Pago', `R$ ${paid.toFixed(2)}`],
-        ['Saldo Pendente', `R$ ${pending.toFixed(2)}`],
-        ['Situação', sale.items.every(i => i.paidInstallments >= i.totalInstallments) ? 'Pago Totalmente' : 'Pendente']
-      ],
+      body: financialBody,
       theme: 'striped',
-      headStyles: { fillColor: [37, 99, 235] }
+      headStyles: { fillColor: isPix ? [16, 185, 129] : [37, 99, 235] }
     });
 
-    doc.save(`recibo_${sale.customerName.replace(/\s+/g, '_')}_${sale.date.split(',')[0].replace(/\//g, '-')}.pdf`);
+    // Add footnote
+    const lastTableY = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'oblique');
+    if (isPix) {
+      doc.text('* Desconto de 3.62% concedido sobre o valor total para pagamento via Pix.', 14, lastTableY);
+    } else {
+      doc.text('* Valores impressos possuem acréscimo de 3.62% referente a tarifas de cartão de crédito.', 14, lastTableY);
+    }
+
+    doc.save(`recibo_${sale.customerName.replace(/\s+/g, '_')}_${sale.date.split(', ')[0].replace(/\//g, '-')}.pdf`);
   };
 
   const handleExportDeliveryPDF = (sale: SaleRecord) => {
@@ -816,7 +884,13 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
                           {sale.customerBM && (
                             <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-md uppercase">BM: {sale.customerBM}</span>
                           )}
+                          {sale.customerBloodType && (
+                            <span className="text-[9px] font-black bg-rose-50 dark:bg-rose-950/30 text-rose-500 px-1.5 py-0.5 rounded-md uppercase">ABO: {sale.customerBloodType}</span>
+                          )}
                           <span className="text-[9px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded-md uppercase">Vend: {sale.seller}</span>
+                          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase ${sale.paymentMethod === 'Pix' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                            {sale.paymentMethod || 'Cartão de Crédito'}
+                          </span>
                           {sale.customerPhone && (
                             <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                               <span className="material-symbols-outlined text-[10px]">call</span>
@@ -1107,10 +1181,35 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
             onChange={(e) => setEditForm({ ...editForm, customerPhone: (e.target as HTMLInputElement).value })}
           />
           <Input
+            label="Tipo Sanguíneo"
+            as="select"
+            value={editForm.customerBloodType}
+            onChange={(e) => setEditForm({ ...editForm, customerBloodType: (e.target as HTMLSelectElement).value })}
+          >
+            <option value="">Não informado</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </Input>
+          <Input
             label="Vendedor"
             value={editForm.seller}
             onChange={(e) => setEditForm({ ...editForm, seller: (e.target as HTMLInputElement).value })}
           />
+          <Input
+            label="Forma de Pagamento"
+            as="select"
+            value={editForm.paymentMethod}
+            onChange={(e) => setEditForm({ ...editForm, paymentMethod: (e.target as HTMLSelectElement).value as any })}
+          >
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Pix">Pix</option>
+          </Input>
           <div className="pt-4 flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setEditingSale(null)}>Cancelar</Button>
             <Button onClick={handleSaveSaleEdit} disabled={isUpdatingSale}>

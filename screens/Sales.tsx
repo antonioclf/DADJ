@@ -18,6 +18,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [buyer, setBuyer] = useState('');
   const [buyerBM, setBuyerBM] = useState('');
   const [phone, setPhone] = useState('');
+  const [buyerBloodType, setBuyerBloodType] = useState('');
   const [orderStatus, setOrderStatus] = useState<'Pedido no DA' | 'Pedido na loja' | 'Entregue' | 'Pago'>('Pedido no DA');
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [showItemPicker, setShowItemPicker] = useState(false);
@@ -29,6 +30,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [searchQuery, setSearchQuery] = useState('');
   const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados', 'Acessórios'];
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'Cartão de Crédito' | 'Pix'>('Cartão de Crédito');
 
   const formatPhone = (val: string) => {
     const raw = val.replace(/\D/g, '').slice(0, 11);
@@ -67,7 +69,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
     setCart(cart.map(i => i.id === id ? { ...i, size: newSize } : i));
   };
 
-  const total = cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+  const baseTotal = cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+  const finalTotal = paymentMethod === 'Pix' ? baseTotal * 0.9638 : baseTotal;
 
   const handleFinalize = async () => {
     if (!buyer || cart.length === 0) {
@@ -75,16 +78,35 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
       return;
     }
 
+    const isPix = paymentMethod === 'Pix';
+    
+    // For Pix, we save item prices and total with the 3.62% discount applied
+    const adjustedItems = cart.map(item => {
+      if (isPix) {
+        return {
+          ...item,
+          price: Math.round(item.price * 0.9638 * 100) / 100
+        };
+      }
+      return item;
+    });
+
+    const adjustedTotal = isPix 
+      ? Math.round(baseTotal * 0.9638 * 100) / 100
+      : baseTotal;
+
     const newSale: SaleRecord = {
       id: Date.now().toString(),
       customerName: buyer,
       customerPhone: phone,
       customerBM: buyerBM,
+      customerBloodType: buyerBloodType,
       date: new Date().toLocaleString('pt-BR'),
-      items: cart,
-      total: total,
+      items: adjustedItems,
+      total: adjustedTotal,
       status: orderStatus,
-      seller: seller
+      seller: seller,
+      paymentMethod: paymentMethod
     };
 
     setIsSubmitting(true);
@@ -133,6 +155,22 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               onChange={(e) => setPhone(formatPhone((e.target as HTMLInputElement).value))}
               type="tel"
             />
+            <Input
+              label="Tipo Sanguíneo"
+              as="select"
+              value={buyerBloodType}
+              onChange={(e) => setBuyerBloodType((e.target as HTMLSelectElement).value)}
+            >
+              <option value="">Não informado</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </Input>
 
             <div className="space-y-4">
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider pb-1 ml-1">Origem da Venda</p>
@@ -166,10 +204,33 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
                 ].map((s) => (
                   <button
                     key={s.id}
+                    type="button"
                     onClick={() => setOrderStatus(s.id as any)}
                     className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-xl text-[9px] font-black uppercase transition-all ${orderStatus === s.id ? `${s.bg} ${s.color} shadow-sm` : 'text-slate-400 hover:text-slate-600'}`}
                   >
                     <span className="material-symbols-outlined text-[16px] font-black">
+                      {s.icon}
+                    </span>
+                    <span className="text-center leading-tight">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider pb-1 ml-1">Forma de Pagamento</p>
+              <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                {[
+                  { id: 'Cartão de Crédito', label: 'Cartão de Crédito', color: 'text-primary', bg: 'bg-white dark:bg-slate-700', icon: 'credit_card' },
+                  { id: 'Pix', label: 'Pix (-3.62%)', color: 'text-emerald-500', bg: 'bg-white dark:bg-slate-700', icon: 'qr_code_2' }
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setPaymentMethod(s.id as any)}
+                    className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl text-[9px] font-black uppercase transition-all ${paymentMethod === s.id ? `${s.bg} ${s.color} shadow-sm border border-slate-100 dark:border-slate-600` : 'text-slate-400 opacity-60'}`}
+                  >
+                    <span className="material-symbols-outlined text-[18px] font-black">
                       {s.icon}
                     </span>
                     <span className="text-center leading-tight">{s.label}</span>
@@ -232,11 +293,38 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
           </div>
         </section>
 
+        {/* Price Breakdown */}
+        <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-primary/5 space-y-3">
+          <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <span>Subtotal</span>
+            <span>R$ {baseTotal.toFixed(2)}</span>
+          </div>
+          {paymentMethod === 'Pix' && (
+            <div className="flex justify-between items-center text-xs font-black text-emerald-500 uppercase tracking-widest">
+              <span>Desconto Pix (-3.62%)</span>
+              <span>- R$ {(baseTotal * 0.0362).toFixed(2)}</span>
+            </div>
+          )}
+          {paymentMethod === 'Cartão de Crédito' && (
+            <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest italic opacity-80">
+              <span>Acréscimo no Recibo (+3.62%)</span>
+              <span>+ R$ {(baseTotal * 0.0362).toFixed(2)}</span>
+            </div>
+          )}
+          <hr className="border-slate-100 dark:border-slate-800" />
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">Total no Caixa</span>
+            <span className="text-xl font-black text-primary dark:text-white">R$ {finalTotal.toFixed(2)}</span>
+          </div>
+        </div>
+
         {/* Final Total */}
         <div className="bg-primary p-6 rounded-[2rem] text-white flex justify-between items-center shadow-xl shadow-primary/25">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Valor Total</p>
-            <h2 className="text-2xl font-bold">R$ {total.toFixed(2)}</h2>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">
+              {paymentMethod === 'Pix' ? 'Total com Desconto' : 'Valor Total'}
+            </p>
+            <h2 className="text-2xl font-bold">R$ {finalTotal.toFixed(2)}</h2>
           </div>
           <Button
             variant="secondary"

@@ -77,12 +77,14 @@ export const dataService = {
             customerName: sale.customer_name,
             customerPhone: sale.customer_phone,
             customerBM: sale.customer_bm,
+            customerBloodType: sale.customer_blood_type,
             date: new Date(sale.date).toLocaleString('pt-BR'),
             total: sale.total,
             status: sale.status,
             seller: sale.seller,
             deliveredAt: sale.delivered_at ? new Date(sale.delivered_at).toLocaleString('pt-BR') : undefined,
             paidAt: sale.paid_at ? new Date(sale.paid_at).toLocaleString('pt-BR') : undefined,
+            paymentMethod: sale.payment_method || 'Cartão de Crédito',
             items: sale.items.map((item: any) => ({
                 id: item.id,
                 inventoryId: item.inventory_id,
@@ -115,11 +117,13 @@ export const dataService = {
                 customer_name: sale.customerName,
                 customer_phone: sale.customerPhone,
                 customer_bm: sale.customerBM,
+                customer_blood_type: sale.customerBloodType,
                 total: sale.total,
                 status: sale.status,
                 seller: sale.seller,
                 delivered_at: sale.status === 'Entregue' ? new Date().toISOString() : null,
-                paid_at: sale.status === 'Pago' ? new Date().toISOString() : null
+                paid_at: sale.status === 'Pago' ? new Date().toISOString() : null,
+                payment_method: sale.paymentMethod || 'Cartão de Crédito'
             })
             .select()
             .single();
@@ -306,12 +310,14 @@ export const dataService = {
         if (error) throw error;
     },
 
-    async updateSaleInfo(saleId: string, updates: { customerName?: string; customerPhone?: string; customerBM?: string; seller?: string }): Promise<void> {
+    async updateSaleInfo(saleId: string, updates: { customerName?: string; customerPhone?: string; customerBM?: string; customerBloodType?: string; seller?: string; paymentMethod?: 'Cartão de Crédito' | 'Pix' }): Promise<void> {
         const payload: any = {};
         if (updates.customerName !== undefined) payload.customer_name = updates.customerName;
         if (updates.customerPhone !== undefined) payload.customer_phone = updates.customerPhone;
         if (updates.customerBM !== undefined) payload.customer_bm = updates.customerBM;
+        if (updates.customerBloodType !== undefined) payload.customer_blood_type = updates.customerBloodType;
         if (updates.seller !== undefined) payload.seller = updates.seller;
+        if (updates.paymentMethod !== undefined) payload.payment_method = updates.paymentMethod;
 
         if (Object.keys(payload).length > 0) {
             const { error } = await supabase

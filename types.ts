@@ -63,6 +63,7 @@ export interface SaleRecord {
   customerName: string;
   customerPhone?: string;
   customerBM?: string;
+  customerBloodType?: string;
   date: string;
   items: OrderItem[];
   total: number;
@@ -70,6 +71,7 @@ export interface SaleRecord {
   seller: string;
   deliveredAt?: string;
   paidAt?: string;
+  paymentMethod?: 'Cartão de Crédito' | 'Pix';
 }
 
 export const CATALOG_ITEMS = [
