@@ -145,4 +145,8 @@ export const CATALOG_ITEMS = [
   { name: 'Cantil', type: 'Acessórios' as InventoryItemType, price: 27.90, color: 'Padrão' },
   { name: 'Capa de cantil', type: 'Acessórios' as InventoryItemType, price: 39.90, color: 'Padrão' },
   { name: 'Velame', type: 'Acessórios' as InventoryItemType, price: 55.00, color: 'Padrão' },
+  { name: 'Calça jeans', type: 'Acessórios' as InventoryItemType, price: 70.00, color: 'Padrão', discount: 18 },
+  { name: 'Cordelete de 6mm', type: 'Acessórios' as InventoryItemType, price: 7.50, color: 'Padrão', discount: 4 },
+  { name: 'Cordelete de 8mm', type: 'Acessórios' as InventoryItemType, price: 10.00, color: 'Padrão', discount: 5 },
+  { name: 'Cabo solteiro de 5,5 metros', type: 'Acessórios' as InventoryItemType, price: 41.60, color: 'Padrão', discount: 5 },
 ];
