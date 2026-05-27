@@ -418,26 +418,11 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 30);
     doc.text(`Total de vendas selecionadas: ${selectedSalesList.length}`, 14, 35);
     
-    // Tabela de Alunos e Tipos Sanguíneos
     doc.setFontSize(12);
-    doc.text('Identificação dos Alunos', 14, 45);
+    doc.text('Consolidação das Roupas', 14, 45);
 
     autoTable(doc, {
       startY: 50,
-      head: [['Aluno (Comprador)']],
-      body: selectedSalesList.map(s => [s.customerName]),
-      theme: 'striped',
-      headStyles: { fillColor: [37, 99, 235] }, // Azul clássico para identificação
-      styles: { fontSize: 9 }
-    });
-
-    const nextY = (doc as any).lastAutoTable.finalY + 15;
-    
-    doc.setFontSize(12);
-    doc.text('Consolidação das Roupas', 14, nextY - 5);
-
-    autoTable(doc, {
-      startY: nextY,
       head: [['Item', 'Tamanho', 'Quantidade Total']],
       body: tableData,
       theme: 'grid',
