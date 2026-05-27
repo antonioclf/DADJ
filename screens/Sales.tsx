@@ -221,8 +221,8 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider pb-1 ml-1">Forma de Pagamento</p>
               <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl">
                 {[
-                  { id: 'Cartão de Crédito', label: 'Cartão de Crédito', color: 'text-primary', bg: 'bg-white dark:bg-slate-700', icon: 'credit_card' },
-                  { id: 'Pix', label: 'Pix (-3.62%)', color: 'text-emerald-500', bg: 'bg-white dark:bg-slate-700', icon: 'qr_code_2' }
+                  { id: 'Cartão de Crédito', label: 'Cartão de Crédito (+3.62%)', color: 'text-primary', bg: 'bg-white dark:bg-slate-700', icon: 'credit_card' },
+                  { id: 'Pix', label: 'Pix', color: 'text-emerald-500', bg: 'bg-white dark:bg-slate-700', icon: 'qr_code_2' }
                 ].map((s) => (
                   <button
                     key={s.id}
