@@ -373,10 +373,14 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
       sale.items.forEach(item => {
         const lowerName = item.name.toLowerCase();
         const isPersonalized = lowerName.includes('bordad') || lowerName.includes('tarjeta') || lowerName.includes('plaqueta');
+        const isTarjeta = lowerName.includes('tarjeta');
         
-        // Se for item personalizado (bordado, tarjeta ou plaqueta), separa pelo nome do cliente e tipo sanguíneo
+        // Se for item personalizado, separa pelo nome do cliente. Apenas a tarjeta mostra o tipo sanguíneo.
         const name = isPersonalized 
-          ? `${item.name} (Aluno: ${sale.customerName} | Sangue: ${sale.customerBloodType || 'Não informado'})`
+          ? (isTarjeta 
+              ? `${item.name} (Aluno: ${sale.customerName} | Sangue: ${sale.customerBloodType || 'Não informado'})`
+              : `${item.name} (Aluno: ${sale.customerName})`
+            )
           : item.name;
 
         const size = item.size || 'Único';
