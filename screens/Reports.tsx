@@ -99,10 +99,21 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     const isCard = targetSale.paymentMethod === 'Cartão de Crédito' || !targetSale.paymentMethod;
     const finalPrice = isCard ? Math.round(item.price * 1.0362 * 100) / 100 : item.price;
 
+    const lowerName = item.name.toLowerCase();
+    const isPersonalized = lowerName.includes('bordad') || lowerName.includes('tarjeta') || lowerName.includes('plaqueta');
+    let finalItemName = item.name;
+    
+    if (isPersonalized) {
+      const warName = window.prompt(`Digite o Nome de Guerra a ser gravado/bordado para "${item.name}":`);
+      if (warName && warName.trim() !== '') {
+        finalItemName = `${item.name} [Nome de Guerra: ${warName.trim().toUpperCase()}]`;
+      }
+    }
+
     const orderItem: OrderItem = {
       id: Date.now().toString(),
       inventoryId: item.id,
-      name: item.name,
+      name: finalItemName,
       size: size,
       quantity: quantity,
       price: finalPrice,
@@ -363,9 +374,9 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
         const lowerName = item.name.toLowerCase();
         const isPersonalized = lowerName.includes('bordad') || lowerName.includes('tarjeta') || lowerName.includes('plaqueta');
         
-        // Se for item personalizado (bordado, tarjeta ou plaqueta), separa pelo nome do cliente
+        // Se for item personalizado (bordado, tarjeta ou plaqueta), separa pelo nome do cliente e tipo sanguíneo
         const name = isPersonalized 
-          ? `${item.name} (Aluno: ${sale.customerName})`
+          ? `${item.name} (Aluno: ${sale.customerName} | Sangue: ${sale.customerBloodType || 'Não informado'})`
           : item.name;
 
         const size = item.size || 'Único';

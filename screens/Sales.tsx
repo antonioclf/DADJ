@@ -54,16 +54,27 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
       return;
     }
 
+    const lowerName = item.name.toLowerCase();
+    const isPersonalized = lowerName.includes('bordad') || lowerName.includes('tarjeta') || lowerName.includes('plaqueta');
+    let finalItemName = item.name;
+    
+    if (isPersonalized) {
+      const warName = window.prompt(`Digite o Nome de Guerra a ser gravado/bordado para "${item.name}":`);
+      if (warName && warName.trim() !== '') {
+        finalItemName = `${item.name} [Nome de Guerra: ${warName.trim().toUpperCase()}]`;
+      }
+    }
+
     const discountedPrice = item.price; // Provided price is already the final price
 
-    const existing = cart.find(i => i.inventoryId === item.id && i.size === size);
+    const existing = cart.find(i => i.inventoryId === item.id && i.size === size && i.name === finalItemName);
     if (existing) {
-      setCart(cart.map(i => (i.inventoryId === item.id && i.size === size) ? { ...i, quantity: i.quantity + quantity } : i));
+      setCart(cart.map(i => (i.inventoryId === item.id && i.size === size && i.name === finalItemName) ? { ...i, quantity: i.quantity + quantity } : i));
     } else {
       setCart([...cart, {
         id: Date.now().toString() + Math.random(),
         inventoryId: item.id,
-        name: item.name,
+        name: finalItemName,
         size: size,
         quantity: quantity,
         price: discountedPrice,
