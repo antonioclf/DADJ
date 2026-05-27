@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { SaleRecord, InventoryItem, OrderItem } from '../types';
+import { SaleRecord, InventoryItem, OrderItem, CATALOG_ITEMS } from '../types';
 import Button from '../ui/Button';
 import Header from '../ui/Header';
 import Input from '../ui/Input';
@@ -193,6 +193,45 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     const pending = total - paid;
     return { total, paid, pending, count: filteredSales.length };
   }, [filteredSales]);
+
+  const selectedSalesSummary = useMemo(() => {
+    if (selectedSalesIds.length === 0) return null;
+
+    const selectedSalesList = sales.filter(s => selectedSalesIds.includes(s.id));
+    
+    let faturamentoTotal = 0;
+    let custoTotal = 0;
+
+    selectedSalesList.forEach(sale => {
+      const isCard = sale.paymentMethod === 'Cartão de Crédito' || !sale.paymentMethod;
+      
+      sale.items.forEach(item => {
+        const itemFaturamento = item.price * item.quantity;
+        faturamentoTotal += itemFaturamento;
+
+        // Base price is the price without the 3.62% card surcharge
+        const basePrice = isCard ? item.price / 1.0362 : item.price;
+        
+        // Find discount from CATALOG_ITEMS
+        const baseName = item.name.split(' [')[0].trim();
+        const template = CATALOG_ITEMS.find(c => c.name.toLowerCase() === baseName.toLowerCase());
+        const discount = template ? (template.discount || 0) : 0;
+
+        // Custo = basePrice / (1 - discount/100)
+        const costPerUnit = discount > 0 ? basePrice / (1 - discount / 100) : basePrice;
+        custoTotal += costPerUnit * item.quantity;
+      });
+    });
+
+    const lucroLiquido = faturamentoTotal - custoTotal;
+
+    return {
+      count: selectedSalesList.length,
+      faturamentoTotal,
+      custoTotal,
+      lucroLiquido
+    };
+  }, [sales, selectedSalesIds]);
 
   const handleSmartSummary = async () => {
     if (isGeneratingAI || sales.length === 0) return;
@@ -800,30 +839,47 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
           </div>
         </div>
 
-        {/* AI Insight */}
-        <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-[2rem] p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 text-primary">
-              <span className="material-symbols-outlined text-lg">auto_awesome</span>
-              <span className="text-[10px] font-black uppercase tracking-widest">Análise de IA</span>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={handleSmartSummary}
-              disabled={isGeneratingAI || sales.length === 0}
-              className={`text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full !h-auto ${isGeneratingAI ? 'bg-slate-200 text-slate-400' : ''}`}
-            >
-              {isGeneratingAI ? 'Analisando...' : 'Resumir Agora'}
-            </Button>
+        {/* Calculadora de Lucro das Vendas Selecionadas */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm">
+          <div className="flex items-center gap-2 text-primary mb-4">
+            <span className="material-symbols-outlined text-lg font-bold">query_stats</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Resumo Financeiro & Lucro</span>
           </div>
-          {aiSummary ? (
-            <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-              {aiSummary}
+          
+          {selectedSalesSummary ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-blue-50/50 dark:bg-blue-950/20 p-4 rounded-2xl text-center">
+                  <span className="text-[8px] font-black text-blue-500 uppercase tracking-widest block mb-1">Faturamento</span>
+                  <span className="text-sm font-black text-blue-600 dark:text-blue-400">
+                    R$ {selectedSalesSummary.faturamentoTotal.toFixed(2)}
+                  </span>
+                </div>
+                <div className="bg-amber-50/50 dark:bg-amber-950/20 p-4 rounded-2xl text-center">
+                  <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest block mb-1">Custo à Loja</span>
+                  <span className="text-sm font-black text-amber-600 dark:text-amber-400">
+                    R$ {selectedSalesSummary.custoTotal.toFixed(2)}
+                  </span>
+                </div>
+                <div className={`${selectedSalesSummary.lucroLiquido >= 0 ? 'bg-emerald-50/50 dark:bg-emerald-950/20' : 'bg-rose-50/50 dark:bg-rose-950/20'} p-4 rounded-2xl text-center`}>
+                  <span className={`text-[8px] font-black ${selectedSalesSummary.lucroLiquido >= 0 ? 'text-emerald-500' : 'text-rose-500'} uppercase tracking-widest block mb-1`}>Lucro Líquido</span>
+                  <span className={`text-sm font-black ${selectedSalesSummary.lucroLiquido >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    R$ {selectedSalesSummary.lucroLiquido.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                <span>Vendas Selecionadas: {selectedSalesSummary.count}</span>
+                <span className="italic text-[8px] text-slate-300 dark:text-slate-600">* Custo estimado por descontos do catálogo</span>
+              </div>
             </div>
           ) : (
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase leading-relaxed text-center">
-              {sales.length > 0 ? 'Clique para gerar um resumo financeiro inteligente.' : 'Nenhuma venda registrada para análise.'}
-            </p>
+            <div className="py-6 text-center">
+              <span className="material-symbols-outlined text-slate-300 dark:text-slate-700 text-3xl mb-2">tab_unselected</span>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase leading-relaxed max-w-xs mx-auto">
+                Selecione uma ou mais vendas na lista abaixo usando as caixas de seleção para calcular o lucro em tempo real.
+              </p>
+            </div>
           )}
         </div>
 
