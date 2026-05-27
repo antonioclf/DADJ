@@ -19,6 +19,62 @@ interface ReportsProps {
   onRefresh: () => Promise<void>;
 }
 
+const COST_MAP: Record<string, number> = {
+  '4º A Completo': 389.00,
+  'Calça 4º A': 199.00,
+  'Gandola 4º A': 180.00,
+  'Joelheira 4º A (par)': 44.90,
+  'Gorro rígido 4º A': 44.90,
+  'Gorro flexível 4º A': 35.90,
+  'Gorro rígido Oficial Superior': 54.90,
+  'Gorro flexível Oficial Superior': 45.90,
+  'Tarjeta (3 unidades)': 28.00,
+  'Par de Divisas': 10.00,
+  'Passadeira Cad/CHO/Asp - par': 45.00,
+  'Passadeira SubTen - par': 45.00,
+  'Passadeira 2º Ten - par': 49.50,
+  'Passadeira 1º Ten - par': 54.00,
+  'Passadeira Cap - par': 58.50,
+  'Passadeira Maj - par': 63.00,
+  'Passadeira Ten Cel - par': 67.50,
+  'Passadeira Cel - par': 67.50,
+  'Platina Cad/CHO/Asp - par': 58.50,
+  'Platina SubTen - par': 58.50,
+  'Platina 2º Ten - par': 63.00,
+  'Platina 1º Ten - par': 67.50,
+  'Platina Cap - par': 76.50,
+  'Platina Maj - par': 76.50,
+  'Platina Ten Cel - par': 81.00,
+  'Platina Cel - par': 81.00,
+  'Chapéu de selva': 79.90,
+  'Boné Vermelho': 49.90,
+  'Gorro flexível': 35.90,
+  'Gorro rígido': 44.90,
+  'Camisa Vermelha sem Bordado': 41.90,
+  'Camisa Vermelha Bordada': 44.90,
+  'Segunda pele sem bordar': 74.90,
+  'Segunda Pele Bordada': 79.90,
+  'Short': 29.90,
+  'Sunga': 49.90,
+  'Tensor preto': 39.90,
+  'Top preto': 49.90,
+  'Maiô': 97.00,
+  'Suquini': 99.90,
+  'Camisa 2º A': 0.00,
+  'Túnica 2º A': 0.00,
+  'Meia branca com logo do bombeiro (par)': 16.50,
+  'Coturno': 297.00,
+  'Boina Defenser': 179.90,
+  'Calça jeans': 44.00,
+  'Cinto vermelho': 39.90,
+  'Plaqueta': 50.00,
+  'Florão para boina CFO/CHO': 58.40,
+  'Florão para quepe CFO/CHO': 85.40,
+  'Cabo solteiro de 5,5 metros': 36.14,
+  'Cordelete de 6mm': 7.00,
+  'Cordelete de 8mm': 10.00,
+};
+
 const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRefresh }) => {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
@@ -209,16 +265,15 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
         const itemFaturamento = item.price * item.quantity;
         faturamentoTotal += itemFaturamento;
 
-        // Base price is the price without the 3.62% card surcharge
-        const basePrice = isCard ? item.price / 1.0362 : item.price;
-        
-        // Find discount from CATALOG_ITEMS
+        // Get base name (without [Nome de Guerra: ...])
         const baseName = item.name.split(' [')[0].trim();
-        const template = CATALOG_ITEMS.find(c => c.name.toLowerCase() === baseName.toLowerCase());
-        const discount = template ? (template.discount || 0) : 0;
+        
+        // Find exact cost from COST_MAP
+        const costPrice = COST_MAP[baseName];
+        const costPerUnit = typeof costPrice === 'number' 
+          ? costPrice 
+          : (isCard ? item.price / 1.0362 : item.price);
 
-        // Custo = basePrice / (1 - discount/100)
-        const costPerUnit = discount > 0 ? basePrice / (1 - discount / 100) : basePrice;
         custoTotal += costPerUnit * item.quantity;
       });
     });
