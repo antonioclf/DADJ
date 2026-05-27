@@ -499,14 +499,32 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     currentY += 15;
 
     // Items table
-    const tableData = sale.items.map(item => [
-      item.name,
-      item.size || '-',
-      item.quantity.toString(),
-      `R$ ${item.price.toFixed(2)}`,
-      `R$ ${(item.price * item.quantity).toFixed(2)}`,
-      item.status
-    ]);
+    let tableData: any[] = [];
+    if (isPix) {
+      // For Pix: Reconstruct and show normal prices in items table, and apply discount at the summary
+      tableData = sale.items.map(item => {
+        const normalPrice = Math.round(item.price * 1.0362 * 100) / 100;
+        const itemTotal = normalPrice * item.quantity;
+        return [
+          item.name,
+          item.size || '-',
+          item.quantity.toString(),
+          `R$ ${normalPrice.toFixed(2)}`,
+          `R$ ${itemTotal.toFixed(2)}`,
+          item.status
+        ];
+      });
+    } else {
+      // For Credit Card: The price saved is already the normal price
+      tableData = sale.items.map(item => [
+        item.name,
+        item.size || '-',
+        item.quantity.toString(),
+        `R$ ${item.price.toFixed(2)}`,
+        `R$ ${(item.price * item.quantity).toFixed(2)}`,
+        item.status
+      ]);
+    }
 
     autoTable(doc, {
       startY: currentY,
@@ -526,12 +544,26 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     doc.setFontSize(14);
     doc.text('Resumo Financeiro', 14, finalY);
 
-    const financialBody = [
-      ['Total do Pedido', `R$ ${total.toFixed(2)}`],
-      ['Total Pago', `R$ ${paid.toFixed(2)}`],
-      ['Saldo Pendente', `R$ ${pending.toFixed(2)}`],
-      ['Situação', sale.items.every(i => i.paidInstallments >= i.totalInstallments) ? 'Pago Totalmente' : 'Pendente']
-    ];
+    let financialBody: any[] = [];
+    if (isPix) {
+      const normalTotal = sale.items.reduce((acc, item) => acc + (Math.round(item.price * 1.0362 * 100) / 100 * item.quantity), 0);
+      const discountValue = normalTotal - total;
+      financialBody = [
+        ['Subtotal (Valor Normal)', `R$ ${normalTotal.toFixed(2)}`],
+        ['Desconto Pix (-3.62%)', `- R$ ${discountValue.toFixed(2)}`],
+        ['Total do Pedido', `R$ ${total.toFixed(2)}`],
+        ['Total Pago', `R$ ${paid.toFixed(2)}`],
+        ['Saldo Pendente', `R$ ${pending.toFixed(2)}`],
+        ['Situação', sale.items.every(i => i.paidInstallments >= i.totalInstallments) ? 'Pago Totalmente' : 'Pendente']
+      ];
+    } else {
+      financialBody = [
+        ['Total do Pedido', `R$ ${total.toFixed(2)}`],
+        ['Total Pago', `R$ ${paid.toFixed(2)}`],
+        ['Saldo Pendente', `R$ ${pending.toFixed(2)}`],
+        ['Situação', sale.items.every(i => i.paidInstallments >= i.totalInstallments) ? 'Pago Totalmente' : 'Pendente']
+      ];
+    }
 
     autoTable(doc, {
       startY: finalY + 5,
@@ -546,9 +578,9 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
     doc.setFontSize(8);
     doc.setFont('helvetica', 'oblique');
     if (isPix) {
-      doc.text('* Pagamento via Pix (valores base do fardamento).', 14, lastTableY);
+      doc.text('* Pagamento via Pix com desconto de 3.62% aplicado sobre o valor normal.', 14, lastTableY);
     } else {
-      doc.text('* Valores com acréscimo de 3.62% referente a tarifas de cartão de crédito.', 14, lastTableY);
+      doc.text('* Recibo de fardamento oficial.', 14, lastTableY);
     }
 
     doc.save(`recibo_${sale.customerName.replace(/\s+/g, '_')}_${sale.date.split(', ')[0].replace(/\//g, '-')}.pdf`);
