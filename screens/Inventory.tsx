@@ -26,7 +26,7 @@ const getAvailableSizes = (name: string, type?: string) => {
   const t = type?.toLowerCase();
 
   if (t === 'calçados' || n.includes('coturno')) return BOOT_SIZES;
-  if (n.includes('tarjeta') || n.includes('joelheira') || n.includes('par') || n.includes('unidades')) return ['Único'];
+  if (n.includes('tarjeta') || n.includes('joelheira') || n.includes('par') || n.includes('unidades') || n.includes('hinário') || n.includes('hinario')) return ['Único'];
   if (n.includes('calça')) return NUMERIC_SIZES;
   if (n.includes('gorro')) return CAP_SIZES;
   if (n.includes('meia') || n.includes('meião')) return ['Único'];

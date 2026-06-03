@@ -149,4 +149,5 @@ export const CATALOG_ITEMS = [
   { name: 'Cordelete de 6mm', type: 'Acessórios' as InventoryItemType, price: 7.50, color: 'Padrão', discount: 4 },
   { name: 'Cordelete de 8mm', type: 'Acessórios' as InventoryItemType, price: 10.00, color: 'Padrão', discount: 5 },
   { name: 'Cabo solteiro de 5,5 metros', type: 'Acessórios' as InventoryItemType, price: 41.60, color: 'Padrão', discount: 5 },
+  { name: 'Hinário', type: 'Acessórios' as InventoryItemType, price: 7.00, color: 'Padrão' },
 ];
