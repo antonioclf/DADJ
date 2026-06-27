@@ -89,6 +89,7 @@ const AppContent: React.FC = () => {
           { name: 'Cantil', size: 'Único', color: 'Padrão', quantity: 0, type: 'Acessórios', price: 27.90, discount: 0, gender: 'Unissex' },
           { name: 'Capa de cantil', size: 'Único', color: 'Padrão', quantity: 0, type: 'Acessórios', price: 39.90, discount: 0, gender: 'Unissex' },
           { name: 'Hinário', size: 'Único', color: 'Padrão', quantity: 0, type: 'Acessórios', price: 7.00, discount: 0, gender: 'Unissex' },
+          { name: 'Touca de natação', size: 'Único', color: 'Padrão', quantity: 0, type: 'Acessórios', price: 27.50, discount: 0, gender: 'Unissex' },
         ];
         
         for (const it of newItems) {
@@ -158,7 +159,8 @@ const AppContent: React.FC = () => {
       { name: 'Luva preta de couro', size: 'G', color: 'Preto', quantity: 999, type: 'Acessórios', price: 99.90, discount: 0 },
       { name: 'Cantil', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 27.90, discount: 0 },
       { name: 'Capa de cantil', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 39.90, discount: 0 },
-      { name: 'Hinário', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 7.00, discount: 0 }
+      { name: 'Hinário', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 7.00, discount: 0 },
+      { name: 'Touca de natação', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 27.50, discount: 0 }
     ];
 
     try {
