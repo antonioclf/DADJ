@@ -1159,6 +1159,13 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
                         const paidInstallments = referenceItem.paidInstallments || 0;
                         const isFullyPaid = paidInstallments >= totalInstallments;
                         
+                        // Calculate actual pending/unpaid balance across all items
+                        const totalPaid = sale.items.reduce((acc, item) => 
+                          acc + (item.price * item.quantity) * (item.paidInstallments / (item.totalInstallments || 1)), 
+                          0
+                        );
+                        const saldoAPagar = Math.max(0, sale.total - totalPaid);
+                        
                         return (
                           <div className="mt-4 p-4 bg-primary/5 dark:bg-primary/10 rounded-[1.5rem] border border-primary/20 space-y-3 shadow-sm">
                             <div className="flex items-center justify-between">
@@ -1167,7 +1174,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
                                 <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-1 ml-1">Total: R$ {sale.total.toFixed(2)}</p>
                               </div>
                               <div className="text-right">
-                                <p className="text-[10px] font-black text-primary hover:text-primary-dark transition-all">Saldo a Pagar: R$ {(sale.total * (1 - paidInstallments / totalInstallments)).toFixed(2)}</p>
+                                <p className="text-[10px] font-black text-primary hover:text-primary-dark transition-all">Saldo a Pagar: R$ {saldoAPagar.toFixed(2)}</p>
                                 <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">referente ao pedido</p>
                               </div>
                             </div>
