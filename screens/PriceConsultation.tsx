@@ -104,7 +104,8 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
                                 <tr className="bg-slate-50/50 dark:bg-slate-800/30">
                                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Produto</th>
                                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Desconto</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Preço Final</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Pix (Atual)</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Cartão (+3.62%)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -123,7 +124,10 @@ const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <p className="text-sm font-black text-primary">R$ {item.price.toFixed(2)}</p>
+                                            <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">R$ {item.price.toFixed(2)}</p>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <p className="text-sm font-black text-primary">R$ {(item.price * 1.0362).toFixed(2)}</p>
                                         </td>
                                     </tr>
                                 ))}
