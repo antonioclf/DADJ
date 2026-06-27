@@ -85,6 +85,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
   const [editForm, setEditForm] = useState({ customerName: '', customerPhone: '', customerBM: '', customerBloodType: '', seller: '', paymentMethod: 'Cartão de Crédito' as 'Cartão de Crédito' | 'Pix' });
   const [isUpdatingSale, setIsUpdatingSale] = useState(false);
   const [selectedSalesIds, setSelectedSalesIds] = useState<string[]>([]);
+  const [clientSearch, setClientSearch] = useState('');
 
   const toggleSaleSelection = (id: string) => {
     setSelectedSalesIds(prev =>
@@ -213,25 +214,31 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
   };
 
   const filteredSales = useMemo(() => {
-    if (!startDate && !endDate) return sales;
-
     return sales.filter(sale => {
-      // Parse DD/MM/YYYY to dynamic Date
-      const [datePart] = sale.date.split(', ');
-      const [day, month, year] = datePart.split('/').map(Number);
-      const saleDate = new Date(year, month - 1, day);
+      if (startDate || endDate) {
+        // Parse DD/MM/YYYY to dynamic Date
+        const [datePart] = sale.date.split(', ');
+        const [day, month, year] = datePart.split('/').map(Number);
+        const saleDate = new Date(year, month - 1, day);
 
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
+        const start = startDate ? new Date(startDate) : null;
+        const end = endDate ? new Date(endDate) : null;
 
-      if (start) start.setHours(0, 0, 0, 0);
-      if (end) end.setHours(23, 59, 59, 999);
+        if (start) start.setHours(0, 0, 0, 0);
+        if (end) end.setHours(23, 59, 59, 999);
 
-      if (start && saleDate < start) return false;
-      if (end && saleDate > end) return false;
+        if (start && saleDate < start) return false;
+        if (end && saleDate > end) return false;
+      }
+
+      if (clientSearch) {
+        const matchesClient = sale.customerName.toLowerCase().includes(clientSearch.toLowerCase());
+        if (!matchesClient) return false;
+      }
+
       return true;
     });
-  }, [sales, startDate, endDate]);
+  }, [sales, startDate, endDate, clientSearch]);
 
   const stats = useMemo(() => {
     let total = 0;
@@ -796,7 +803,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
         {/* Date Filters */}
         <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-50 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filtrar por Período</h3>
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pesquisa e Filtros</h3>
             <div className="flex gap-2 flex-wrap justify-end">
               <Button
                 variant="ghost"
@@ -825,6 +832,13 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
               </Button>
             </div>
           </div>
+
+          <Input
+            icon="search"
+            placeholder="Pesquisar por nome do cliente..."
+            value={clientSearch}
+            onChange={(e) => setClientSearch((e.target as HTMLInputElement).value)}
+          />
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
