@@ -412,7 +412,36 @@ export const dataService = {
         const updateObj: any = { status };
         const now = new Date().toISOString();
         if (status === 'Entregue') updateObj.delivered_at = now;
-        if (status === 'Pago') updateObj.paid_at = now;
+        
+        if (status === 'Pago') {
+            updateObj.paid_at = now;
+            // Fetch total and paid installments
+            const { data: currentItem, error: fetchError } = await supabase
+                .from('sale_items')
+                .select('total_installments, paid_installments')
+                .eq('id', itemId)
+                .single();
+
+            if (!fetchError && currentItem) {
+                const total = currentItem.total_installments || 1;
+                const paid = currentItem.paid_installments || 0;
+
+                if (paid < total) {
+                    updateObj.paid_installments = total;
+                    updateObj.last_payment_at = now;
+
+                    const newPayments = [];
+                    for (let i = paid + 1; i <= total; i++) {
+                        newPayments.push({
+                            sale_item_id: itemId,
+                            installment_number: i,
+                            paid_at: now
+                        });
+                    }
+                    await supabase.from('installment_payments').insert(newPayments);
+                }
+            }
+        }
 
         // 1. Update the item
         const { data: itemData, error: itemError } = await supabase
@@ -425,13 +454,11 @@ export const dataService = {
         if (itemError) throw itemError;
 
         // 2. Update the parent sale record for visibility in reports
-        // We update the sale's status and dates if reasonable.
         const saleUpdate: any = {};
         if (status === 'Entregue') {
             saleUpdate.status = 'Entregue';
             saleUpdate.delivered_at = now;
         } else if (status === 'Pago') {
-            // Only mark sale as Pago if status is Pago
             saleUpdate.status = 'Pago';
             saleUpdate.paid_at = now;
         } else {

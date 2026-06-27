@@ -1111,7 +1111,8 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
                                   {[
                                     { id: 'Pedido no DA', icon: 'assignment', color: 'text-purple-500' },
                                     { id: 'Pedido na loja', icon: 'storefront', color: 'text-indigo-500' },
-                                    { id: 'Entregue', icon: 'package_2', color: 'text-blue-500' }
+                                    { id: 'Entregue', icon: 'package_2', color: 'text-blue-500' },
+                                    { id: 'Pago', icon: 'payments', color: 'text-emerald-500' }
                                   ].map((s) => (
                                     <button
                                       key={s.id}
@@ -1222,13 +1223,27 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
                                 )}
                               </div>
                               
-                              {isFullyPaid && sale.items.some(i => i.status !== 'Pago') && (
+                              {!isFullyPaid ? (
                                 <button
-                                  onClick={() => handleUpdateStatusBulk(sale, 'Pago')}
+                                  onClick={async () => {
+                                    // Bulk update installments to max
+                                    await handleUpdatePaidCountBulk(sale, totalInstallments);
+                                    // Bulk update status to Pago
+                                    await handleUpdateStatusBulk(sale, 'Pago');
+                                  }}
                                   className="text-[8px] font-black text-emerald-500 uppercase tracking-widest hover:underline bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-md"
                                 >
-                                  Marcar Itens como Pago
+                                  Marcar Pedido como Pago
                                 </button>
+                              ) : (
+                                sale.items.some(i => i.status !== 'Pago') && (
+                                  <button
+                                    onClick={() => handleUpdateStatusBulk(sale, 'Pago')}
+                                    className="text-[8px] font-black text-emerald-500 uppercase tracking-widest hover:underline bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-md"
+                                  >
+                                    Marcar Itens como Pago
+                                  </button>
+                                )
                               )}
                             </div>
 
