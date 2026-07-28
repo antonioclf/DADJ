@@ -34,7 +34,7 @@ const AppContent: React.FC = () => {
         await supabase.from('inventory').update({ price: 50.00, discount: 9 }).eq('name', 'Joelheira 4º A (par)');
         await supabase.from('inventory').update({ price: 29.40, discount: 3 }).eq('name', 'Tarjeta (3 unidades)');
         await supabase.from('inventory').update({ price: 37.70, discount: 5.5 }).eq('name', 'Gorro flexível 4º A');
-        await supabase.from('inventory').update({ price: 54.00, discount: 0 }).eq('name', 'Gorro rígido 4º A');
+        await supabase.from('inventory').update({ price: 54.00, discount: 0 }).ilike('name', '%Gorro rígido%').not('name', 'ilike', '%Oficial Superior%');
         await supabase.from('inventory').update({ price: 16.50, type: 'Outros' }).eq('name', 'Par de meião preto');
         await supabase.from('inventory').update({ price: 50.00, discount: 9 }).eq('name', 'Camisa Vermelha Bordada');
         await supabase.from('inventory').update({ price: 45.00, discount: 10 }).eq('name', 'Camisa Vermelha sem Bordado');
