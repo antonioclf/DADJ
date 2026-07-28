@@ -28,7 +28,7 @@ const Sales: React.FC<SalesProps> = ({ onBack, inventory, team, onAddSale }) => 
   const [saleSource, setSaleSource] = useState<'Estoque' | 'Loja'>('Loja');
   const [activeFilter, setActiveFilter] = useState('Todos');
   const [searchQuery, setSearchQuery] = useState('');
-  const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados', 'Acessórios'];
+  const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados', 'Acessórios', 'Outros'];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'Cartão de Crédito' | 'Pix'>('Cartão de Crédito');
 

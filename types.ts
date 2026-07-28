@@ -25,7 +25,7 @@ export interface TeamMember {
   active: boolean;
 }
 
-export type InventoryItemType = '4º A' | '3º A' | '5º A/B' | 'Meias' | 'Calçados' | '1º e 2º A' | 'Acessórios';
+export type InventoryItemType = '4º A' | '3º A' | '5º A/B' | 'Meias' | 'Calçados' | '1º e 2º A' | 'Acessórios' | 'Outros';
 
 export interface InventoryItem {
   id: string;
@@ -79,7 +79,7 @@ export const CATALOG_ITEMS = [
   { name: 'Calça 4º A', type: '4º A' as InventoryItemType, price: 205.00, color: 'Padrão', discount: 5 },
   { name: 'Gandola 4º A', type: '4º A' as InventoryItemType, price: 180.00, color: 'Padrão', hideFromSales: true },
   { name: 'Joelheira 4º A (par)', type: '4º A' as InventoryItemType, price: 50.00, color: 'Preto', discount: 9 },
-  { name: 'Gorro rígido 4º A', type: '4º A' as InventoryItemType, price: 47.15, color: 'Padrão', discount: 5.5 },
+  { name: 'Gorro rígido 4º A', type: '4º A' as InventoryItemType, price: 54.00, color: 'Padrão', discount: 0 },
   { name: 'Gorro flexível 4º A', type: '4º A' as InventoryItemType, price: 37.70, color: 'Padrão', discount: 5.5 },
   { name: 'Gorro rígido Oficial Superior', type: '4º A' as InventoryItemType, price: 57.65, color: 'Padrão', discount: 4 },
   { name: 'Gorro flexível Oficial Superior', type: '4º A' as InventoryItemType, price: 48.20, color: 'Padrão', discount: 3.5 },
@@ -151,4 +151,6 @@ export const CATALOG_ITEMS = [
   { name: 'Cabo solteiro de 5,5 metros', type: 'Acessórios' as InventoryItemType, price: 41.60, color: 'Padrão', discount: 5 },
   { name: 'Hinário', type: 'Acessórios' as InventoryItemType, price: 7.00, color: 'Padrão' },
   { name: 'Touca de natação', type: 'Acessórios' as InventoryItemType, price: 27.50, color: 'Padrão', discount: 0 },
+
+  { name: 'Par de meião preto', type: 'Outros' as InventoryItemType, price: 16.50, color: 'Preto' },
 ];

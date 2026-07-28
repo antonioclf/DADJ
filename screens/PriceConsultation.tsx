@@ -11,7 +11,7 @@ interface PriceConsultationProps {
 const PriceConsultation: React.FC<PriceConsultationProps> = ({ inventory, onBack }) => {
     const [search, setSearch] = useState('');
     const [activeFilter, setActiveFilter] = useState('Todos');
-    const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados', 'Acessórios'];
+    const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados', 'Acessórios', 'Outros'];
 
     const getPriority = (name: string) => {
         const n = name.toLowerCase();

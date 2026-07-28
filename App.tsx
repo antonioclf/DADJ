@@ -34,7 +34,8 @@ const AppContent: React.FC = () => {
         await supabase.from('inventory').update({ price: 50.00, discount: 9 }).eq('name', 'Joelheira 4º A (par)');
         await supabase.from('inventory').update({ price: 29.40, discount: 3 }).eq('name', 'Tarjeta (3 unidades)');
         await supabase.from('inventory').update({ price: 37.70, discount: 5.5 }).eq('name', 'Gorro flexível 4º A');
-        await supabase.from('inventory').update({ price: 47.15, discount: 5.5 }).eq('name', 'Gorro rígido 4º A');
+        await supabase.from('inventory').update({ price: 54.00, discount: 0 }).eq('name', 'Gorro rígido 4º A');
+        await supabase.from('inventory').update({ price: 16.50, type: 'Outros' }).eq('name', 'Par de meião preto');
         await supabase.from('inventory').update({ price: 50.00, discount: 9 }).eq('name', 'Camisa Vermelha Bordada');
         await supabase.from('inventory').update({ price: 45.00, discount: 10 }).eq('name', 'Camisa Vermelha sem Bordado');
         await supabase.from('inventory').update({ price: 32.00, discount: 8.5 }).eq('name', 'Short');
@@ -90,6 +91,7 @@ const AppContent: React.FC = () => {
           { name: 'Capa de cantil', size: 'Único', color: 'Padrão', quantity: 0, type: 'Acessórios', price: 39.90, discount: 0, gender: 'Unissex' },
           { name: 'Hinário', size: 'Único', color: 'Padrão', quantity: 0, type: 'Acessórios', price: 7.00, discount: 0, gender: 'Unissex' },
           { name: 'Touca de natação', size: 'Único', color: 'Padrão', quantity: 0, type: 'Acessórios', price: 27.50, discount: 0, gender: 'Unissex' },
+          { name: 'Par de meião preto', size: 'Único', color: 'Preto', quantity: 0, type: 'Outros', price: 16.50, discount: 0, gender: 'Unissex' },
         ];
         
         for (const it of newItems) {
@@ -127,7 +129,7 @@ const AppContent: React.FC = () => {
       { name: '4º A Completo', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 430.00, discount: 6.5 },
       { name: 'Calça 4º A', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 205.00, discount: 5 },
       { name: 'Joelheira 4º A (par)', size: 'Único', color: 'Preto', quantity: 999, type: '4º A', price: 50.00, discount: 9 },
-      { name: 'Gorro rígido 4º A', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 47.15, discount: 5.5 },
+      { name: 'Gorro rígido 4º A', size: 'M', color: 'Padrão', quantity: 999, type: '4º A', price: 54.00, discount: 0 },
       { name: 'Passadeira Cad/CHO/Asp', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 47.25, discount: 5.5 },
       { name: 'Passadeira SubTen - par', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 47.25, discount: 5.5 },
       { name: 'Passadeira 2º Ten - par', size: 'Único', color: 'Padrão', quantity: 999, type: '4º A', price: 52.00, discount: 5.5 },
@@ -160,7 +162,8 @@ const AppContent: React.FC = () => {
       { name: 'Cantil', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 27.90, discount: 0 },
       { name: 'Capa de cantil', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 39.90, discount: 0 },
       { name: 'Hinário', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 7.00, discount: 0 },
-      { name: 'Touca de natação', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 27.50, discount: 0 }
+      { name: 'Touca de natação', size: 'Único', color: 'Padrão', quantity: 999, type: 'Acessórios', price: 27.50, discount: 0 },
+      { name: 'Par de meião preto', size: 'Único', color: 'Preto', quantity: 999, type: 'Outros', price: 16.50, discount: 0 }
     ];
 
     try {

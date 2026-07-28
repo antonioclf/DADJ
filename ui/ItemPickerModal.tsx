@@ -17,7 +17,7 @@ const ItemPickerModal: React.FC<ItemPickerModalProps> = ({ isOpen, onClose, inve
   const [selectedSecSizes, setSelectedSecSizes] = useState<Record<string, string>>({});
   const [selectedGenders, setSelectedGenders] = useState<Record<string, 'M' | 'F'>>({});
 
-  const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados', 'Acessórios'];
+  const filters = ['Todos', '1º e 2º A', '3º A', '4º A', '5º A/B', 'Meias', 'Calçados', 'Acessórios', 'Outros'];
 
   return (
     <Modal
