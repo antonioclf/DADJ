@@ -86,6 +86,7 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
   const [isUpdatingSale, setIsUpdatingSale] = useState(false);
   const [selectedSalesIds, setSelectedSalesIds] = useState<string[]>([]);
   const [clientSearch, setClientSearch] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState<'all' | 'pending' | 'unpaid' | 'partial' | 'paid'>('all');
 
   const toggleSaleSelection = (id: string) => {
     setSelectedSalesIds(prev =>
@@ -236,9 +237,21 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
         if (!matchesClient) return false;
       }
 
+      if (paymentFilter !== 'all') {
+        const salePaid = sale.items.length > 0 && sale.items.every(i => i.paidInstallments >= (i.totalInstallments || 1));
+        const hasSomePayment = sale.items.some(i => i.paidInstallments > 0);
+        const salePartial = !salePaid && hasSomePayment;
+        const saleUnpaid = !salePaid && !hasSomePayment;
+
+        if (paymentFilter === 'pending' && salePaid) return false;
+        if (paymentFilter === 'unpaid' && !saleUnpaid) return false;
+        if (paymentFilter === 'partial' && !salePartial) return false;
+        if (paymentFilter === 'paid' && !salePaid) return false;
+      }
+
       return true;
     });
-  }, [sales, startDate, endDate, clientSearch]);
+  }, [sales, startDate, endDate, clientSearch, paymentFilter]);
 
   const stats = useMemo(() => {
     let total = 0;
@@ -876,6 +889,34 @@ const Reports: React.FC<ReportsProps> = ({ sales, inventory, onDeleteSale, onRef
                 {s.label}
               </button>
             ))}
+          </div>
+
+          <div className="space-y-1.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Status do Pagamento</label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: 'all', label: 'Todos os Status', activeBg: 'bg-primary text-white shadow-md shadow-primary/20' },
+                { id: 'pending', label: 'Aguardando Pagamento (0 ou Parcial)', activeBg: 'bg-amber-500 text-white shadow-md shadow-amber-500/20' },
+                { id: 'unpaid', label: 'Não Pago (0 parcelas)', activeBg: 'bg-rose-500 text-white shadow-md shadow-rose-500/20' },
+                { id: 'partial', label: 'Parcial', activeBg: 'bg-blue-500 text-white shadow-md shadow-blue-500/20' },
+                { id: 'paid', label: 'Pago (100%)', activeBg: 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' },
+              ].map((f) => {
+                const isActive = paymentFilter === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    onClick={() => setPaymentFilter(f.id as any)}
+                    className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                      isActive
+                        ? f.activeBg
+                        : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
         {/* Main Card */}
